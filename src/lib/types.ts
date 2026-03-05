@@ -67,3 +67,22 @@ export type QuoteDocument = {
 export type Quote = QuoteDocument & {
   id: string;
 };
+
+// This will be the shape of the data in Firestore
+export type ReusableBlockDocument = {
+  userId: string;
+  name: string;
+  concept: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+  taxRate: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+};
+
+// This will be the shape of the data in the app, with the id
+export type ReusableBlock = ReusableBlockDocument & {
+  id: string;
+};

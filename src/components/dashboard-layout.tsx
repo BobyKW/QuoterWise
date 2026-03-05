@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   PanelLeft,
+  Blocks,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -46,6 +47,7 @@ const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/templates', icon: FileText, label: 'Templates' },
   { href: '/clients', icon: Users, label: 'Clients' },
+  { href: '/reusable-blocks', icon: Blocks, label: 'Bloques' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ];
 
