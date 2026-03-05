@@ -28,11 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useFirestore, useUser, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
-import { collection, serverTimestamp, Timestamp, doc } from 'firebase/firestore';
-import type { Quote, QuoteDocument } from '@/lib/types';
+import { useFirestore, useUser, addDocumentNonBlocking, updateDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, serverTimestamp, Timestamp, doc, query, orderBy } from 'firebase/firestore';
+import type { Quote, QuoteDocument, Client } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
+import Link from 'next/link';
 
 const quoteItemSchema = z.object({
   concept: z.string().min(1, 'Concept is required.'),
@@ -44,6 +45,7 @@ const quoteItemSchema = z.object({
 });
 
 const quoteFormSchema = z.object({
+  clientId: z.string().min(1, 'Please select a client.'),
   clientName: z.string().min(1, 'Client name is required.'),
   quoteNumber: z.string().min(1, 'Quote number is required.'),
   createdAt: z.date(),
@@ -68,9 +70,19 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   const { user } = useUser();
   const { toast } = useToast();
 
+  const clientsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(
+        collection(firestore, `userProfiles/${user.uid}/clients`),
+        orderBy('companyName', 'asc')
+    );
+  }, [user, firestore]);
+  const { data: clients, isLoading: isLoadingClients } = useCollection<Client>(clientsQuery);
+
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: {
+      clientId: '',
       clientName: '',
       quoteNumber: `Q-${new Date().getFullYear()}-0001`,
       createdAt: new Date(),
@@ -131,14 +143,14 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
         description: `Quote ${data.quoteNumber} has been successfully updated.`,
       });
     } else {
-      const quoteData: Omit<QuoteDocument, 'createdAt' | 'updatedAt'> = {
+      const quoteData: Omit<QuoteDocument, 'createdAt' | 'updatedAt' | 'total'> = {
         ...restOfData,
         userId: user.uid,
-        total: total,
       };
       
       const finalQuoteData = {
           ...quoteData,
+          total: total,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
       }
@@ -164,13 +176,37 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <FormField
             control={form.control}
-            name="clientName"
+            name="clientId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Client Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Acme Inc." {...field} />
-                </FormControl>
+                <FormLabel>Client</FormLabel>
+                <Select 
+                  onValueChange={(value) => {
+                    const selectedClient = clients?.find(c => c.id === value);
+                    if (selectedClient) {
+                      field.onChange(value);
+                      form.setValue('clientName', selectedClient.companyName);
+                    }
+                  }} 
+                  defaultValue={field.value}
+                  disabled={isLoadingClients}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder={isLoadingClients ? "Loading..." : "Select a client"} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {!isLoadingClients && clients && clients.map(client => (
+                        <SelectItem key={client.id} value={client.id}>{client.companyName}</SelectItem>
+                    ))}
+                    {!isLoadingClients && (!clients || clients.length === 0) && (
+                        <div className="text-center text-sm text-muted-foreground p-4">
+                            No clients found. <Link href="/clients/new" className="underline text-primary">Create one</Link>.
+                        </div>
+                    )}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

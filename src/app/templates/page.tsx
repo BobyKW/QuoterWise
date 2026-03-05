@@ -9,10 +9,10 @@ export default function TemplatesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>Quote template management will be available here.</CardDescription>
+          <CardDescription>A powerful template management system is on its way.</CardDescription>
         </CardHeader>
         <CardContent>
-          <p>This section is under construction. Stay tuned!</p>
+          <p>This section is under construction. Soon you'll be able to create and manage quote templates to speed up your workflow!</p>
         </CardContent>
       </Card>
     </main>

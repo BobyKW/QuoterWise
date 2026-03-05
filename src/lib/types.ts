@@ -21,12 +21,21 @@ export type UserProfile = {
   updatedAt: Timestamp;
 };
 
-export type Client = {
-  id: string;
-  name: string;
+// This will be the shape of the data in Firestore
+export type ClientDocument = {
+  userId: string;
+  companyName: string;
+  contactName: string;
   email: string;
-  phone?: string;
-  address?: string;
+  phone: string;
+  address: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+// This will be the shape of the data in the app, with the id
+export type Client = ClientDocument & {
+  id: string;
 };
 
 export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'negotiating' | 'expired';
@@ -44,8 +53,9 @@ export type QuoteItem = {
 // This will be the shape of the data in Firestore
 export type QuoteDocument = {
   userId: string;
+  clientId: string;
+  clientName: string; // Denormalized for easy display
   quoteNumber: string;
-  clientName: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   status: QuoteStatus;
