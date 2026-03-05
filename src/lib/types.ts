@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type User = {
   name: string;
   email: string;
@@ -15,7 +17,7 @@ export type Client = {
 export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'negotiating' | 'expired';
 
 export type QuoteItem = {
-  id: string;
+  id?: string;
   concept: string;
   description: string;
   quantity: number;
@@ -24,17 +26,18 @@ export type QuoteItem = {
   taxRate: number; // percentage
 };
 
-export type QuoteSection = {
-  id: string;
-  title: string;
+// This will be the shape of the data in Firestore
+export type QuoteDocument = {
+  userId: string;
+  quoteNumber: string;
+  clientName: string;
+  createdAt: Timestamp;
+  status: QuoteStatus;
+  total: number;
   items: QuoteItem[];
 };
 
-export type Quote = {
+// This will be the shape of the data in the app, with the id
+export type Quote = QuoteDocument & {
   id: string;
-  quoteNumber: string;
-  clientName: string;
-  createdAt: string;
-  status: QuoteStatus;
-  total: number;
 };

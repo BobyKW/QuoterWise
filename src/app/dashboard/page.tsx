@@ -1,3 +1,5 @@
+'use client';
+
 import {
   MoreHorizontal,
   PlusCircle,
@@ -27,9 +29,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { mockQuotes } from '@/lib/data';
-import type { QuoteStatus } from '@/lib/types';
+import type { Quote, QuoteStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 
 const statusStyles: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
@@ -47,15 +50,29 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+function formatDate(date: Date | Timestamp) {
+    const d = date instanceof Timestamp ? date.toDate() : date;
+    return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
 }
 
 export default function Dashboard() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const quotesQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(
+      collection(firestore, `userProfiles/${user.uid}/quotes`),
+      orderBy('createdAt', 'desc')
+    );
+  }, [user, firestore]);
+
+  const { data: quotes, isLoading } = useCollection<Quote>(quotesQuery);
+
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">
@@ -92,12 +109,19 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockQuotes.map((quote) => (
+                {isLoading && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center">
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!isLoading && quotes && quotes.map((quote) => (
                   <TableRow key={quote.id}>
                     <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
                     <TableCell>{quote.clientName}</TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {formatDate(quote.createdAt)}
+                      {quote.createdAt && formatDate(quote.createdAt)}
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -130,6 +154,13 @@ export default function Dashboard() {
                     </TableCell>
                   </TableRow>
                 ))}
+                 {!isLoading && (!quotes || quotes.length === 0) && (
+                    <TableRow>
+                        <TableCell colSpan={6} className="text-center">
+                        No quotes found.
+                        </TableCell>
+                    </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import {
   LayoutDashboard,
@@ -37,8 +37,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
-import { mockUser } from '@/lib/data';
 import { cn } from '@/lib/utils';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useEffect } from 'react';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -69,16 +71,30 @@ function MainNav() {
 }
 
 function UserMenu() {
+  const { user } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+  
+  const getInitials = (email?: string | null) => {
+    if (!email) return '..';
+    return email.substring(0, 2).toUpperCase();
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center w-full text-left p-2 rounded-md hover:bg-sidebar-accent transition-colors">
           <Avatar className="h-8 w-8 mr-2">
-            <AvatarFallback>{mockUser.initials}</AvatarFallback>
+            <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
           </Avatar>
           <div className="flex-grow truncate">
-            <p className="font-medium text-sm text-sidebar-foreground">{mockUser.name}</p>
-            <p className="text-xs text-muted-foreground truncate">{mockUser.email}</p>
+            <p className="font-medium text-sm text-sidebar-foreground">{user?.displayName || 'User'}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
         </button>
       </DropdownMenuTrigger>
@@ -88,7 +104,7 @@ function UserMenu() {
         <DropdownMenuItem>Profile</DropdownMenuItem>
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
@@ -113,11 +129,48 @@ function MobileHeader() {
   );
 }
 
+function LogoutButton() {
+  const auth = useAuth();
+  const router = useRouter();
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+  return (
+    <DropdownMenuItem onClick={handleLogout}>
+      <LogOut className="mr-2 h-4 w-4" />
+      <span>Log out</span>
+    </DropdownMenuItem>
+  )
+}
+
 export default function DashboardLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.replace('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  const getInitials = (email?: string | null) => {
+    if (!email) return '..';
+    return email.substring(0, 2).toUpperCase();
+  }
+
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
@@ -140,19 +193,16 @@ export default function DashboardLayout({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-8 w-8 cursor-pointer">
-                <AvatarFallback>{mockUser.initials}</AvatarFallback>
+                <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center" className="w-56">
-              <DropdownMenuLabel>{mockUser.name}</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.displayName || 'User'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
+              <LogoutButton />
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarFooter>

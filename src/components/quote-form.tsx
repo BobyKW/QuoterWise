@@ -28,6 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useFirestore, useUser, addDocumentNonBlocking } from '@/firebase';
+import { collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import type { QuoteDocument } from '@/lib/types';
 
 const quoteItemSchema = z.object({
   concept: z.string().min(1, 'Concept is required.'),
@@ -57,14 +60,12 @@ const defaultItem: z.infer<typeof quoteItemSchema> = {
   taxRate: 21,
 };
 
-// A mock function for now
-const saveQuote = async (data: QuoteFormValues) => {
-  console.log('Saving quote:', data);
-  await new Promise(resolve => setTimeout(resolve, 1000));
-};
 
 export function QuoteForm() {
   const router = useRouter();
+  const firestore = useFirestore();
+  const { user } = useUser();
+
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: {
@@ -81,12 +82,6 @@ export function QuoteForm() {
     name: 'items',
   });
 
-  const onSubmit = async (data: QuoteFormValues) => {
-    // In a real app, you'd save this to your database.
-    await saveQuote(data);
-    router.push('/dashboard');
-  };
-
   const watchItems = form.watch('items');
   const subtotal = watchItems.reduce(
     (acc, item) => acc + (item.quantity || 0) * (item.unitPrice || 0),
@@ -101,6 +96,32 @@ export function QuoteForm() {
   );
 
   const total = subtotal + totalTax;
+
+  const onSubmit = (data: QuoteFormValues) => {
+    if (!user) {
+      console.error("No user found");
+      return;
+    }
+
+    const { createdAt, ...restOfData } = data;
+
+    const quoteData: Omit<QuoteDocument, 'createdAt'> = {
+      ...restOfData,
+      userId: user.uid,
+      total: total,
+    };
+    
+    const finalQuoteData = {
+        ...quoteData,
+        createdAt: serverTimestamp(),
+    }
+    
+    const quotesCol = collection(firestore, `userProfiles/${user.uid}/quotes`);
+    addDocumentNonBlocking(quotesCol, finalQuoteData);
+    
+    router.push('/dashboard');
+  };
+
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
