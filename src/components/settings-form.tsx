@@ -33,6 +33,7 @@ const settingsFormSchema = z.object({
   phone: z.string().min(1, 'Phone is required.'),
   logoUrl: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
   defaultTerms: z.string().min(1, 'Default terms are required.'),
+  currency: z.string().optional(),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -61,6 +62,7 @@ export function SettingsForm() {
       phone: '',
       logoUrl: '',
       defaultTerms: '',
+      currency: 'EUR',
     },
   });
 
@@ -146,24 +148,58 @@ export function SettingsForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="space-y-2">
-          <FormLabel>{t('settings_page.language')}</FormLabel>
-          <Select
-            value={i18n.language}
-            onValueChange={(value) => i18n.changeLanguage(value)}
-          >
-            <SelectTrigger className="w-[240px]">
-              <SelectValue placeholder="Language" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="es">Español</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-sm text-muted-foreground">
-              {t('settings_page.language_description')}
-          </p>
-        </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <FormLabel>{t('settings_page.language')}</FormLabel>
+              <Select
+                value={i18n.language}
+                onValueChange={(value) => i18n.changeLanguage(value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="es">Español</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                  {t('settings_page.language_description')}
+              </p>
+            </div>
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>{t('settings_page.currency')}</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('settings_form.currency_placeholder')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="USD">USD - US Dollar</SelectItem>
+                      <SelectItem value="EUR">EUR - Euro</SelectItem>
+                      <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                      <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
+                      <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                      <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    {t('settings_page.currency_description')}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField

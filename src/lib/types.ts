@@ -21,6 +21,7 @@ export type UserProfile = {
   createdAt: Timestamp;
   updatedAt: Timestamp;
   role?: 'admin';
+  currency?: string;
 };
 
 // This will be the shape of the data in Firestore

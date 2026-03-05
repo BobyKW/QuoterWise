@@ -212,7 +212,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
 
 
   const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: userProfile?.currency || 'EUR' }).format(amount);
 
   return (
     <Form {...form}>

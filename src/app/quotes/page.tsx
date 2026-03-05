@@ -59,8 +59,7 @@ const statusStyles: Record<QuoteStatus, string> = {
   expired: 'bg-purple-100 text-purple-800 border-transparent dark:bg-purple-900/50 dark:text-purple-300',
 };
 
-function formatCurrency(amount: number, locale: string) {
-  const currency = locale === 'es' ? 'EUR' : 'USD';
+function formatCurrency(amount: number, currency: string, locale: string) {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currency,
@@ -199,7 +198,7 @@ export default function QuotesPage() {
                           {t(`quote_form.status_${quote.status}`)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">{formatCurrency(quote.total, i18n.language)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(quote.total, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

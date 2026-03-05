@@ -230,7 +230,9 @@
     "card_title": "Business Profile",
     "card_description": "Update your company information and default settings.",
     "language": "Language",
-    "language_description": "Choose the application language."
+    "language_description": "Choose the application language.",
+    "currency": "Currency",
+    "currency_description": "Choose your default currency for quotes."
   },
   "settings_form": {
     "business_name": "Business Name",
@@ -252,7 +254,8 @@
     "default_terms_placeholder": "e.g., Payment due within 30 days...",
     "default_terms_description": "These terms will be automatically added to new quotes.",
     "save_settings": "Save Settings",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "currency_placeholder": "Select a currency"
   },
   "login_page": {
     "welcome": "Welcome back",

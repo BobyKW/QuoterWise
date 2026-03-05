@@ -39,15 +39,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import type { ReusableBlock } from '@/lib/types';
-import { useCollection, useFirestore, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
+import type { ReusableBlock, UserProfile } from '@/lib/types';
+import { useCollection, useFirestore, useUser, useMemoFirebase, deleteDocumentNonBlocking, useDoc } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 
-function formatCurrency(amount: number, locale: string) {
-  const currency = locale === 'es' ? 'EUR' : 'USD';
+function formatCurrency(amount: number, currency: string, locale: string) {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currency,
@@ -62,6 +61,12 @@ export default function ReusableBlocksPage() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [blockToDelete, setBlockToDelete] = React.useState<ReusableBlock | null>(null);
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(firestore, `userProfiles/${user.uid}`);
+  }, [user, firestore]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   const blocksQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -137,7 +142,7 @@ export default function ReusableBlocksPage() {
                       <TableCell className="font-medium">{block.name}</TableCell>
                       <TableCell>{block.concept}</TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency(block.unitPrice, i18n.language)}
+                        {formatCurrency(block.unitPrice, userProfile?.currency || 'EUR', i18n.language)}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>

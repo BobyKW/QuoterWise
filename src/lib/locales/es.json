@@ -230,7 +230,9 @@
     "card_title": "Perfil de Negocio",
     "card_description": "Actualiza la información de tu empresa y los ajustes por defecto.",
     "language": "Idioma",
-    "language_description": "Elige el idioma de la aplicación."
+    "language_description": "Elige el idioma de la aplicación.",
+    "currency": "Moneda",
+    "currency_description": "Elige tu moneda por defecto para los presupuestos."
   },
   "settings_form": {
     "business_name": "Nombre del Negocio",
@@ -252,7 +254,8 @@
     "default_terms_placeholder": "Ej: Pago a 30 días...",
     "default_terms_description": "Estos términos se añadirán automáticamente a los nuevos presupuestos.",
     "save_settings": "Guardar Ajustes",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "currency_placeholder": "Selecciona una moneda"
   },
   "login_page": {
     "welcome": "Bienvenido de nuevo",

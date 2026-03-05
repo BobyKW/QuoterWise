@@ -8,12 +8,10 @@ import { Separator } from '@/components/ui/separator';
 import { Timestamp } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
 
-// NOTE: This formatCurrency is simplified and does not handle i18n currency.
-// It matches the one on the quote view page.
-function formatCurrency(amount: number) {
+function formatCurrency(amount: number, currency: string = 'EUR') {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: currency,
   }).format(amount);
 }
 
@@ -147,8 +145,8 @@ export function QuotePDFDownloader({
                             {item.description && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.description}</p>}
                         </td>
                         <td className="p-2 text-center align-top">{item.quantity} {item.unit}</td>
-                        <td className="p-2 text-right align-top">{formatCurrency(item.unitPrice)}</td>
-                        <td className="p-2 text-right align-top">{formatCurrency(item.quantity * item.unitPrice)}</td>
+                        <td className="p-2 text-right align-top">{formatCurrency(item.unitPrice, userProfile?.currency)}</td>
+                        <td className="p-2 text-right align-top">{formatCurrency(item.quantity * item.unitPrice, userProfile?.currency)}</td>
                         </tr>
                     ))}
                     </tbody>
@@ -158,16 +156,16 @@ export function QuotePDFDownloader({
                     <div className="w-full max-w-sm space-y-2">
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">{t('view_quote_page.subtotal')}</span>
-                        <span>{formatCurrency(subtotal)}</span>
+                        <span>{formatCurrency(subtotal, userProfile?.currency)}</span>
                     </div>
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">{t('view_quote_page.total_tax')}</span>
-                        <span>{formatCurrency(totalTax)}</span>
+                        <span>{formatCurrency(totalTax, userProfile?.currency)}</span>
                     </div>
                     <Separator className="my-2" />
                     <div className="flex justify-between font-bold text-lg">
                         <span>{t('view_quote_page.final_total')}</span>
-                        <span>{formatCurrency(quote.total)}</span>
+                        <span>{formatCurrency(quote.total, userProfile?.currency)}</span>
                     </div>
                     </div>
                 </div>
