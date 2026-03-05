@@ -7,10 +7,13 @@ import type { Quote, UserProfile } from '@/lib/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Download, Edit } from 'lucide-react';
+import { Download, Edit, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { useRef, useState } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', {
@@ -33,6 +36,8 @@ export default function QuoteViewPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const quotePrintRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const quoteRef = useMemoFirebase(() => {
     if (!id || !user) return null;
@@ -48,6 +53,48 @@ export default function QuoteViewPage() {
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
   const isLoading = isQuoteLoading || isProfileLoading;
+
+  const handleDownloadPdf = async () => {
+    const element = quotePrintRef.current;
+    if (!element || !quote) return;
+
+    setIsDownloading(true);
+
+    try {
+        const canvas = await html2canvas(element, {
+            scale: 2, // Higher scale for better quality
+            useCORS: true,
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF({
+            orientation: 'p',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Quote-${quote.quoteNumber}.pdf`);
+
+        toast({
+            title: "Download Started",
+            description: `Quote-${quote.quoteNumber}.pdf is being downloaded.`
+        });
+    } catch (error) {
+        console.error("Error generating PDF", error);
+        toast({
+            variant: "destructive",
+            title: "Download Failed",
+            description: "An error occurred while generating the PDF."
+        })
+    } finally {
+        setIsDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -103,16 +150,29 @@ export default function QuoteViewPage() {
                     <Edit className="mr-2 h-4 w-4" /> Edit
                 </Link>
             </Button>
-            <Button onClick={() => toast({ title: 'Coming Soon!', description: 'PDF downloads will be available soon.'})}>
-                <Download className="mr-2 h-4 w-4" /> Download PDF
+            <Button onClick={handleDownloadPdf} disabled={isDownloading}>
+                {isDownloading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                    <Download className="mr-2 h-4 w-4" />
+                )}
+                 Download PDF
             </Button>
         </div>
 
-      <Card className="p-8">
+      <Card className="p-8" ref={quotePrintRef}>
         <CardContent className="p-0">
           {/* Header */}
           <div className="flex justify-between items-start mb-8">
             <div>
+              {userProfile?.logoUrl && (
+                <img
+                  src={userProfile.logoUrl}
+                  alt={`${userProfile.businessName} Logo`}
+                  className="h-16 w-auto object-contain mb-4"
+                  crossOrigin="anonymous"
+                />
+              )}
               <h2 className="text-2xl font-bold text-primary">{userProfile?.businessName || 'Your Company'}</h2>
               <p>{userProfile?.address}</p>
               <p>{userProfile?.city}, {userProfile?.country}</p>
