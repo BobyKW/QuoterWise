@@ -52,8 +52,8 @@ function MainNav() {
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
     { href: '/quotes', icon: FileText, label: t('sidebar.quotes') },
-    { href: '/clients', icon: Users, label: t('sidebar.clients') },
     { href: '/reusable-blocks', icon: Blocks, label: t('sidebar.blocks') },
+    { href: '/clients', icon: Users, label: t('sidebar.clients') },
     { href: '/templates', icon: Library, label: t('sidebar.templates') },
   ];
   

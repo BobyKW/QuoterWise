@@ -46,6 +46,7 @@ import { useCollection, useFirestore, useUser, useMemoFirebase, deleteDocumentNo
 import { collection, query, orderBy, Timestamp, doc } from 'firebase/firestore';
 import React from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 const statusStyles: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
@@ -56,10 +57,11 @@ const statusStyles: Record<QuoteStatus, string> = {
   expired: 'bg-purple-100 text-purple-800 border-transparent dark:bg-purple-900/50 dark:text-purple-300',
 };
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', {
+function formatCurrency(amount: number, locale: string) {
+  const currency = locale === 'es' ? 'EUR' : 'USD';
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'USD',
+    currency: currency,
   }).format(amount);
 }
 
@@ -76,6 +78,7 @@ export default function QuotesPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [quoteToDelete, setQuoteToDelete] = React.useState<Quote | null>(null);
@@ -99,7 +102,10 @@ export default function QuotesPage() {
     if (!user || !quoteToDelete) return;
     const quoteRef = doc(firestore, `userProfiles/${user.uid}/quotes/${quoteToDelete.id}`);
     deleteDocumentNonBlocking(quoteRef);
-    toast({ title: "Quote deleted", description: `Quote "${quoteToDelete.quoteNumber}" has been deleted.` });
+    toast({ 
+      title: t('toasts.quote_deleted_title'),
+      description: t('toasts.quote_deleted_description', { quoteNumber: quoteToDelete.quoteNumber }) 
+    });
     setIsDeleteDialogOpen(false);
     setQuoteToDelete(null);
   };
@@ -108,13 +114,13 @@ export default function QuotesPage() {
     <>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center">
-          <h1 className="font-semibold text-lg md:text-2xl">Quotes</h1>
+          <h1 className="font-semibold text-lg md:text-2xl">{t('quotes_page.title')}</h1>
           <div className="ml-auto flex items-center gap-2">
             <Link href="/quotes/new">
               <Button size="sm" className="h-8 gap-1">
                 <PlusCircle className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  New Quote
+                  {t('quotes_page.new_quote')}
                 </span>
               </Button>
             </Link>
@@ -122,21 +128,21 @@ export default function QuotesPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Manage Quotes</CardTitle>
-            <CardDescription>Here are all the quotes you have created.</CardDescription>
+            <CardTitle>{t('quotes_page.card_title')}</CardTitle>
+            <CardDescription>{t('quotes_page.card_description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Number</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead className="hidden md:table-cell">Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>{t('quotes_page.table_number')}</TableHead>
+                    <TableHead>{t('quotes_page.table_client')}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t('quotes_page.table_date')}</TableHead>
+                    <TableHead>{t('quotes_page.table_status')}</TableHead>
+                    <TableHead className="text-right">{t('quotes_page.table_amount')}</TableHead>
                     <TableHead>
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t('quotes_page.table_actions')}</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -144,7 +150,7 @@ export default function QuotesPage() {
                   {isLoading && (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center">
-                        Loading...
+                        {t('quotes_page.loading')}
                       </TableCell>
                     </TableRow>
                   )}
@@ -163,10 +169,10 @@ export default function QuotesPage() {
                             statusStyles[quote.status]
                           )}
                         >
-                          {quote.status}
+                          {t(`quote_form.status_${quote.status}`)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">{formatCurrency(quote.total)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(quote.total, i18n.language)}</TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -176,22 +182,22 @@ export default function QuotesPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel>{t('quotes_page.actions_label')}</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                              <Link href={`/quotes/${quote.id}`}>View</Link>
+                              <Link href={`/quotes/${quote.id}`}>{t('quotes_page.actions_view')}</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link href={`/quotes/${quote.id}/edit`}>Edit</Link>
+                              <Link href={`/quotes/${quote.id}/edit`}>{t('quotes_page.actions_edit')}</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => toast({ title: 'Coming Soon!', description: 'Duplicating quotes will be available soon.'})}>
-                              Duplicate
+                            <DropdownMenuItem onClick={() => toast({ title: t('quotes_page.toast_coming_soon_title'), description: t('quotes_page.toast_coming_soon_description')})}>
+                              {t('quotes_page.actions_duplicate')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive focus:bg-destructive/10"
                               onClick={() => handleDeleteClick(quote)}
                             >
-                              Delete
+                              {t('quotes_page.actions_delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -201,7 +207,7 @@ export default function QuotesPage() {
                   {!isLoading && (!quotes || quotes.length === 0) && (
                       <TableRow>
                           <TableCell colSpan={6} className="text-center">
-                          No quotes found. Create one to get started.
+                          {t('quotes_page.no_quotes')}
                           </TableCell>
                       </TableRow>
                   )}
@@ -215,18 +221,18 @@ export default function QuotesPage() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('quotes_page.delete_dialog_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the quote "{quoteToDelete?.quoteNumber}". This action cannot be undone.
+              {t('quotes_page.delete_dialog_description', { quoteNumber: quoteToDelete?.quoteNumber })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setQuoteToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setQuoteToDelete(null)}>{t('quotes_page.delete_dialog_cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={performDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
             >
-              Delete
+              {t('quotes_page.delete_dialog_confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
