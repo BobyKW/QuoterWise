@@ -33,7 +33,15 @@ import { collection, serverTimestamp, Timestamp, doc, query, orderBy } from 'fir
 import type { Quote, QuoteDocument, Client } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
-import Link from 'next/link';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { ClientForm } from '@/components/client-form';
 
 const quoteItemSchema = z.object({
   concept: z.string().min(1, 'Concept is required.'),
@@ -69,6 +77,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
+  const [isClientDialogOpen, setIsClientDialogOpen] = React.useState(false);
 
   const clientsQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -179,7 +188,29 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
             name="clientId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Client</FormLabel>
+                <div className="flex items-center justify-between">
+                    <FormLabel>Client</FormLabel>
+                    <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
+                        <DialogTrigger asChild>
+                        <Button variant="link" className="p-0 h-auto text-sm">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            New Client
+                        </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Create New Client</DialogTitle>
+                                <DialogDescription>
+                                Add a new client to your records. After saving, you can select them from the dropdown.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <ClientForm 
+                                onSuccess={() => setIsClientDialogOpen(false)}
+                                onCancel={() => setIsClientDialogOpen(false)}
+                            />
+                        </DialogContent>
+                    </Dialog>
+                </div>
                 <Select 
                   onValueChange={(value) => {
                     const selectedClient = clients?.find(c => c.id === value);
@@ -202,7 +233,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                     ))}
                     {!isLoadingClients && (!clients || clients.length === 0) && (
                         <div className="text-center text-sm text-muted-foreground p-4">
-                            No clients found. <Link href="/clients/new" className="underline text-primary">Create one</Link>.
+                            No clients found. Click 'New Client' above.
                         </div>
                     )}
                   </SelectContent>

@@ -31,7 +31,7 @@ const clientFormSchema = z.object({
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
 
-export function ClientForm({ client }: { client?: Client }) {
+export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, onSuccess?: () => void, onCancel?: () => void }) {
   const router = useRouter();
   const firestore = useFirestore();
   const { user } = useUser();
@@ -72,6 +72,11 @@ export function ClientForm({ client }: { client?: Client }) {
         title: "Client Updated",
         description: `${data.companyName} has been successfully updated.`,
       });
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/clients');
+      }
     } else {
       const clientData: Omit<ClientDocument, 'createdAt' | 'updatedAt'> = {
         ...data,
@@ -90,9 +95,12 @@ export function ClientForm({ client }: { client?: Client }) {
         title: "Client Created",
         description: `${data.companyName} has been successfully created.`,
       });
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/clients');
+      }
     }
-    
-    router.push('/clients');
   };
 
   return (
@@ -173,7 +181,7 @@ export function ClientForm({ client }: { client?: Client }) {
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => router.back()}>
+          <Button type="button" variant="outline" onClick={() => onCancel ? onCancel() : router.back()}>
             Cancel
           </Button>
           <Button type="submit" disabled={form.formState.isSubmitting}>
