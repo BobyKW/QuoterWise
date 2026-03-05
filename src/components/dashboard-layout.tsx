@@ -11,6 +11,7 @@ import {
   LogOut,
   PanelLeft,
   Blocks,
+  Library,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -21,7 +22,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarInset,
   useSidebar,
 } from '@/components/ui/sidebar';
 import {
@@ -48,12 +48,18 @@ const navItems = [
   { href: '/quotes', icon: FileText, label: 'Quotes' },
   { href: '/clients', icon: Users, label: 'Clients' },
   { href: '/reusable-blocks', icon: Blocks, label: 'Bloques' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
+  { href: '/templates', icon: Library, label: 'Templates' },
 ];
+
+const bottomNavItems = [
+    { href: '/settings', icon: Settings, label: 'Settings' },
+]
 
 function MainNav() {
   const pathname = usePathname();
+  const { isMobile } = useSidebar();
   return (
+    <>
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.href}>
@@ -69,6 +75,25 @@ function MainNav() {
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
+
+    <div className="mt-auto">
+        <SidebarMenu>
+            {bottomNavItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
+                <Link href={item.href}>
+                <SidebarMenuButton
+                    isActive={pathname.startsWith(item.href)}
+                    tooltip={item.label}
+                >
+                    <item.icon />
+                    <span>{item.label}</span>
+                </SidebarMenuButton>
+                </Link>
+            </SidebarMenuItem>
+            ))}
+        </SidebarMenu>
+    </div>
+    </>
   );
 }
 
@@ -103,8 +128,10 @@ function UserMenu() {
       <DropdownMenuContent side="right" align="start" className="w-56">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Profile</DropdownMenuItem>
-        <DropdownMenuItem>Settings</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push('/settings')}>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
@@ -175,45 +202,49 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <Sidebar collapsible="icon">
-        <SidebarHeader className="border-b">
-          <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-            <Logo className="h-6 w-6 text-primary" />
-            <span className={cn(
-              "font-semibold",
-              "group-data-[collapsible=icon]:hidden"
-            )}>QuoterWise</span>
-          </Link>
-        </SidebarHeader>
-        <SidebarContent>
-          <MainNav />
-        </SidebarContent>
-        <SidebarFooter className={cn("p-2 border-t", "group-data-[collapsible=icon]:hidden")}>
-          <UserMenu />
-        </SidebarFooter>
-        <SidebarFooter className={cn("p-2 border-t hidden", "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center")}>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className="h-8 w-8 cursor-pointer">
-                <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="center" className="w-56">
-              <DropdownMenuLabel>{user?.displayName || 'User'}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <LogoutButton />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <div className="flex flex-col flex-1">
-        <MobileHeader />
-        <SidebarInset>
-          {children}
-        </SidebarInset>
+        <div className="flex min-h-screen">
+            <Sidebar collapsible="icon">
+                <SidebarHeader className="border-b">
+                <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+                    <Logo className="h-6 w-6 text-primary" />
+                    <span className={cn(
+                    "font-semibold",
+                    "group-data-[collapsible=icon]:hidden"
+                    )}>QuoterWise</span>
+                </Link>
+                </SidebarHeader>
+                <SidebarContent>
+                <MainNav />
+                </SidebarContent>
+                <SidebarFooter className={cn("p-2 border-t", "group-data-[collapsible=icon]:hidden")}>
+                <UserMenu />
+                </SidebarFooter>
+                <SidebarFooter className={cn("p-2 border-t hidden", "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center")}>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Avatar className="h-8 w-8 cursor-pointer">
+                        <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
+                    </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent side="right" align="center" className="w-56">
+                    <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push('/settings')}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <LogoutButton />
+                    </DropdownMenuContent>
+                </DropdownMenu>
+                </SidebarFooter>
+            </Sidebar>
+            <div className="flex flex-col flex-1">
+                <MobileHeader />
+                <main className="flex-1">
+                    {children}
+                </main>
+            </div>
       </div>
     </SidebarProvider>
   );
