@@ -44,11 +44,13 @@ import { useCollection, useFirestore, useUser, useMemoFirebase, deleteDocumentNo
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import React from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('es-ES', {
+function formatCurrency(amount: number, locale: string) {
+  const currency = locale === 'es' ? 'EUR' : 'USD';
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'EUR',
+    currency: currency,
   }).format(amount);
 }
 
@@ -56,6 +58,7 @@ export default function ReusableBlocksPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [blockToDelete, setBlockToDelete] = React.useState<ReusableBlock | null>(null);
@@ -79,7 +82,10 @@ export default function ReusableBlocksPage() {
     if (!user || !blockToDelete) return;
     const blockRef = doc(firestore, `userProfiles/${user.uid}/reusableBlocks/${blockToDelete.id}`);
     deleteDocumentNonBlocking(blockRef);
-    toast({ title: "Bloque eliminado", description: `El bloque "${blockToDelete.name}" ha sido eliminado.` });
+    toast({ 
+        title: t('toasts.block_deleted_title'),
+        description: t('toasts.block_deleted_description', { blockName: blockToDelete.name })
+    });
     setIsDeleteDialogOpen(false);
     setBlockToDelete(null);
   };
@@ -88,13 +94,13 @@ export default function ReusableBlocksPage() {
     <>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center">
-          <h1 className="font-semibold text-lg md:text-2xl">Bloques Reutilizables</h1>
+          <h1 className="font-semibold text-lg md:text-2xl">{t('reusable_blocks_page.title')}</h1>
           <div className="ml-auto flex items-center gap-2">
             <Link href="/reusable-blocks/new">
               <Button size="sm" className="h-8 gap-1">
                 <PlusCircle className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Nuevo Bloque
+                  {t('reusable_blocks_page.new_block')}
                 </span>
               </Button>
             </Link>
@@ -102,19 +108,19 @@ export default function ReusableBlocksPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Mis Bloques</CardTitle>
-            <CardDescription>Gestiona tus servicios y productos reutilizables.</CardDescription>
+            <CardTitle>{t('reusable_blocks_page.card_title')}</CardTitle>
+            <CardDescription>{t('reusable_blocks_page.card_description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Concepto</TableHead>
-                    <TableHead className="text-right">Precio Unitario</TableHead>
+                    <TableHead>{t('reusable_blocks_page.table_name')}</TableHead>
+                    <TableHead>{t('reusable_blocks_page.table_concept')}</TableHead>
+                    <TableHead className="text-right">{t('reusable_blocks_page.table_price')}</TableHead>
                     <TableHead>
-                      <span className="sr-only">Acciones</span>
+                      <span className="sr-only">{t('reusable_blocks_page.table_actions')}</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -122,7 +128,7 @@ export default function ReusableBlocksPage() {
                   {isLoading && (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center">
-                        Cargando bloques...
+                        {t('reusable_blocks_page.loading')}
                       </TableCell>
                     </TableRow>
                   )}
@@ -131,7 +137,7 @@ export default function ReusableBlocksPage() {
                       <TableCell className="font-medium">{block.name}</TableCell>
                       <TableCell>{block.concept}</TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency(block.unitPrice)}
+                        {formatCurrency(block.unitPrice, i18n.language)}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -142,16 +148,16 @@ export default function ReusableBlocksPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                            <DropdownMenuLabel>{t('reusable_blocks_page.table_actions')}</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                              <Link href={`/reusable-blocks/${block.id}/edit`}>Editar</Link>
+                              <Link href={`/reusable-blocks/${block.id}/edit`}>{t('reusable_blocks_page.actions_edit')}</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive focus:bg-destructive/10"
                               onClick={() => handleDeleteClick(block)}
                             >
-                              Eliminar
+                              {t('reusable_blocks_page.actions_delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -161,7 +167,7 @@ export default function ReusableBlocksPage() {
                   {!isLoading && (!blocks || blocks.length === 0) && (
                       <TableRow>
                           <TableCell colSpan={4} className="text-center">
-                          No has creado ningún bloque. Empieza creando uno.
+                          {t('reusable_blocks_page.no_blocks')}
                           </TableCell>
                       </TableRow>
                   )}
@@ -175,18 +181,18 @@ export default function ReusableBlocksPage() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogTitle>{t('reusable_blocks_page.delete_dialog_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará permanentemente el bloque "{blockToDelete?.name}". No se puede deshacer.
+              {t('reusable_blocks_page.delete_dialog_description', { blockName: blockToDelete?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setBlockToDelete(null)}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setBlockToDelete(null)}>{t('reusable_blocks_page.delete_dialog_cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={performDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
             >
-              Eliminar
+              {t('reusable_blocks_page.delete_dialog_confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -21,6 +21,7 @@ import type { ReusableBlock, ReusableBlockDocument } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import { Separator } from './ui/separator';
+import { useTranslation } from 'react-i18next';
 
 const reusableBlockFormSchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio.'),
@@ -39,6 +40,7 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const form = useForm<ReusableBlockFormValues>({
     resolver: zodResolver(reusableBlockFormSchema),
@@ -74,8 +76,8 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
       };
       updateDocumentNonBlocking(blockRef, updatedData);
       toast({
-        title: "Bloque Actualizado",
-        description: `El bloque "${data.name}" se ha actualizado correctamente.`,
+        title: t('toasts.block_updated_title'),
+        description: t('toasts.block_updated_description', { blockName: data.name }),
       });
       router.push('/reusable-blocks');
     } else {
@@ -93,8 +95,8 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
       const blocksCol = collection(firestore, `userProfiles/${user.uid}/reusableBlocks`);
       addDocumentNonBlocking(blocksCol, finalBlockData);
       toast({
-        title: "Bloque Creado",
-        description: `El bloque "${data.name}" se ha creado correctamente.`,
+        title: t('toasts.block_created_title'),
+        description: t('toasts.block_created_description', { blockName: data.name }),
       });
       router.push('/reusable-blocks');
     }
@@ -108,9 +110,9 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
             name="name"
             render={({ field }) => (
             <FormItem>
-                <FormLabel>Nombre del Bloque</FormLabel>
+                <FormLabel>{t('reusable_block_form.block_name')}</FormLabel>
                 <FormControl>
-                <Input placeholder="Ej: Diseño de Landing Page" {...field} />
+                <Input placeholder={t('reusable_block_form.block_name_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -120,15 +122,15 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
         <Separator/>
 
         <div className="space-y-4">
-            <h3 className="text-lg font-medium">Detalles del Concepto</h3>
+            <h3 className="text-lg font-medium">{t('reusable_block_form.concept_details')}</h3>
              <FormField
                 control={form.control}
                 name="concept"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Concepto</FormLabel>
+                    <FormLabel>{t('reusable_block_form.concept')}</FormLabel>
                     <FormControl>
-                    <Input placeholder="Ej: Desarrollo de página de aterrizaje" {...field} />
+                    <Input placeholder={t('reusable_block_form.concept_placeholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -139,10 +141,10 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
                 name="description"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Descripción</FormLabel>
+                    <FormLabel>{t('reusable_block_form.description')}</FormLabel>
                     <FormControl>
                         <Textarea
-                        placeholder="Descripción detallada del servicio o producto..."
+                        placeholder={t('reusable_block_form.description_placeholder')}
                         className="resize-y"
                         {...field}
                         />
@@ -157,7 +159,7 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
                     name="quantity"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Cantidad</FormLabel>
+                        <FormLabel>{t('reusable_block_form.quantity')}</FormLabel>
                         <FormControl>
                         <Input type="number" {...field} />
                         </FormControl>
@@ -170,9 +172,9 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
                     name="unit"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Unidad</FormLabel>
+                        <FormLabel>{t('reusable_block_form.unit')}</FormLabel>
                         <FormControl>
-                        <Input placeholder="ud, h, m2" {...field} />
+                        <Input placeholder={t('reusable_block_form.unit_placeholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -183,7 +185,7 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
                     name="unitPrice"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Precio Unitario</FormLabel>
+                        <FormLabel>{t('reusable_block_form.unit_price')}</FormLabel>
                         <FormControl>
                         <Input type="number" step="0.01" {...field} />
                         </FormControl>
@@ -196,7 +198,7 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
                     name="taxRate"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Impuesto (%)</FormLabel>
+                        <FormLabel>{t('reusable_block_form.tax')}</FormLabel>
                         <FormControl>
                         <Input type="number" step="0.01" {...field} />
                         </FormControl>
@@ -209,10 +211,10 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={() => router.back()}>
-            Cancelar
+            {t('reusable_block_form.cancel')}
           </Button>
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Guardando...' : (block ? 'Guardar Cambios' : 'Guardar Bloque')}
+            {form.formState.isSubmitting ? t('reusable_block_form.saving') : (block ? t('reusable_block_form.save_changes') : t('reusable_block_form.save_block'))}
           </Button>
         </div>
       </form>

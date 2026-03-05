@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -22,6 +21,8 @@ import { useEffect } from 'react';
 import type { UserProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
+import { useTranslation } from 'react-i18next';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 const settingsFormSchema = z.object({
   businessName: z.string().min(1, 'Business name is required.'),
@@ -40,6 +41,7 @@ export function SettingsForm() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -84,14 +86,14 @@ export function SettingsForm() {
       id: user.uid,
       email: user.email,
       updatedAt: serverTimestamp(),
-      ...(userProfile ? {} : { createdAt: serverTimestamp(), nextQuoteNumber: 1 }), // Add createdAt if it's a new profile
+      ...(userProfile ? {} : { createdAt: serverTimestamp(), nextQuoteNumber: 1 }),
     };
 
     setDocumentNonBlocking(userProfileRef, profileData, { merge: true });
 
     toast({
-      title: "Settings Saved",
-      description: "Your profile has been updated successfully.",
+      title: t('toasts.settings_saved_title'),
+      description: t('toasts.settings_saved_description'),
     });
   };
 
@@ -144,15 +146,34 @@ export function SettingsForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="space-y-2">
+          <FormLabel>{t('settings_page.language')}</FormLabel>
+          <Select
+            value={i18n.language}
+            onValueChange={(value) => i18n.changeLanguage(value)}
+          >
+            <SelectTrigger className="w-[240px]">
+              <SelectValue placeholder="Language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="es">Español</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-sm text-muted-foreground">
+              {t('settings_page.language_description')}
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="businessName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Business Name</FormLabel>
+                <FormLabel>{t('settings_form.business_name')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your Company LLC" {...field} />
+                  <Input placeholder={t('settings_form.business_name_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -163,9 +184,9 @@ export function SettingsForm() {
             name="taxId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tax ID (CIF/NIF)</FormLabel>
+                <FormLabel>{t('settings_form.tax_id')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="B12345678" {...field} />
+                  <Input placeholder={t('settings_form.tax_id_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -178,9 +199,9 @@ export function SettingsForm() {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>{t('settings_form.address')}</FormLabel>
               <FormControl>
-                <Input placeholder="123 Main St" {...field} />
+                <Input placeholder={t('settings_form.address_placeholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -193,9 +214,9 @@ export function SettingsForm() {
             name="city"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>City</FormLabel>
+                <FormLabel>{t('settings_form.city')}</FormLabel>
                 <FormControl>
-                    <Input placeholder="New York" {...field} />
+                    <Input placeholder={t('settings_form.city_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -206,9 +227,9 @@ export function SettingsForm() {
             name="country"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Country</FormLabel>
+                <FormLabel>{t('settings_form.country')}</FormLabel>
                 <FormControl>
-                    <Input placeholder="USA" {...field} />
+                    <Input placeholder={t('settings_form.country_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -219,9 +240,9 @@ export function SettingsForm() {
             name="phone"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>{t('settings_form.phone')}</FormLabel>
                 <FormControl>
-                    <Input placeholder="+1 (555) 123-4567" {...field} />
+                    <Input placeholder={t('settings_form.phone_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -234,12 +255,12 @@ export function SettingsForm() {
             name="logoUrl"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Logo URL</FormLabel>
+                <FormLabel>{t('settings_form.logo_url')}</FormLabel>
                 <FormControl>
-                    <Input type="url" placeholder="https://your-domain.com/logo.png" {...field} />
+                    <Input type="url" placeholder={t('settings_form.logo_url_placeholder')} {...field} />
                 </FormControl>
                 <FormDescription>
-                    Link to your company logo. This will appear on your quotes.
+                    {t('settings_form.logo_url_description')}
                 </FormDescription>
                 <FormMessage />
                 </FormItem>
@@ -251,16 +272,16 @@ export function SettingsForm() {
           name="defaultTerms"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Default Terms & Conditions</FormLabel>
+              <FormLabel>{t('settings_form.default_terms')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="e.g., Payment due within 30 days..."
+                  placeholder={t('settings_form.default_terms_placeholder')}
                   className="resize-y min-h-[100px]"
                   {...field}
                 />
               </FormControl>
                <FormDescription>
-                    These terms will be automatically added to new quotes.
+                    {t('settings_form.default_terms_description')}
                 </FormDescription>
               <FormMessage />
             </FormItem>
@@ -269,12 +290,10 @@ export function SettingsForm() {
 
         <div className="flex justify-end">
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Saving...' : 'Save Settings'}
+            {form.formState.isSubmitting ? t('settings_form.saving') : t('settings_form.save_settings')}
           </Button>
         </div>
       </form>
     </Form>
   );
 }
-
-    

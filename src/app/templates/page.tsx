@@ -1,18 +1,22 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 export default function TemplatesPage() {
+  const { t } = useTranslation();
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">Templates</h1>
+        <h1 className="font-semibold text-lg md:text-2xl">{t('templates_page.title')}</h1>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>A powerful template management system is on its way.</CardDescription>
+          <CardTitle>{t('templates_page.card_title')}</CardTitle>
+          <CardDescription>{t('templates_page.card_description')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p>This section is under construction. Soon you'll be able to create and manage quote templates to speed up your workflow!</p>
+          <p>{t('templates_page.content')}</p>
         </CardContent>
       </Card>
     </main>

@@ -7,6 +7,7 @@ import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { ReusableBlock } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from 'react-i18next';
 
 function ReusableBlockFormSkeleton() {
     return (
@@ -51,6 +52,7 @@ export default function EditReusableBlockPage() {
   const { id } = useParams();
   const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useTranslation();
 
   const blockRef = useMemoFirebase(() => {
     if (!id || !user) return null;
@@ -62,12 +64,12 @@ export default function EditReusableBlockPage() {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">Editar Bloque</h1>
+        <h1 className="font-semibold text-lg md:text-2xl">{t('edit_reusable_block_page.title')}</h1>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Editar {block?.name || 'Bloque'}</CardTitle>
-          <CardDescription>Actualiza los detalles de este bloque reutilizable.</CardDescription>
+          <CardTitle>{t('edit_reusable_block_page.card_title', { blockName: block?.name || 'Bloque' })}</CardTitle>
+          <CardDescription>{t('edit_reusable_block_page.card_description')}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading && <ReusableBlockFormSkeleton />}

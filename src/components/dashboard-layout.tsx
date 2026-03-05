@@ -42,22 +42,25 @@ import { cn } from '@/lib/utils';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/quotes', icon: FileText, label: 'Quotes' },
-  { href: '/clients', icon: Users, label: 'Clients' },
-  { href: '/reusable-blocks', icon: Blocks, label: 'Bloques' },
-  { href: '/templates', icon: Library, label: 'Templates' },
-];
-
-const bottomNavItems = [
-    { href: '/settings', icon: Settings, label: 'Settings' },
-]
 
 function MainNav() {
   const pathname = usePathname();
-  const { isMobile } = useSidebar();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { href: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
+    { href: '/quotes', icon: FileText, label: t('sidebar.quotes') },
+    { href: '/clients', icon: Users, label: t('sidebar.clients') },
+    { href: '/reusable-blocks', icon: Blocks, label: t('sidebar.blocks') },
+    { href: '/templates', icon: Library, label: t('sidebar.templates') },
+  ];
+  
+  const bottomNavItems = [
+      { href: '/settings', icon: Settings, label: t('sidebar.settings') },
+  ]
+
   return (
     <>
     <SidebarMenu>
@@ -101,6 +104,7 @@ function UserMenu() {
   const { user } = useUser();
   const auth = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -126,16 +130,16 @@ function UserMenu() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="right" align="start" className="w-56">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('user_menu.my_account')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push('/settings')}>
             <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <span>{t('user_menu.settings')}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span>{t('user_menu.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -161,6 +165,7 @@ function MobileHeader() {
 function LogoutButton() {
   const auth = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
@@ -168,7 +173,7 @@ function LogoutButton() {
   return (
     <DropdownMenuItem onClick={handleLogout}>
       <LogOut className="mr-2 h-4 w-4" />
-      <span>Log out</span>
+      <span>{t('sidebar.logout')}</span>
     </DropdownMenuItem>
   )
 }
@@ -180,6 +185,7 @@ export default function DashboardLayout({
 }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -190,7 +196,7 @@ export default function DashboardLayout({
   if (isUserLoading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
+        <p>{t('loading')}</p>
       </div>
     );
   }
@@ -231,7 +237,7 @@ export default function DashboardLayout({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => router.push('/settings')}>
                         <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
+                        <span>{t('user_menu.settings')}</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <LogoutButton />

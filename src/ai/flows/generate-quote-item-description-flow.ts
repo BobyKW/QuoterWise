@@ -20,6 +20,7 @@ const GenerateQuoteItemDescriptionInputSchema = z.object({
   detailLevel: z
     .enum(['brief', 'standard', 'detailed'])
     .describe('The desired level of detail for the description.'),
+  language: z.string().describe('The language for the output description (e.g., "Spanish", "English").')
 });
 export type GenerateQuoteItemDescriptionInput = z.infer<
   typeof GenerateQuoteItemDescriptionInputSchema
@@ -46,6 +47,7 @@ const prompt = ai.definePrompt({
 
 Generate a detailed description for a quote item or section based on the following information.
 Ensure the description is professional, clear, and relevant to the specified industry.
+The output language must be {{{language}}}.
 
 Concept Keywords: {{{conceptKeywords}}}
 Industry: {{{industry}}}
