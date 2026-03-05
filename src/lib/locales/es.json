@@ -7,7 +7,8 @@
     "templates": "Plantillas",
     "settings": "Ajustes",
     "logout": "Cerrar sesión",
-    "login_to_access": "Inicia sesión para acceder"
+    "login_to_access": "Inicia sesión para acceder",
+    "admin": "Admin"
   },
   "user_menu": {
     "my_account": "Mi Cuenta",
@@ -315,5 +316,19 @@
     "description": "Crea una cuenta o inicia sesión para guardar tu trabajo y acceder a todas las funciones.",
     "login_tab": "Iniciar Sesión",
     "register_tab": "Registrarse"
+  },
+  "admin_page": {
+    "title": "Panel de Administrador",
+    "card_title": "Gestión de Usuarios",
+    "card_description": "Ver y gestionar todos los usuarios registrados.",
+    "table_email": "Email",
+    "table_business_name": "Nombre del Negocio",
+    "table_created_at": "Fecha de Registro",
+    "table_role": "Rol",
+    "loading": "Cargando usuarios...",
+    "access_denied": "No tienes permiso para ver esta página.",
+    "no_users": "No se encontraron usuarios."
   }
 }
+
+    

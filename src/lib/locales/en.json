@@ -7,7 +7,8 @@
     "templates": "Templates",
     "settings": "Settings",
     "logout": "Log out",
-    "login_to_access": "Log in to access"
+    "login_to_access": "Log in to access",
+    "admin": "Admin"
   },
   "user_menu": {
     "my_account": "My Account",
@@ -315,5 +316,19 @@
     "description": "Create an account or log in to save your work and access all features.",
     "login_tab": "Log In",
     "register_tab": "Sign Up"
+  },
+  "admin_page": {
+    "title": "Admin Panel",
+    "card_title": "User Management",
+    "card_description": "View and manage all registered users.",
+    "table_email": "Email",
+    "table_business_name": "Business Name",
+    "table_created_at": "Registration Date",
+    "table_role": "Role",
+    "loading": "Loading users...",
+    "access_denied": "You do not have permission to view this page.",
+    "no_users": "No users found."
   }
 }
+
+    

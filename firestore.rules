@@ -11,7 +11,8 @@
  *
  * Key Security Decisions:
  * - User Isolation: All reads and writes are scoped to the authenticated user's ID (`request.auth.uid`).
- * - No User Enumeration: The root `/userProfiles` collection is not listable, protecting user privacy.
+ * - No User Enumeration (Except for Admins): The root `/userProfiles` collection is not listable for regular users,
+ *   protecting user privacy. Admins are an explicit exception.
  * - Denormalization for Authorization: Child documents (e.g., clients, quotes) must contain a `userId` field
  *   matching the path. This avoids slow and expensive `get()` calls in rules.
  * - Structural Segregation: User-created templates are kept separate from read-only system templates,
@@ -51,6 +52,15 @@ service cloud.firestore {
     }
 
     /**
+     * Checks if the currently authenticated user has an 'admin' role.
+     * This requires a get() which is allowed for checking claims/roles.
+     */
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'admin';
+    }
+
+
+    /**
      * Validates integrity for the UserProfile document.
      * On create, ensures the document ID matches the user's auth ID.
      * On update, ensures the document ID remains immutable.
@@ -77,20 +87,22 @@ service cloud.firestore {
 
     // ------------------------------------------------------------------------
     // User Profile Rules
-    // A user can create and manage their own profile.
+    // A user can create and manage their own profile. Admins can list all profiles.
     // ------------------------------------------------------------------------
 
     /**
      * @description Users can create, read, and manage their own profile document.
+     *              Admins can list all user profiles for administrative purposes.
      * @path /userProfiles/{userId}
      * @allow (create) An authenticated user creating their own profile: `request.auth.uid == userId`.
+     * @allow (list) An admin user listing all profiles.
      * @deny (get) A user trying to read another user's profile: `request.auth.uid != userId`.
-     * @deny (list) Any user trying to list all profiles in the collection.
-     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     * @deny (list) Any non-admin user trying to list all profiles in the collection.
+     * @principle Restricts access to a user's own data tree and prevents user enumeration, with an exception for admins.
      */
     match /userProfiles/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false;
+      allow list: if isAdmin();
       allow create: if isOwner(userId) && hasValidUserProfileData(userId);
       allow update: if isExistingOwner(userId) && hasValidUserProfileData(userId);
       allow delete: if isExistingOwner(userId);
@@ -279,3 +291,5 @@ service cloud.firestore {
     }
   }
 }
+
+    

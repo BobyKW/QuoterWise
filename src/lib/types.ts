@@ -20,6 +20,7 @@ export type UserProfile = {
   nextQuoteNumber?: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  role?: 'admin';
 };
 
 // This will be the shape of the data in Firestore
@@ -87,5 +88,7 @@ export type ReusableBlockDocument = {
 export type ReusableBlock = ReusableBlockDocument & {
   id: string;
 };
+
+    
 
     

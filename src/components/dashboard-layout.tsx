@@ -13,6 +13,7 @@ import {
   Blocks,
   Library,
   Lock,
+  Shield,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -40,12 +41,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { useUser, useAuth } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { useUser, useAuth, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { signOut, doc } from 'firebase/auth';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthModalProvider, useAuthModal } from '@/hooks/use-auth-modal';
 import { AuthModal } from '@/components/auth-modal';
+import type { UserProfile } from '@/lib/types';
 
 
 function MainNav() {
@@ -54,6 +56,13 @@ function MainNav() {
   const { user } = useUser();
   const { onOpen } = useAuthModal();
   const isAnonymous = user?.isAnonymous ?? true;
+  const firestore = useFirestore();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user || isAnonymous) return null;
+    return doc(firestore, `userProfiles/${user.uid}`);
+  }, [user, isAnonymous, firestore]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), protected: false },
@@ -103,6 +112,19 @@ function MainNav() {
     <>
     <SidebarMenu>
       {navItems.map(renderMenuItem)}
+      {userProfile?.role === 'admin' && (
+        <SidebarMenuItem>
+            <Link href="/admin">
+                <SidebarMenuButton
+                    isActive={pathname.startsWith('/admin')}
+                    tooltip={t('sidebar.admin')}
+                >
+                    <Shield />
+                    <span>{t('sidebar.admin')}</span>
+                </SidebarMenuButton>
+            </Link>
+        </SidebarMenuItem>
+      )}
     </SidebarMenu>
 
     <div className="mt-auto">
@@ -296,3 +318,5 @@ export default function DashboardLayout({
     </AuthModalProvider>
   );
 }
+
+    
