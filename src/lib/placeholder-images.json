@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "user-avatar",
+      "description": "User avatar in the sidebar",
+      "imageUrl": "https://picsum.photos/seed/avatar/40/40",
+      "imageHint": "person face"
+    }
+  ]
 }
