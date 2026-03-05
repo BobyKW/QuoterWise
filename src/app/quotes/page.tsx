@@ -3,8 +3,6 @@
 import {
   MoreHorizontal,
   PlusCircle,
-  Download,
-  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -219,12 +217,7 @@ export default function QuotesPage() {
                                 onClick={() => handleDownloadClick(quote)}
                                 disabled={isDownloading === quote.id}
                             >
-                                {isDownloading === quote.id ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <Download className="mr-2 h-4 w-4" />
-                                )}
-                                <span>{isDownloading === quote.id ? t('view_quote_page.downloading') : t('view_quote_page.download_pdf')}</span>
+                                {isDownloading === quote.id ? t('view_quote_page.downloading') : t('view_quote_page.download_pdf')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
