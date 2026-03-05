@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/dialog';
 import { ClientForm } from '@/components/client-form';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 const quoteItemSchema = z.object({
   concept: z.string().min(1, 'Concept is required.'),
@@ -78,6 +79,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isClientDialogOpen, setIsClientDialogOpen] = React.useState(false);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = React.useState(false);
 
@@ -170,8 +172,8 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
       };
       updateDocumentNonBlocking(quoteRef, updatedData);
       toast({
-        title: "Quote Updated",
-        description: `Quote ${data.quoteNumber} has been successfully updated.`,
+        title: t('toasts.quote_updated_title'),
+        description: t('toasts.quote_updated_description', { quoteNumber: data.quoteNumber }),
       });
     } else {
       const quoteData: Omit<QuoteDocument, 'createdAt' | 'updatedAt' | 'total'> = {
@@ -190,8 +192,8 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
       addDocumentNonBlocking(quotesCol, finalQuoteData);
       updateDocumentNonBlocking(userProfileRef, { nextQuoteNumber: increment(1) });
        toast({
-        title: "Quote Created",
-        description: `Quote ${data.quoteNumber} has been successfully created.`,
+        title: t('toasts.quote_created_title'),
+        description: t('toasts.quote_created_description', { quoteNumber: data.quoteNumber }),
       });
     }
     
@@ -212,19 +214,19 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center justify-between">
-                    <FormLabel>Client</FormLabel>
+                    <FormLabel>{t('quote_form.client')}</FormLabel>
                     <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
                         <DialogTrigger asChild>
                         <Button variant="link" className="p-0 h-auto text-sm">
                             <PlusCircle className="mr-2 h-4 w-4" />
-                            New Client
+                            {t('quote_form.new_client')}
                         </Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Create New Client</DialogTitle>
+                                <DialogTitle>{t('quote_form.new_client_dialog_title')}</DialogTitle>
                                 <DialogDescription>
-                                Add a new client to your records. After saving, you can select them from the dropdown.
+                                {t('quote_form.new_client_dialog_description')}
                                 </DialogDescription>
                             </DialogHeader>
                             <ClientForm 
@@ -247,7 +249,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={isLoadingClients ? "Loading..." : "Select a client"} />
+                      <SelectValue placeholder={isLoadingClients ? t('quote_form.loading_clients') : t('quote_form.select_client')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -256,7 +258,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                     ))}
                     {!isLoadingClients && (!clients || clients.length === 0) && (
                         <div className="text-center text-sm text-muted-foreground p-4">
-                            No clients found. Click 'New Client' above.
+                            {t('quote_form.no_clients')}
                         </div>
                     )}
                   </SelectContent>
@@ -270,13 +272,13 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
             name="quoteNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Quote Number</FormLabel>
+                <FormLabel>{t('quote_form.quote_number')}</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     readOnly
                     className="bg-muted cursor-not-allowed"
-                    placeholder={isLoadingProfile ? 'Generating...' : ''}
+                    placeholder={isLoadingProfile ? t('quote_form.generating') : ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -288,7 +290,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
             name="createdAt"
             render={({ field }) => (
               <FormItem className="flex flex-col pt-2">
-                <FormLabel>Quote Date</FormLabel>
+                <FormLabel>{t('quote_form.quote_date')}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -302,7 +304,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                         {field.value ? (
                           format(field.value, 'PPP')
                         ) : (
-                          <span>Pick a date</span>
+                          <span>{t('quote_form.pick_date')}</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -326,20 +328,20 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
             name="status"
             render={({ field }) => (
               <FormItem className="flex flex-col pt-2">
-                <FormLabel>Status</FormLabel>
+                <FormLabel>{t('quote_form.status')}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a status" />
+                      <SelectValue placeholder={t('quote_form.select_status')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="sent">Sent</SelectItem>
-                    <SelectItem value="accepted">Accepted</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="negotiating">Negotiating</SelectItem>
-                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="draft">{t('quote_form.status_draft')}</SelectItem>
+                    <SelectItem value="sent">{t('quote_form.status_sent')}</SelectItem>
+                    <SelectItem value="accepted">{t('quote_form.status_accepted')}</SelectItem>
+                    <SelectItem value="rejected">{t('quote_form.status_rejected')}</SelectItem>
+                    <SelectItem value="negotiating">{t('quote_form.status_negotiating')}</SelectItem>
+                    <SelectItem value="expired">{t('quote_form.status_expired')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -351,7 +353,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
         <Separator />
 
         <div>
-          <h2 className="text-xl font-semibold mb-4">Items</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('quote_form.items')}</h2>
           <div className="space-y-6">
             {fields.map((field, index) => (
               <div key={field.id} className="p-4 border rounded-lg relative space-y-4">
@@ -371,9 +373,9 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                     name={`items.${index}.concept`}
                     render={({ field }) => (
                       <FormItem className="md:col-span-5">
-                        <FormLabel>Concept</FormLabel>
+                        <FormLabel>{t('quote_form.concept')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Website design" {...field} />
+                          <Input placeholder={t('quote_form.concept_placeholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -385,10 +387,10 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                       name={`items.${index}.description`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Description</FormLabel>
+                          <FormLabel>{t('quote_form.description')}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Detailed description of the service or product..."
+                              placeholder={t('quote_form.description_placeholder')}
                               className="resize-y"
                               {...field}
                             />
@@ -399,7 +401,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                     />
                     <Button type="button" size="sm" variant="outline" className="absolute top-0 right-0 gap-1.5" disabled>
                       <Wand2 className="h-3 w-3" />
-                      AI
+                      {t('quote_form.ai_button')}
                     </Button>
                   </div>
                   <FormField
@@ -407,7 +409,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                     name={`items.${index}.quantity`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Quantity</FormLabel>
+                        <FormLabel>{t('quote_form.quantity')}</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
@@ -420,9 +422,9 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                     name={`items.${index}.unit`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Unit</FormLabel>
+                        <FormLabel>{t('quote_form.unit')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="ud, h, m2" {...field} />
+                          <Input placeholder={t('quote_form.unit_placeholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -433,7 +435,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                     name={`items.${index}.unitPrice`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Unit Price</FormLabel>
+                        <FormLabel>{t('quote_form.unit_price')}</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
@@ -446,7 +448,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                     name={`items.${index}.taxRate`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tax (%)</FormLabel>
+                        <FormLabel>{t('quote_form.tax')}</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
@@ -471,7 +473,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                 onClick={() => append(defaultItem)}
             >
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Add Item
+                {t('quote_form.add_item')}
             </Button>
 
             <Dialog open={isBlockDialogOpen} onOpenChange={setIsBlockDialogOpen}>
@@ -482,18 +484,18 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                         size="sm"
                     >
                         <Library className="mr-2 h-4 w-4" />
-                        Add from Block
+                        {t('quote_form.add_from_block')}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
-                    <DialogTitle>Add from Reusable Blocks</DialogTitle>
+                    <DialogTitle>{t('quote_form.add_from_block_dialog_title')}</DialogTitle>
                     <DialogDescription>
-                      Select a block to add it as a new item to your quote.
+                      {t('quote_form.add_from_block_dialog_description')}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="max-h-[60vh] overflow-y-auto p-1">
-                    {isLoadingBlocks && <p>Loading blocks...</p>}
+                    {isLoadingBlocks && <p>{t('quote_form.loading_blocks')}</p>}
                     {!isLoadingBlocks && blocks && blocks.length > 0 ? (
                       <div className="space-y-2">
                         {blocks.map(block => (
@@ -512,8 +514,8 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                               });
                               setIsBlockDialogOpen(false);
                               toast({
-                                title: `Added "${block.name}"`,
-                                description: 'The block has been added to your quote items.'
+                                title: t('toasts.block_added_title', { blockName: block.name }),
+                                description: t('toasts.block_added_description')
                               })
                             }}
                           >
@@ -525,9 +527,9 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
                       </div>
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
-                        <p>No reusable blocks found.</p>
+                        <p>{t('quote_form.no_blocks_found')}</p>
                         <Button variant="link" asChild className="mt-1">
-                          <Link href="/reusable-blocks/new">Create your first block</Link>
+                          <Link href="/reusable-blocks/new">{t('quote_form.create_first_block')}</Link>
                         </Button>
                       </div>
                     )}
@@ -542,16 +544,16 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
         <div className="flex justify-end">
           <div className="w-full max-w-xs space-y-2">
             <div className="flex justify-between">
-              <span>Subtotal</span>
+              <span>{t('quote_form.subtotal')}</span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Total Tax</span>
+              <span>{t('quote_form.total_tax')}</span>
               <span>{formatCurrency(totalTax)}</span>
             </div>
             <Separator />
             <div className="flex justify-between font-bold text-lg">
-              <span>Total</span>
+              <span>{t('quote_form.total')}</span>
               <span>{formatCurrency(total)}</span>
             </div>
           </div>
@@ -559,10 +561,10 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={() => router.back()}>
-            Cancel
+            {t('quote_form.cancel')}
           </Button>
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Saving...' : (quote ? 'Save Changes' : 'Save Quote')}
+            {form.formState.isSubmitting ? t('quote_form.saving') : (quote ? t('quote_form.save_changes') : t('quote_form.save_quote'))}
           </Button>
         </div>
       </form>

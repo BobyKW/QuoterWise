@@ -20,6 +20,7 @@ import { collection, serverTimestamp, doc } from 'firebase/firestore';
 import type { Client, ClientDocument } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const clientFormSchema = z.object({
   companyName: z.string().min(1, 'Company name is required.'),
@@ -36,6 +37,7 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
@@ -69,8 +71,8 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
       };
       updateDocumentNonBlocking(clientRef, updatedData);
       toast({
-        title: "Client Updated",
-        description: `${data.companyName} has been successfully updated.`,
+        title: t('toasts.client_updated_title'),
+        description: t('toasts.client_updated_description', { clientName: data.companyName }),
       });
       if (onSuccess) {
         onSuccess();
@@ -92,8 +94,8 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
       const clientsCol = collection(firestore, `userProfiles/${user.uid}/clients`);
       addDocumentNonBlocking(clientsCol, finalClientData);
       toast({
-        title: "Client Created",
-        description: `${data.companyName} has been successfully created.`,
+        title: t('toasts.client_created_title'),
+        description: t('toasts.client_created_description', { clientName: data.companyName }),
       });
       if (onSuccess) {
         onSuccess();
@@ -112,9 +114,9 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
             name="companyName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company Name</FormLabel>
+                <FormLabel>{t('client_form.company_name')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Acme Corporation" {...field} />
+                  <Input placeholder={t('client_form.company_name_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -125,9 +127,9 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
             name="contactName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Contact Name</FormLabel>
+                <FormLabel>{t('client_form.contact_name')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} />
+                  <Input placeholder={t('client_form.contact_name_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -138,9 +140,9 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('client_form.email')}</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="contact@acme.com" {...field} />
+                  <Input type="email" placeholder={t('client_form.email_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -151,9 +153,9 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>{t('client_form.phone')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="+1 (555) 987-6543" {...field} />
+                  <Input placeholder={t('client_form.phone_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -165,10 +167,10 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>{t('client_form.address')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="123 Innovation Drive, Tech City, USA"
+                      placeholder={t('client_form.address_placeholder')}
                       className="resize-y"
                       {...field}
                     />
@@ -182,10 +184,10 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={() => onCancel ? onCancel() : router.back()}>
-            Cancel
+            {t('client_form.cancel')}
           </Button>
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Saving...' : (client ? 'Save Changes' : 'Save Client')}
+            {form.formState.isSubmitting ? t('client_form.saving') : (client ? t('client_form.save_changes') : t('client_form.save_client'))}
           </Button>
         </div>
       </form>
