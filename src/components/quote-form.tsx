@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, PlusCircle, Trash2, Wand2 } from 'lucide-react';
+import { CalendarIcon, Library, PlusCircle, Trash2, Wand2 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select';
 import { useFirestore, useUser, addDocumentNonBlocking, updateDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, serverTimestamp, Timestamp, doc, query, orderBy } from 'firebase/firestore';
-import type { Quote, QuoteDocument, Client } from '@/lib/types';
+import type { Quote, QuoteDocument, Client, ReusableBlock } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import {
@@ -42,6 +42,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { ClientForm } from '@/components/client-form';
+import Link from 'next/link';
 
 const quoteItemSchema = z.object({
   concept: z.string().min(1, 'Concept is required.'),
@@ -78,6 +79,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   const { user } = useUser();
   const { toast } = useToast();
   const [isClientDialogOpen, setIsClientDialogOpen] = React.useState(false);
+  const [isBlockDialogOpen, setIsBlockDialogOpen] = React.useState(false);
 
   const clientsQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -87,6 +89,15 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
     );
   }, [user, firestore]);
   const { data: clients, isLoading: isLoadingClients } = useCollection<Client>(clientsQuery);
+  
+  const blocksQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(
+        collection(firestore, `userProfiles/${user.uid}/reusableBlocks`),
+        orderBy('name', 'asc')
+    );
+  }, [user, firestore]);
+  const { data: blocks, isLoading: isLoadingBlocks } = useCollection<ReusableBlock>(blocksQuery);
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
@@ -435,17 +446,78 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
               </div>
             ))}
           </div>
+          <div className="flex items-center gap-2 mt-4">
+            <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => append(defaultItem)}
+            >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Item
+            </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-4"
-            onClick={() => append(defaultItem)}
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Item
-          </Button>
+            <Dialog open={isBlockDialogOpen} onOpenChange={setIsBlockDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                    >
+                        <Library className="mr-2 h-4 w-4" />
+                        Add from Block
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Add from Reusable Blocks</DialogTitle>
+                    <DialogDescription>
+                      Select a block to add it as a new item to your quote.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="max-h-[60vh] overflow-y-auto p-1">
+                    {isLoadingBlocks && <p>Loading blocks...</p>}
+                    {!isLoadingBlocks && blocks && blocks.length > 0 ? (
+                      <div className="space-y-2">
+                        {blocks.map(block => (
+                          <button
+                            key={block.id}
+                            type="button"
+                            className="w-full text-left p-3 rounded-md hover:bg-accent transition-colors border"
+                            onClick={() => {
+                              append({
+                                concept: block.concept,
+                                description: block.description || '',
+                                quantity: block.quantity,
+                                unit: block.unit || '',
+                                unitPrice: block.unitPrice,
+                                taxRate: block.taxRate,
+                              });
+                              setIsBlockDialogOpen(false);
+                              toast({
+                                title: `Added "${block.name}"`,
+                                description: 'The block has been added to your quote items.'
+                              })
+                            }}
+                          >
+                            <p className="font-semibold">{block.name}</p>
+                            <p className="text-sm text-muted-foreground">{block.concept}</p>
+                            <p className="text-sm text-muted-foreground mt-1">{formatCurrency(block.unitPrice)}</p>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p>No reusable blocks found.</p>
+                        <Button variant="link" asChild className="mt-1">
+                          <Link href="/reusable-blocks/new">Create your first block</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
         </div>
 
         <Separator />
