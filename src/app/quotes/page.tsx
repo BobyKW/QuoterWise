@@ -3,6 +3,8 @@
 import {
   MoreHorizontal,
   PlusCircle,
+  Download,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -40,13 +42,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from '@/components/ui/badge';
-import type { Quote, QuoteStatus } from '@/lib/types';
+import type { Quote, QuoteStatus, UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { useCollection, useFirestore, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
+import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, Timestamp, doc } from 'firebase/firestore';
 import React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
+import { QuotePDFDownloader } from '@/components/quote-pdf-downloader';
 
 const statusStyles: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
@@ -83,6 +86,16 @@ export default function QuotesPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [quoteToDelete, setQuoteToDelete] = React.useState<Quote | null>(null);
 
+  const [quoteToDownload, setQuoteToDownload] = React.useState<Quote | null>(null);
+  const [isDownloading, setIsDownloading] = React.useState<string | null>(null);
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(firestore, `userProfiles/${user.uid}`);
+  }, [user, firestore]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
+
   const quotesQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
@@ -108,6 +121,16 @@ export default function QuotesPage() {
     });
     setIsDeleteDialogOpen(false);
     setQuoteToDelete(null);
+  };
+
+  const handleDownloadClick = (quote: Quote) => {
+    setIsDownloading(quote.id);
+    setQuoteToDownload(quote);
+  };
+
+  const handleDownloadComplete = () => {
+    setQuoteToDownload(null);
+    setIsDownloading(null);
   };
 
   return (
@@ -192,6 +215,17 @@ export default function QuotesPage() {
                             <DropdownMenuItem onClick={() => toast({ title: t('quotes_page.toast_coming_soon_title'), description: t('quotes_page.toast_coming_soon_description')})}>
                               {t('quotes_page.actions_duplicate')}
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => handleDownloadClick(quote)}
+                                disabled={isDownloading === quote.id}
+                            >
+                                {isDownloading === quote.id ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Download className="mr-2 h-4 w-4" />
+                                )}
+                                <span>{isDownloading === quote.id ? t('view_quote_page.downloading') : t('view_quote_page.download_pdf')}</span>
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive focus:bg-destructive/10"
@@ -237,6 +271,14 @@ export default function QuotesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {quoteToDownload && userProfile && (
+        <QuotePDFDownloader 
+            quote={quoteToDownload}
+            userProfile={userProfile}
+            onComplete={handleDownloadComplete}
+        />
+      )}
     </>
   );
 }
