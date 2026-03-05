@@ -16,14 +16,14 @@ export default function RegisterPage() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // If a real user is already logged in, redirect them.
-    if (!isUserLoading && user && !user.isAnonymous) {
+    // If a user (anonymous or real) is already logged in, redirect them to the dashboard.
+    if (!isUserLoading && user) {
       router.push('/dashboard');
     }
   }, [user, isUserLoading, router]);
 
-  // Show loading screen while checking user state or if user is not anonymous.
-  if (isUserLoading || (user && !user.isAnonymous)) {
+  // Show loading screen while checking user state or if a user session exists.
+  if (isUserLoading || user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p>{t('loading')}</p>
