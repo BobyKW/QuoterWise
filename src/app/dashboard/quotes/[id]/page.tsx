@@ -29,7 +29,7 @@ function formatDate(date: Date | Timestamp) {
     });
 }
 
-export default function QuoteViewPage() {
+export default function OldQuoteViewPage() {
   const { id } = useParams();
   const { user } = useUser();
   const firestore = useFirestore();
