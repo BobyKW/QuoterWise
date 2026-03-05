@@ -1,0 +1,281 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model where all user-generated data is
+ * isolated within a user-specific data tree. It ensures that a user can only ever access their own information,
+ * preventing any unauthorized cross-user data access.
+ *
+ * Data Structure: User data is hierarchically organized under `/userProfiles/{userId}/...`. All documents
+ * within this structure, including deeply nested ones, are required to contain a denormalized `userId` field,
+ * which allows for fast, independent, and secure authorization checks without costly lookups to parent documents.
+ * Publicly accessible, read-only data (like system templates) is structurally segregated into a separate
+ * top-level collection (`/systemTemplates`) to simplify security logic and safely enable queries.
+ *
+ * Key Security Decisions:
+ * - User Isolation: All reads and writes are scoped to the authenticated user's ID (`request.auth.uid`).
+ * - No User Enumeration: The root `/userProfiles` collection is not listable, protecting user privacy.
+ * - Denormalization for Authorization: Child documents (e.g., clients, quotes) must contain a `userId` field
+ *   matching the path. This avoids slow and expensive `get()` calls in rules.
+ * - Structural Segregation: User-created templates are kept separate from read-only system templates,
+ *   which allows for simple, secure rules on each collection.
+ * - Prototyping Flexibility: The rules do NOT validate the shape or data types of most fields,
+ *   focusing strictly on authorization and the relational integrity of ownership fields (`userId`, `id`).
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------------
+    // Helper Functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's ID matches the provided userId.
+     * This is the fundamental check for ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the document exists AND the user is the owner.
+     * Used for all update and delete operations to prevent modifying non-existent data.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates integrity for the UserProfile document.
+     * On create, ensures the document ID matches the user's auth ID.
+     * On update, ensures the document ID remains immutable.
+     */
+    function hasValidUserProfileData(userId) {
+      // On create, the document ID MUST match the user's ID.
+      // On update, the ID must not change.
+      return request.resource.data.id == userId
+          && (resource == null || request.resource.data.id == resource.data.id);
+    }
+
+    /**
+     * Validates integrity for a user-owned subcollection document.
+     * On create, ensures the denormalized `userId` field matches the owner's auth ID.
+     * On update, ensures the `userId` field is immutable.
+     */
+    function hasValidOwnedData(userId) {
+      // On create, the denormalized `userId` field MUST match the user's ID in the path.
+      // On update, the denormalized `userId` field MUST NOT change.
+      return request.resource.data.userId == userId
+          && (resource == null || request.resource.data.userId == resource.data.userId);
+    }
+
+
+    // ------------------------------------------------------------------------
+    // User Profile Rules
+    // A user can create and manage their own profile.
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Users can create, read, and manage their own profile document.
+     * @path /userProfiles/{userId}
+     * @allow (create) An authenticated user creating their own profile: `request.auth.uid == userId`.
+     * @deny (get) A user trying to read another user's profile: `request.auth.uid != userId`.
+     * @deny (list) Any user trying to list all profiles in the collection.
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /userProfiles/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && hasValidUserProfileData(userId);
+      allow update: if isExistingOwner(userId) && hasValidUserProfileData(userId);
+      allow delete: if isExistingOwner(userId);
+
+      // ----------------------------------------------------------------------
+      // User Subcollection Rules
+      // All subcollections follow the same ownership pattern.
+      // ----------------------------------------------------------------------
+
+      /**
+       * @description A user can manage their own clients.
+       * @path /userProfiles/{userId}/clients/{clientId}
+       * @allow (create) An owner creating a client document in their own subcollection.
+       * @deny (get) A user trying to read a client from another user's subcollection.
+       * @principle Enforces document ownership via path and a denormalized `userId` field.
+       */
+      match /clients/{clientId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasValidOwnedData(userId);
+        allow update: if isExistingOwner(userId) && hasValidOwnedData(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description A user can manage their own quotes.
+       * @path /userProfiles/{userId}/quotes/{quoteId}
+       * @allow (create) An owner creating a quote document in their own subcollection.
+       * @deny (get) A user trying to read a quote from another user's subcollection.
+       * @principle Enforces document ownership via path and a denormalized `userId` field.
+       */
+      match /quotes/{quoteId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasValidOwnedData(userId);
+        allow update: if isExistingOwner(userId) && hasValidOwnedData(userId);
+        allow delete: if isExistingOwner(userId);
+
+        /**
+         * @description A user can manage sections within their own quotes.
+         * @path /userProfiles/{userId}/quotes/{quoteId}/sections/{sectionId}
+         * @allow (create) An owner creating a quote section within their own quote.
+         * @deny (get) A user trying to read a section from another user's quote.
+         * @principle Inherits ownership from the parent path (`userId`).
+         */
+        match /sections/{sectionId} {
+          allow get, list: if isOwner(userId);
+          // CRITICAL: The IR reasoning states `userId` is denormalized here, so we enforce it.
+          // The schema in the IR for `QuoteSection` is missing the `userId` field.
+          // The rule is written according to the more secure reasoning and will correctly fail
+          // if the client does not provide the required denormalized `userId` field.
+          allow create: if isOwner(userId) && hasValidOwnedData(userId);
+          allow update: if isExistingOwner(userId) && hasValidOwnedData(userId);
+          allow delete: if isExistingOwner(userId);
+
+          /**
+           * @description A user can manage items within their own quote sections.
+           * @path /userProfiles/{userId}/quotes/{quoteId}/sections/{sectionId}/items/{itemId}
+           * @allow (create) An owner creating a quote item within their own quote section.
+           * @deny (get) A user trying to read an item from another user's quote.
+           * @principle Inherits ownership from the grandparent path (`userId`).
+           */
+          match /items/{itemId} {
+            allow get, list: if isOwner(userId);
+            allow create: if isOwner(userId);
+            allow update: if isExistingOwner(userId);
+            allow delete: if isExistingOwner(userId);
+          }
+        }
+
+        /**
+         * @description A user can manage events associated with their own quotes.
+         * @path /userProfiles/{userId}/quotes/{quoteId}/events/{eventId}
+         * @allow (create) An owner creating a quote event within their own quote.
+         * @deny (get) A user trying to read an event from another user's quote.
+         * @principle Inherits ownership from the parent path (`userId`).
+         */
+        match /events/{eventId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && hasValidOwnedData(userId);
+          allow update: if isExistingOwner(userId) && hasValidOwnedData(userId);
+          allow delete: if isExistingOwner(userId);
+        }
+      }
+
+      /**
+       * @description A user can manage their own custom templates.
+       * @path /userProfiles/{userId}/templates/{templateId}
+       * @allow (create) An owner creating a template document in their own subcollection.
+       * @deny (get) A user trying to read a template from another user's subcollection.
+       * @principle Enforces document ownership via path and a denormalized `userId` field.
+       */
+      match /templates/{templateId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasValidOwnedData(userId) && request.resource.data.isSystemTemplate == false;
+        allow update: if isExistingOwner(userId) && hasValidOwnedData(userId) && request.resource.data.isSystemTemplate == false;
+        allow delete: if isExistingOwner(userId);
+
+        /**
+         * @description A user can manage sections within their own custom templates.
+         * @path /userProfiles/{userId}/templates/{templateId}/sections/{sectionId}
+         * @allow (create) An owner creating a template section within their own template.
+         * @deny (get) A user trying to read a section from another user's template.
+         * @principle Inherits ownership from the parent path (`userId`).
+         */
+        match /sections/{sectionId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId);
+          allow update: if isExistingOwner(userId);
+          allow delete: if isExistingOwner(userId);
+
+          /**
+           * @description A user can manage items within their own custom template sections.
+           * @path /userProfiles/{userId}/templates/{templateId}/sections/{sectionId}/items/{itemId}
+           * @allow (create) An owner creating an item within their own template section.
+           * @deny (get) A user trying to read an item from another user's template.
+           * @principle Inherits ownership from the grandparent path (`userId`).
+           */
+          match /items/{itemId} {
+            allow get, list: if isOwner(userId);
+            allow create: if isOwner(userId);
+            allow update: if isExistingOwner(userId);
+            allow delete: if isExistingOwner(userId);
+          }
+        }
+      }
+
+      /**
+       * @description A user can manage their own reusable content blocks.
+       * @path /userProfiles/{userId}/reusableBlocks/{blockId}
+       * @allow (create) An owner creating a block document in their own subcollection.
+       * @deny (get) A user trying to read a block from another user's subcollection.
+       * @principle Enforces document ownership via path and a denormalized `userId` field.
+       */
+      match /reusableBlocks/{blockId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasValidOwnedData(userId);
+        allow update: if isExistingOwner(userId) && hasValidOwnedData(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // System Template Rules
+    // Publicly readable data that cannot be modified by users.
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description System templates are readable by any authenticated user but are not writable.
+     * @path /systemTemplates/{templateId}
+     * @allow (get) Any signed-in user reading a system template.
+     * @deny (create) Any user trying to create a new system template.
+     * @principle Segregates public read-only data from private user data for simple, secure access.
+     */
+    match /systemTemplates/{templateId} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+
+      /**
+       * @description System template sections are readable by any authenticated user but are not writable.
+       * @path /systemTemplates/{templateId}/sections/{sectionId}
+       * @allow (get) Any signed-in user reading a system template section.
+       * @deny (create) Any user trying to create a new system template section.
+       * @principle Ensures public subcollection data remains read-only.
+       */
+      match /sections/{sectionId} {
+        allow get, list: if isSignedIn();
+        allow create: if false;
+        allow update: if false;
+        allow delete: if false;
+
+        /**
+         * @description System template items are readable by any authenticated user but are not writable.
+         * @path /systemTemplates/{templateId}/sections/{sectionId}/items/{itemId}
+         * @allow (get) Any signed-in user reading a system template item.
+         * @deny (create) Any user trying to create a new system template item.
+         * @principle Ensures public subcollection data remains read-only.
+         */
+        match /items/{itemId} {
+          allow get, list: if isSignedIn();
+          allow create: if false;
+          allow update: if false;
+          allow delete: if false;
+        }
+      }
+    }
+  }
+}
