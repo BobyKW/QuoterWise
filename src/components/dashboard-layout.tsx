@@ -64,7 +64,7 @@ function MainNav() {
   ];
   
   const bottomNavItems = [
-      { href: '/settings', icon: Settings, label: t('sidebar.settings'), protected: true },
+      { href: '/settings', icon: Settings, label: t('sidebar.settings'), protected: false },
   ];
 
   const renderMenuItem = (item: typeof navItems[0]) => {

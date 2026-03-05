@@ -48,6 +48,7 @@ import React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { QuotePDFDownloader } from '@/components/quote-pdf-downloader';
+import { useAuthModal } from '@/hooks/use-auth-modal';
 
 const statusStyles: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
@@ -80,6 +81,7 @@ export default function QuotesPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
+  const { onOpen } = useAuthModal();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [quoteToDelete, setQuoteToDelete] = React.useState<Quote | null>(null);
@@ -122,6 +124,10 @@ export default function QuotesPage() {
   };
 
   const handleDownloadClick = (quote: Quote) => {
+    if (user?.isAnonymous) {
+      onOpen();
+      return;
+    }
     setIsDownloading(quote.id);
     setQuoteToDownload(quote);
   };
