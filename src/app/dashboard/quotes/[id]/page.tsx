@@ -12,8 +12,6 @@ import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useRef, useState } from 'react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', {
@@ -61,6 +59,9 @@ export default function QuoteViewPage() {
     setIsDownloading(true);
 
     try {
+        const { default: jsPDF } = await import('jspdf');
+        const { default: html2canvas } = await import('html2canvas');
+
         const canvas = await html2canvas(element, {
             scale: 2, // Higher scale for better quality
             useCORS: true,
