@@ -12,6 +12,7 @@ import {
   PanelLeft,
   Blocks,
   Library,
+  Lock,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -43,57 +44,70 @@ import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AuthModalProvider, useAuthModal } from '@/hooks/use-auth-modal';
+import { AuthModal } from '@/components/auth-modal';
 
 
 function MainNav() {
   const pathname = usePathname();
   const { t } = useTranslation();
+  const { user } = useUser();
+  const { onOpen } = useAuthModal();
+  const isAnonymous = user?.isAnonymous ?? true;
 
   const navItems = [
-    { href: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
-    { href: '/quotes', icon: FileText, label: t('sidebar.quotes') },
-    { href: '/reusable-blocks', icon: Blocks, label: t('sidebar.blocks') },
-    { href: '/clients', icon: Users, label: t('sidebar.clients') },
-    { href: '/templates', icon: Library, label: t('sidebar.templates') },
+    { href: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), protected: false },
+    { href: '/quotes', icon: FileText, label: t('sidebar.quotes'), protected: false },
+    { href: '/reusable-blocks', icon: Blocks, label: t('sidebar.blocks'), protected: true },
+    { href: '/clients', icon: Users, label: t('sidebar.clients'), protected: true },
+    { href: '/templates', icon: Library, label: t('sidebar.templates'), protected: true },
   ];
   
   const bottomNavItems = [
-      { href: '/settings', icon: Settings, label: t('sidebar.settings') },
-  ]
+      { href: '/settings', icon: Settings, label: t('sidebar.settings'), protected: true },
+  ];
+
+  const renderMenuItem = (item: typeof navItems[0]) => {
+    const isProtectedAndAnonymous = item.protected && isAnonymous;
+
+    return (
+       <SidebarMenuItem key={item.href}>
+          {isProtectedAndAnonymous ? (
+            <SidebarMenuButton 
+              onClick={onOpen}
+              tooltip={item.label}
+              className="flex justify-between items-center w-full"
+            >
+              <div className="flex items-center gap-2">
+                <item.icon />
+                <span>{item.label}</span>
+              </div>
+              <Lock className="h-3 w-3 text-muted-foreground" />
+            </SidebarMenuButton>
+          ) : (
+            <Link href={item.href}>
+              <SidebarMenuButton
+                isActive={pathname.startsWith(item.href)}
+                tooltip={item.label}
+              >
+                <item.icon />
+                <span>{item.label}</span>
+              </SidebarMenuButton>
+            </Link>
+          )}
+      </SidebarMenuItem>
+    );
+  }
 
   return (
     <>
     <SidebarMenu>
-      {navItems.map((item) => (
-        <SidebarMenuItem key={item.href}>
-          <Link href={item.href}>
-            <SidebarMenuButton
-              isActive={pathname.startsWith(item.href)}
-              tooltip={item.label}
-            >
-              <item.icon />
-              <span>{item.label}</span>
-            </SidebarMenuButton>
-          </Link>
-        </SidebarMenuItem>
-      ))}
+      {navItems.map(renderMenuItem)}
     </SidebarMenu>
 
     <div className="mt-auto">
         <SidebarMenu>
-            {bottomNavItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-                <Link href={item.href}>
-                <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
-                    tooltip={item.label}
-                >
-                    <item.icon />
-                    <span>{item.label}</span>
-                </SidebarMenuButton>
-                </Link>
-            </SidebarMenuItem>
-            ))}
+            {bottomNavItems.map(renderMenuItem)}
         </SidebarMenu>
     </div>
     </>
@@ -114,6 +128,11 @@ function UserMenu() {
   const getInitials = (email?: string | null) => {
     if (!email) return '..';
     return email.substring(0, 2).toUpperCase();
+  }
+
+  // Hide user menu for anonymous users
+  if (user?.isAnonymous) {
+    return null;
   }
 
   return (
@@ -178,6 +197,46 @@ function LogoutButton() {
   )
 }
 
+function CollapsedUserMenu() {
+    const { user } = useUser();
+    const router = useRouter();
+    const { t } = useTranslation();
+    const { onOpen } = useAuthModal();
+
+    if(user?.isAnonymous) {
+        return (
+            <Button variant="ghost" size="icon" onClick={onOpen}>
+                <LogOut className="h-4 w-4 -rotate-90" />
+            </Button>
+        )
+    }
+
+    const getInitials = (email?: string | null) => {
+        if (!email) return '..';
+        return email.substring(0, 2).toUpperCase();
+    }
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+            <Avatar className="h-8 w-8 cursor-pointer">
+                <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
+            </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="center" className="w-56">
+            <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => router.push('/settings')}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>{t('user_menu.settings')}</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <LogoutButton />
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -189,7 +248,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!isUserLoading && !user) {
-      router.replace('/login');
+      router.replace('/');
     }
   }, [user, isUserLoading, router]);
 
@@ -201,57 +260,39 @@ export default function DashboardLayout({
     );
   }
 
-  const getInitials = (email?: string | null) => {
-    if (!email) return '..';
-    return email.substring(0, 2).toUpperCase();
-  }
-
   return (
-    <SidebarProvider>
-        <div className="flex min-h-screen">
-            <Sidebar collapsible="icon">
-                <SidebarHeader className="border-b">
-                <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-                    <Logo className="h-6 w-6 text-primary" />
-                    <span className={cn(
-                    "font-semibold",
-                    "group-data-[collapsible=icon]:hidden"
-                    )}>QuoterWise</span>
-                </Link>
-                </SidebarHeader>
-                <SidebarContent>
-                <MainNav />
-                </SidebarContent>
-                <SidebarFooter className={cn("p-2 border-t", "group-data-[collapsible=icon]:hidden")}>
-                <UserMenu />
-                </SidebarFooter>
-                <SidebarFooter className={cn("p-2 border-t hidden", "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center")}>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                    <Avatar className="h-8 w-8 cursor-pointer">
-                        <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
-                    </Avatar>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent side="right" align="center" className="w-56">
-                    <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push('/settings')}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>{t('user_menu.settings')}</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <LogoutButton />
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                </SidebarFooter>
-            </Sidebar>
-            <div className="flex flex-col flex-1">
-                <MobileHeader />
-                <main className="flex-1">
-                    {children}
-                </main>
-            </div>
-      </div>
-    </SidebarProvider>
+    <AuthModalProvider>
+        <SidebarProvider>
+            <div className="flex min-h-screen">
+                <Sidebar collapsible="icon">
+                    <SidebarHeader className="border-b">
+                    <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+                        <Logo className="h-6 w-6 text-primary" />
+                        <span className={cn(
+                        "font-semibold",
+                        "group-data-[collapsible=icon]:hidden"
+                        )}>QuoterWise</span>
+                    </Link>
+                    </SidebarHeader>
+                    <SidebarContent>
+                    <MainNav />
+                    </SidebarContent>
+                    <SidebarFooter className={cn("p-2 border-t", "group-data-[collapsible=icon]:hidden")}>
+                    <UserMenu />
+                    </SidebarFooter>
+                    <SidebarFooter className={cn("p-2 border-t hidden", "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center")}>
+                        <CollapsedUserMenu />
+                    </SidebarFooter>
+                </Sidebar>
+                <div className="flex flex-col flex-1">
+                    <MobileHeader />
+                    <main className="flex-1">
+                        {children}
+                    </main>
+                    <AuthModal />
+                </div>
+        </div>
+        </SidebarProvider>
+    </AuthModalProvider>
   );
 }

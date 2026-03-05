@@ -12,6 +12,8 @@ import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuthModal } from '@/hooks/use-auth-modal';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', {
@@ -31,11 +33,15 @@ function formatDate(date: Date | Timestamp) {
 
 export default function QuoteViewPage() {
   const { id } = useParams();
-  const { user } = useUser();
+  const { user, isUserLoading: isUserLoading } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { onOpen } = useAuthModal();
+  const { t } = useTranslation();
   const quotePrintRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const isAnonymous = user?.isAnonymous ?? true;
 
   const quoteRef = useMemoFirebase(() => {
     if (!id || !user) return null;
@@ -44,15 +50,21 @@ export default function QuoteViewPage() {
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
+    // For anonymous users, there won't be a profile, which is fine.
     return doc(firestore, `userProfiles/${user.uid}`);
   }, [user, firestore]);
 
   const { data: quote, isLoading: isQuoteLoading } = useDoc<Quote>(quoteRef);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
-  const isLoading = isQuoteLoading || isProfileLoading;
+  const isLoading = isQuoteLoading || isProfileLoading || isUserLoading;
 
   const handleDownloadPdf = async () => {
+    if (isAnonymous) {
+        onOpen();
+        return;
+    }
+
     const element = quotePrintRef.current;
     if (!element || !quote) return;
 
@@ -125,11 +137,11 @@ export default function QuoteViewPage() {
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <Card className="text-center">
                 <CardHeader>
-                    <p>Quote not found.</p>
+                    <p>{t('view_quote_page.quote_not_found')}</p>
                 </CardHeader>
                 <CardContent>
                     <Button asChild>
-                        <Link href="/quotes">Go back to Quotes</Link>
+                        <Link href="/quotes">{t('view_quote_page.back_to_dashboard')}</Link>
                     </Button>
                 </CardContent>
             </Card>
@@ -144,11 +156,11 @@ export default function QuoteViewPage() {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
        <div className="flex items-center gap-4">
             <h1 className="font-semibold text-lg md:text-2xl flex-1">
-                Quote {quote.quoteNumber}
+                {t('view_quote_page.title', { quoteNumber: quote.quoteNumber })}
             </h1>
             <Button variant="outline" asChild>
                 <Link href={`/quotes/${quote.id}/edit`}>
-                    <Edit className="mr-2 h-4 w-4" /> Edit
+                    <Edit className="mr-2 h-4 w-4" /> {t('view_quote_page.edit')}
                 </Link>
             </Button>
             <Button onClick={handleDownloadPdf} disabled={isDownloading}>
@@ -157,7 +169,7 @@ export default function QuoteViewPage() {
                 ) : (
                     <Download className="mr-2 h-4 w-4" />
                 )}
-                 Download PDF
+                 {t('view_quote_page.download_pdf')}
             </Button>
         </div>
 
@@ -181,7 +193,7 @@ export default function QuoteViewPage() {
               <p>Phone: {userProfile?.phone}</p>
             </div>
             <div className="text-right">
-              <h1 className="text-4xl font-bold uppercase text-gray-700">QUOTE</h1>
+              <h1 className="text-4xl font-bold uppercase text-gray-700">{t('view_quote_page.header_title')}</h1>
               <p className="text-gray-500">#{quote.quoteNumber}</p>
             </div>
           </div>
@@ -189,11 +201,11 @@ export default function QuoteViewPage() {
           {/* Client Info & Dates */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             <div>
-              <h3 className="font-semibold mb-2">Billed To</h3>
+              <h3 className="font-semibold mb-2">{t('view_quote_page.billed_to')}</h3>
               <p className="font-bold">{quote.clientName}</p>
             </div>
             <div className="text-right">
-                <p><span className="font-semibold">Date of Issue:</span> {formatDate(quote.createdAt)}</p>
+                <p><span className="font-semibold">{t('view_quote_page.date_of_issue')}:</span> {formatDate(quote.createdAt)}</p>
             </div>
           </div>
 
@@ -201,10 +213,10 @@ export default function QuoteViewPage() {
           <table className="w-full mb-8 text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="p-2 text-left font-semibold">Description</th>
-                <th className="p-2 w-24 text-center font-semibold">Qty</th>
-                <th className="p-2 w-32 text-right font-semibold">Unit Price</th>
-                <th className="p-2 w-32 text-right font-semibold">Total</th>
+                <th className="p-2 text-left font-semibold">{t('view_quote_page.table_description')}</th>
+                <th className="p-2 w-24 text-center font-semibold">{t('view_quote_page.table_qty')}</th>
+                <th className="p-2 w-32 text-right font-semibold">{t('view_quote_page.table_unit_price')}</th>
+                <th className="p-2 w-32 text-right font-semibold">{t('view_quote_page.table_total')}</th>
               </tr>
             </thead>
             <tbody>
@@ -226,16 +238,16 @@ export default function QuoteViewPage() {
           <div className="flex justify-end mb-8">
             <div className="w-full max-w-sm space-y-2">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t('view_quote_page.subtotal')}</span>
                 <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Tax</span>
+                <span className="text-muted-foreground">{t('view_quote_page.total_tax')}</span>
                 <span>{formatCurrency(totalTax)}</span>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
+                <span>{t('view_quote_page.final_total')}</span>
                 <span>{formatCurrency(quote.total)}</span>
               </div>
             </div>
@@ -244,7 +256,7 @@ export default function QuoteViewPage() {
           {/* Terms */}
           {userProfile?.defaultTerms && (
              <div>
-                <h3 className="font-semibold mb-2">Terms & Conditions</h3>
+                <h3 className="font-semibold mb-2">{t('view_quote_page.terms_conditions')}</h3>
                 <p className="text-xs text-muted-foreground whitespace-pre-wrap">{userProfile.defaultTerms}</p>
             </div>
           )}

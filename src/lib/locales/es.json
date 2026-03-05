@@ -6,7 +6,8 @@
     "blocks": "Bloques",
     "templates": "Plantillas",
     "settings": "Ajustes",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "login_to_access": "Inicia sesión para acceder"
   },
   "user_menu": {
     "my_account": "Mi Cuenta",
@@ -308,5 +309,11 @@
     "block_created_description": "El bloque \"{blockName}\" se ha creado correctamente.",
     "settings_saved_title": "Ajustes Guardados",
     "settings_saved_description": "Tu perfil se ha actualizado correctamente."
+  },
+  "auth_modal": {
+    "title": "Accede a todas las Funcionalidades",
+    "description": "Crea una cuenta o inicia sesión para guardar tu trabajo y acceder a todas las funciones.",
+    "login_tab": "Iniciar Sesión",
+    "register_tab": "Registrarse"
   }
 }

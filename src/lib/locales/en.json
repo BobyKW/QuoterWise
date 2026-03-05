@@ -6,7 +6,8 @@
     "blocks": "Blocks",
     "templates": "Templates",
     "settings": "Settings",
-    "logout": "Log out"
+    "logout": "Log out",
+    "login_to_access": "Log in to access"
   },
   "user_menu": {
     "my_account": "My Account",
@@ -308,5 +309,11 @@
     "block_created_description": "The block \"{blockName}\" has been created successfully.",
     "settings_saved_title": "Settings Saved",
     "settings_saved_description": "Your profile has been updated successfully."
+  },
+  "auth_modal": {
+    "title": "Access Full Features",
+    "description": "Create an account or log in to save your work and access all features.",
+    "login_tab": "Log In",
+    "register_tab": "Sign Up"
   }
 }
