@@ -17,6 +17,7 @@ export type UserProfile = {
   phone: string;
   logoUrl?: string;
   defaultTerms: string;
+  nextQuoteNumber?: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
@@ -86,3 +87,5 @@ export type ReusableBlockDocument = {
 export type ReusableBlock = ReusableBlockDocument & {
   id: string;
 };
+
+    

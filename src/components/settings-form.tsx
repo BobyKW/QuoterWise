@@ -84,7 +84,7 @@ export function SettingsForm() {
       id: user.uid,
       email: user.email,
       updatedAt: serverTimestamp(),
-      ...(userProfile ? {} : { createdAt: serverTimestamp() }), // Add createdAt if it's a new profile
+      ...(userProfile ? {} : { createdAt: serverTimestamp(), nextQuoteNumber: 1 }), // Add createdAt if it's a new profile
     };
 
     setDocumentNonBlocking(userProfileRef, profileData, { merge: true });
@@ -276,3 +276,5 @@ export function SettingsForm() {
     </Form>
   );
 }
+
+    

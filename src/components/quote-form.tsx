@@ -28,9 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useFirestore, useUser, addDocumentNonBlocking, updateDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, serverTimestamp, Timestamp, doc, query, orderBy } from 'firebase/firestore';
-import type { Quote, QuoteDocument, Client, ReusableBlock } from '@/lib/types';
+import { useFirestore, useUser, addDocumentNonBlocking, updateDocumentNonBlocking, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import { collection, serverTimestamp, Timestamp, doc, query, orderBy, increment } from 'firebase/firestore';
+import type { Quote, QuoteDocument, Client, ReusableBlock, UserProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import {
@@ -81,6 +81,12 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   const [isClientDialogOpen, setIsClientDialogOpen] = React.useState(false);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = React.useState(false);
 
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(firestore, `userProfiles/${user.uid}`);
+  }, [user, firestore]);
+  const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
+
   const clientsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
@@ -104,7 +110,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
     defaultValues: {
       clientId: '',
       clientName: '',
-      quoteNumber: `Q-${new Date().getFullYear()}-0001`,
+      quoteNumber: '',
       createdAt: new Date(),
       status: 'draft',
       items: [defaultItem],
@@ -117,8 +123,13 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
         ...quote,
         createdAt: quote.createdAt instanceof Timestamp ? quote.createdAt.toDate() : quote.createdAt,
       });
+    } else if (userProfile && form.getValues('quoteNumber') === '') {
+        const nextNumber = userProfile.nextQuoteNumber || 1;
+        const year = new Date().getFullYear();
+        const numberStr = String(nextNumber).padStart(4, '0');
+        form.setValue('quoteNumber', `Q-${year}-${numberStr}`);
     }
-  }, [quote, form]);
+  }, [quote, userProfile, form]);
 
 
   const { fields, append, remove } = useFieldArray({
@@ -142,8 +153,8 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   const total = subtotal + totalTax;
 
   const onSubmit = (data: QuoteFormValues) => {
-    if (!user) {
-      console.error("No user found");
+    if (!user || !userProfileRef) {
+      console.error("No user or profile reference found");
       return;
     }
 
@@ -177,6 +188,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
       
       const quotesCol = collection(firestore, `userProfiles/${user.uid}/quotes`);
       addDocumentNonBlocking(quotesCol, finalQuoteData);
+      updateDocumentNonBlocking(userProfileRef, { nextQuoteNumber: increment(1) });
        toast({
         title: "Quote Created",
         description: `Quote ${data.quoteNumber} has been successfully created.`,
@@ -260,7 +272,12 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
               <FormItem>
                 <FormLabel>Quote Number</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input
+                    {...field}
+                    readOnly
+                    className="bg-muted cursor-not-allowed"
+                    placeholder={isLoadingProfile ? 'Generating...' : ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -552,3 +569,5 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
     </Form>
   );
 }
+
+    
