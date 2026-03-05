@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { QuoteForm } from '@/components/quote-form';
 
 export default function NewQuotePage() {
   return (
@@ -14,10 +13,7 @@ export default function NewQuotePage() {
           <CardDescription>Fill in the details to create a new quote.</CardDescription>
         </CardHeader>
         <CardContent>
-          <p>Quote creation form will be here.</p>
-          <Link href="/dashboard">
-            <Button variant="outline" className="mt-4">Cancel</Button>
-          </Link>
+          <QuoteForm />
         </CardContent>
       </Card>
     </main>
