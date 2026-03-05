@@ -125,13 +125,19 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
         ...quote,
         createdAt: quote.createdAt instanceof Timestamp ? quote.createdAt.toDate() : quote.createdAt,
       });
-    } else if (userProfile && form.getValues('quoteNumber') === '') {
+    } else if (form.getValues('quoteNumber') === '') {
+      // This block runs only when creating a new quote.
+      if (userProfile) { // Registered user with profile
         const nextNumber = userProfile.nextQuoteNumber || 1;
         const year = new Date().getFullYear();
         const numberStr = String(nextNumber).padStart(4, '0');
         form.setValue('quoteNumber', `Q-${year}-${numberStr}`);
+      } else if (!isLoadingProfile) { // Handles anonymous users OR registered users without a profile document yet.
+        const tempNumber = `DRAFT-${Date.now().toString().slice(-6)}`;
+        form.setValue('quoteNumber', tempNumber);
+      }
     }
-  }, [quote, userProfile, form]);
+  }, [quote, userProfile, isLoadingProfile, form]);
 
 
   const { fields, append, remove } = useFieldArray({
@@ -155,7 +161,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   const total = subtotal + totalTax;
 
   const onSubmit = (data: QuoteFormValues) => {
-    if (!user || !userProfileRef) {
+    if (!user) {
       console.error("No user or profile reference found");
       return;
     }
@@ -190,7 +196,11 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
       
       const quotesCol = collection(firestore, `userProfiles/${user.uid}/quotes`);
       addDocumentNonBlocking(quotesCol, finalQuoteData);
-      updateDocumentNonBlocking(userProfileRef, { nextQuoteNumber: increment(1) });
+
+      if (userProfileRef && userProfile) {
+        updateDocumentNonBlocking(userProfileRef, { nextQuoteNumber: increment(1) });
+      }
+
        toast({
         title: t('toasts.quote_created_title'),
         description: t('toasts.quote_created_description', { quoteNumber: data.quoteNumber }),
