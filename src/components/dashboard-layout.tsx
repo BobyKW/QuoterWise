@@ -45,7 +45,7 @@ import { useEffect } from 'react';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/templates', icon: FileText, label: 'Templates' },
+  { href: '/quotes', icon: FileText, label: 'Quotes' },
   { href: '/clients', icon: Users, label: 'Clients' },
   { href: '/reusable-blocks', icon: Blocks, label: 'Bloques' },
   { href: '/settings', icon: Settings, label: 'Settings' },

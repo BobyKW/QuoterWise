@@ -1,11 +1,9 @@
 'use client';
 
-import {
-  MoreHorizontal,
-  PlusCircle,
-} from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import {
+  Button
+} from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -14,223 +12,167 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  useCollection,
+  useFirestore,
+  useUser,
+  useMemoFirebase
+} from '@/firebase';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
+  collection,
+  query
+} from 'firebase/firestore';
+import type {
+  Quote,
+  QuoteStatus
+} from '@/lib/types';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Badge } from '@/components/ui/badge';
-import type { Quote, QuoteStatus } from '@/lib/types';
-import { cn } from '@/lib/utils';
-import { useCollection, useFirestore, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, query, orderBy, Timestamp, doc } from 'firebase/firestore';
+  File,
+  Send,
+  CheckCircle,
+  XCircle,
+  MessageSquare,
+  Timer,
+  PlusCircle,
+  FileText
+} from 'lucide-react';
 import React from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const statusStyles: Record<QuoteStatus, string> = {
-  draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
-  sent: 'bg-blue-100 text-blue-800 border-transparent dark:bg-blue-900/50 dark:text-blue-300',
-  accepted: 'bg-green-100 text-green-800 border-transparent dark:bg-green-900/50 dark:text-green-300',
-  rejected: 'bg-red-100 text-red-800 border-transparent dark:bg-red-900/50 dark:text-red-300',
-  negotiating: 'bg-yellow-100 text-yellow-800 border-transparent dark:bg-yellow-900/50 dark:text-yellow-300',
-  expired: 'bg-purple-100 text-purple-800 border-transparent dark:bg-purple-900/50 dark:text-purple-300',
-};
+const statusCards: {
+  status: QuoteStatus,
+  label: string,
+  icon: React.ElementType,
+  color: string
+}[] = [{
+  status: 'draft',
+  label: 'Drafts',
+  icon: File,
+  color: 'text-gray-500'
+}, {
+  status: 'sent',
+  label: 'Sent',
+  icon: Send,
+  color: 'text-blue-500'
+}, {
+  status: 'accepted',
+  label: 'Accepted',
+  icon: CheckCircle,
+  color: 'text-green-500'
+}, {
+  status: 'rejected',
+  label: 'Rejected',
+  icon: XCircle,
+  color: 'text-red-500'
+}, {
+  status: 'negotiating',
+  label: 'Negotiating',
+  icon: MessageSquare,
+  color: 'text-yellow-500'
+}, {
+  status: 'expired',
+  label: 'Expired',
+  icon: Timer,
+  color: 'text-purple-500'
+}, ];
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
+
+function DashboardSkeleton() {
+    return (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 7 }).map((_, i) => (
+                <Card key={i}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-6 w-6" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-8 w-12" />
+                    </CardContent>
+                </Card>
+            ))}
+        </div>
+    );
 }
 
-function formatDate(date: Date | Timestamp) {
-    const d = date instanceof Timestamp ? date.toDate() : date;
-    return d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-}
-
-export default function Dashboard() {
-  const { user } = useUser();
+export default function DashboardPage() {
+  const {
+    user
+  } = useUser();
   const firestore = useFirestore();
-  const { toast } = useToast();
-
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [quoteToDelete, setQuoteToDelete] = React.useState<Quote | null>(null);
 
   const quotesQuery = useMemoFirebase(() => {
     if (!user) return null;
-    return query(
-      collection(firestore, `userProfiles/${user.uid}/quotes`),
-      orderBy('createdAt', 'desc')
-    );
+    return query(collection(firestore, `userProfiles/${user.uid}/quotes`));
   }, [user, firestore]);
 
-  const { data: quotes, isLoading } = useCollection<Quote>(quotesQuery);
+  const {
+    data: quotes,
+    isLoading
+  } = useCollection < Quote > (quotesQuery);
 
-  const handleDeleteClick = (quote: Quote) => {
-    setQuoteToDelete(quote);
-    setIsDeleteDialogOpen(true);
-  };
+  const quoteCounts = React.useMemo(() => {
+    const counts = {
+      draft: 0,
+      sent: 0,
+      accepted: 0,
+      rejected: 0,
+      negotiating: 0,
+      expired: 0,
+    };
+    if (quotes) {
+      for (const quote of quotes) {
+        if (quote.status in counts) {
+          counts[quote.status]++;
+        }
+      }
+    }
+    return counts;
+  }, [quotes]);
+  
+  const totalQuotes = quotes?.length || 0;
 
-  const performDelete = () => {
-    if (!user || !quoteToDelete) return;
-    const quoteRef = doc(firestore, `userProfiles/${user.uid}/quotes/${quoteToDelete.id}`);
-    deleteDocumentNonBlocking(quoteRef);
-    toast({ title: "Quote deleted", description: `Quote "${quoteToDelete.quoteNumber}" has been deleted.` });
-    setIsDeleteDialogOpen(false);
-    setQuoteToDelete(null);
-  };
-
-  return (
-    <>
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="flex items-center">
-          <h1 className="font-semibold text-lg md:text-2xl">Dashboard</h1>
-          <div className="ml-auto flex items-center gap-2">
-            <Link href="/dashboard/quotes/new">
-              <Button size="sm" className="h-8 gap-1">
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  New Quote
-                </span>
-              </Button>
-            </Link>
-          </div>
+  return ( 
+    <main className = "flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8" >
+      <div className = "flex items-center" >
+        <h1 className = "font-semibold text-lg md:text-2xl" > Dashboard </h1> 
+        <div className = "ml-auto flex items-center gap-2" >
+          <Link href = "/quotes/new" >
+            <Button size = "sm" className = "h-8 gap-1" >
+              <PlusCircle className = "h-3.5 w-3.5" />
+              <span className = "sr-only sm:not-sr-only sm:whitespace-nowrap" >
+                New Quote 
+              </span> 
+            </Button> 
+          </Link> 
+        </div> 
+      </div>
+      
+      {isLoading ? (
+        <DashboardSkeleton />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Quotes</CardTitle>
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{totalQuotes}</div>
+                </CardContent>
+            </Card>
+            {statusCards.map(({ status, label, icon: Icon, color }) => (
+                <Card key={status}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{label}</CardTitle>
+                    <Icon className={`h-4 w-4 text-muted-foreground ${color}`} />
+                    </CardHeader>
+                    <CardContent>
+                    <div className="text-2xl font-bold">{quoteCounts[status]}</div>
+                    </CardContent>
+                </Card>
+            ))}
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Quotes</CardTitle>
-            <CardDescription>Manage your quotes and view their status.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Number</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead className="hidden md:table-cell">Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead>
-                      <span className="sr-only">Actions</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center">
-                        Loading...
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {!isLoading && quotes && quotes.map((quote) => (
-                    <TableRow key={quote.id}>
-                      <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
-                      <TableCell>{quote.clientName}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {quote.createdAt && formatDate(quote.createdAt)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            'capitalize',
-                            statusStyles[quote.status]
-                          )}
-                        >
-                          {quote.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">{formatCurrency(quote.total)}</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button aria-haspopup="true" size="icon" variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Toggle menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/quotes/${quote.id}`}>View</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/quotes/${quote.id}/edit`}>Edit</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => toast({ title: 'Coming Soon!', description: 'Duplicating quotes will be available soon.'})}>
-                              Duplicate
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                              onClick={() => handleDeleteClick(quote)}
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {!isLoading && (!quotes || quotes.length === 0) && (
-                      <TableRow>
-                          <TableCell colSpan={6} className="text-center">
-                          No quotes found.
-                          </TableCell>
-                      </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the quote "{quoteToDelete?.quoteNumber}". This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setQuoteToDelete(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={performDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+      )}
+    </main>
   );
 }

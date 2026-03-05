@@ -195,7 +195,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
       });
     }
     
-    router.push('/dashboard');
+    router.push('/quotes');
   };
 
 
@@ -569,5 +569,3 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
     </Form>
   );
 }
-
-    
