@@ -42,7 +42,8 @@ import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { useUser, useAuth, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { signOut, doc } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { doc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthModalProvider, useAuthModal } from '@/hooks/use-auth-modal';
@@ -318,5 +319,3 @@ export default function DashboardLayout({
     </AuthModalProvider>
   );
 }
-
-    
