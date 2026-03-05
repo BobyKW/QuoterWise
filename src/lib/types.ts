@@ -6,6 +6,21 @@ export type User = {
   initials: string;
 };
 
+export type UserProfile = {
+  id: string;
+  email: string;
+  businessName: string;
+  taxId?: string;
+  address: string;
+  city: string;
+  country: string;
+  phone: string;
+  logoUrl?: string;
+  defaultTerms: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+};
+
 export type Client = {
   id: string;
   name: string;
