@@ -49,12 +49,18 @@
     "delete_dialog_cancel": "Cancelar",
     "delete_dialog_confirm": "Eliminar",
     "toast_coming_soon_title": "¡Próximamente!",
-    "toast_coming_soon_description": "La duplicación de presupuestos estará disponible pronto."
+    "toast_coming_soon_description": "La duplicación de presupuestos estará disponible pronto.",
+    "anonymous_limit_reached": "Invitados pueden crear {count} presupuestos. Regístrate para crear más.",
+    "registered_limit_reached": "Has alcanzado tu límite de {count} presupuestos."
   },
   "new_quote_page": {
     "title": "Nuevo Presupuesto",
     "card_title": "Crear Nuevo Presupuesto",
-    "card_description": "Rellena los detalles para crear un nuevo presupuesto."
+    "card_description": "Rellena los detalles para crear un nuevo presupuesto.",
+    "limit_reached_title": "Límite de Presupuestos Alcanzado",
+    "anonymous_limit_reached": "Para crear más de {count} presupuestos, por favor crea una cuenta. Es gratis y te permite guardar tu trabajo.",
+    "registered_limit_reached": "Has alcanzado el máximo de {count} presupuestos. Para crear más, por favor mejora tu plan (próximamente) o elimina presupuestos antiguos.",
+    "back_to_quotes": "Volver a Presupuestos"
   },
   "edit_quote_page": {
     "title": "Editar Presupuesto",
@@ -312,7 +318,9 @@
     "block_created_title": "Bloque Creado",
     "block_created_description": "El bloque \"{blockName}\" se ha creado correctamente.",
     "settings_saved_title": "Ajustes Guardados",
-    "settings_saved_description": "Tu perfil se ha actualizado correctamente."
+    "settings_saved_description": "Tu perfil se ha actualizado correctamente.",
+    "limits_saved_title": "Límites Guardados",
+    "limits_saved_description": "Los límites de creación de presupuestos han sido actualizados."
   },
   "auth_modal": {
     "title": "Accede a todas las Funcionalidades",
@@ -330,7 +338,15 @@
     "table_role": "Rol",
     "loading": "Cargando usuarios...",
     "access_denied": "No tienes permiso para ver esta página.",
-    "no_users": "No se encontraron usuarios."
+    "no_users": "No se encontraron usuarios.",
+    "quote_limits_title": "Límites de Creación de Presupuestos",
+    "quote_limits_description": "Establece el número máximo de presupuestos para cada tipo de usuario."
+  },
+  "quote_limits_form": {
+    "anonymous_label": "Límite para Invitados",
+    "registered_label": "Límite para Registrados",
+    "save_button": "Guardar Límites",
+    "saving_button": "Guardando..."
   }
 }
 

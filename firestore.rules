@@ -6,8 +6,8 @@
  * Data Structure: User data is hierarchically organized under `/userProfiles/{userId}/...`. All documents
  * within this structure, including deeply nested ones, are required to contain a denormalized `userId` field,
  * which allows for fast, independent, and secure authorization checks without costly lookups to parent documents.
- * Publicly accessible, read-only data (like system templates) is structurally segregated into a separate
- * top-level collection (`/systemTemplates`) to simplify security logic and safely enable queries.
+ * Publicly accessible, read-only data (like system templates) and write-controlled config data (like app limits)
+ * are structurally segregated into separate top-level collections to simplify security logic.
  *
  * Key Security Decisions:
  * - User Isolation: All reads and writes are scoped to the authenticated user's ID (`request.auth.uid`).
@@ -15,8 +15,8 @@
  *   protecting user privacy. Admins are an explicit exception.
  * - Denormalization for Authorization: Child documents (e.g., clients, quotes) must contain a `userId` field
  *   matching the path. This avoids slow and expensive `get()` calls in rules.
- * - Structural Segregation: User-created templates are kept separate from read-only system templates,
- *   which allows for simple, secure rules on each collection.
+ * - Structural Segregation: User-created data is kept separate from read-only system templates and admin-writable
+ *   app configuration, which allows for simple, secure rules on each collection.
  * - Prototyping Flexibility: The rules do NOT validate the shape or data types of most fields,
  *   focusing strictly on authorization and the relational integrity of ownership fields (`userId`, `id`).
  */
@@ -288,6 +288,15 @@ service cloud.firestore {
           allow delete: if false;
         }
       }
+    }
+
+    // ------------------------------------------------------------------------
+    // Global App Configuration Rules
+    // Publicly readable data that can only be modified by admins.
+    // ------------------------------------------------------------------------
+    match /appConfig/{configId} {
+      allow get: if isSignedIn();
+      allow write: if isAdmin();
     }
   }
 }

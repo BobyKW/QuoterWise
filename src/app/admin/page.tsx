@@ -21,6 +21,7 @@ import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Shield } from 'lucide-react';
+import { QuoteLimitsForm } from '@/components/quote-limits-form';
 
 function formatDate(date: Date | Timestamp | undefined) {
     if (!date) return 'N/A';
@@ -52,59 +53,65 @@ export default function AdminPage() {
       <div className="flex items-center">
         <h1 className="font-semibold text-lg md:text-2xl">{t('admin_page.title')}</h1>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('admin_page.card_title')}</CardTitle>
-          <CardDescription>{t('admin_page.card_description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('admin_page.table_email')}</TableHead>
-                  <TableHead>{t('admin_page.table_business_name')}</TableHead>
-                  <TableHead className="hidden md:table-cell">{t('admin_page.table_created_at')}</TableHead>
-                  <TableHead>{t('admin_page.table_role')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center">
-                      {t('admin_page.loading')}
-                    </TableCell>
-                  </TableRow>
-                )}
-                {!isLoading && users && users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.email}</TableCell>
-                    <TableCell>{user.businessName}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {formatDate(user.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      {user.role === 'admin' && (
-                        <Badge variant="destructive" className="gap-1">
-                          <Shield className="h-3.5 w-3.5" />
-                          Admin
-                        </Badge>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {!isLoading && (!users || users.length === 0) && (
+
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
+        <Card>
+            <CardHeader>
+            <CardTitle>{t('admin_page.card_title')}</CardTitle>
+            <CardDescription>{t('admin_page.card_description')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+            <div className="overflow-x-auto">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>{t('admin_page.table_email')}</TableHead>
+                    <TableHead>{t('admin_page.table_business_name')}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t('admin_page.table_created_at')}</TableHead>
+                    <TableHead>{t('admin_page.table_role')}</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {isLoading && (
                     <TableRow>
                         <TableCell colSpan={4} className="text-center">
-                          {error ? t('admin_page.access_denied') : t('admin_page.no_users')}
+                        {t('admin_page.loading')}
                         </TableCell>
                     </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                    )}
+                    {!isLoading && users && users.map((user) => (
+                    <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.email}</TableCell>
+                        <TableCell>{user.businessName}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                        {formatDate(user.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                        {user.role === 'admin' && (
+                            <Badge variant="destructive" className="gap-1">
+                            <Shield className="h-3.5 w-3.5" />
+                            Admin
+                            </Badge>
+                        )}
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                    {!isLoading && (!users || users.length === 0) && (
+                        <TableRow>
+                            <TableCell colSpan={4} className="text-center">
+                            {error ? t('admin_page.access_denied') : t('admin_page.no_users')}
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+                </Table>
+            </div>
+            </CardContent>
+        </Card>
+        <div className="flex flex-col gap-4">
+            <QuoteLimitsForm />
+        </div>
+      </div>
     </main>
   );
 }

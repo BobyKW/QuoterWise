@@ -684,6 +684,26 @@
         "createdAt",
         "updatedAt"
       ]
+    },
+    "AppConfig": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AppConfig",
+      "type": "object",
+      "description": "Stores global application configuration settings, like feature limits.",
+      "properties": {
+        "anonymousQuoteLimit": {
+          "type": "number",
+          "description": "The maximum number of quotes an anonymous (guest) user can create."
+        },
+        "registeredQuoteLimit": {
+          "type": "number",
+          "description": "The maximum number of quotes a registered user can create."
+        }
+      },
+      "required": [
+        "anonymousQuoteLimit",
+        "registeredQuoteLimit"
+      ]
     }
   },
   "auth": {
@@ -977,9 +997,22 @@
             }
           ]
         }
+      },
+      {
+        "path": "/appConfig/limits",
+        "definition": {
+          "entityName": "AppConfig",
+          "schema": {
+            "$ref": "#/backend/entities/AppConfig"
+          },
+          "description": "Stores global application configuration. The 'limits' document contains quote creation limits for different user roles. It should be readable by all authenticated users but only writable by admins.",
+          "params": []
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to be secure, scalable, and highly debuggable, strictly adhering to the mandated core design principles and strategies. It primarily leverages a hierarchical path structure combined with strategic denormalization to achieve Authorization Independence and enable secure QAPs.\n\n1.  Authorization Independence (CRITICAL) & Denormalization:\n    *   Every user-owned entity (UserProfile, Client, Quote, ReusableBlock, user-specific Templates) is directly nested under `/userProfiles/{userId}/...`. This automatically ties the data to `request.auth.uid` via the path parameter, making basic ownership checks straightforward (`allow read, write: if request.auth.uid == userId;`).\n    *   For subcollections whose access is dependent on the `UserProfile` owner (e.g., QuoteSection, QuoteItem, user-specific TemplateSection, TemplateItem), the `userId` is explicitly denormalized into each document. This means a `QuoteSection` document, for instance, will contain its `quoteId` and also the `userId` of the `UserProfile` who owns the parent `Quote`. This eliminates the need for expensive and rule-breaking `get()` calls to parent documents within security rules, allowing atomic operations and simplifying rule logic. For example, a rule for `QuoteSection` can directly check `request.auth.uid == resource.data.userId` without needing to fetch the parent `Quote` or `UserProfile`.\n\n2.  QAPs (Rules are not Filters) & Structural Segregation:\n    *   Data is segregated based on its security posture:\n        *   **Private User Data:** All user-specific data (UserProfile, Clients, Quotes, ReusableBlocks, user-defined Templates and their subcollections) are stored under `/userProfiles/{userId}/...`. This ensures that `list` operations (queries) for these collections inherently filter by the authenticated user's ID. A user can only query their own data (`/userProfiles/my-uid/clients`) and cannot accidentally or maliciously query another user's data (`/userProfiles/another-uid/clients`). This makes `list` operations secure by construction, as the path itself acts as the primary filter.\n        *   **System-wide Data:** System-provided templates and their subcollections (`/systemTemplates/{templateId}/...`) are stored in separate top-level collections. These are intended to be globally readable by any authenticated user but are immutable by users. This segregation clearly defines their access patterns (read-only for all authenticated users) and simplifies their respective rules, making `list` operations on these collections safe and efficient.\n    *   The consistent use of path-based ownership (`/users/{userId}/entity/{entityId}`) ensures that every document's ownership is explicitly defined by its location, making `list` operations inherently secure against unauthorized access.\n\n3.  Clarity of Intent & Predictability:\n    *   Path wildcards are semantic (e.g., `{userId}`, `{quoteId}`, `{sectionId}`).\n    *   A dedicated `status` field is used in `Quote` for clear state modeling.\n    *   All authorization-relevant fields like `userId` are consistently named.\n\nThis architecture ensures that security rules will be simple, performing checks primarily against `request.auth.uid` and `resource.data.userId` (or simply `request.auth.uid == userId` for path-based authorization), without complex or performance-impacting `get()` operations, thereby meeting all core design principles."
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and highly debuggable, strictly adhering to the mandated core design principles and strategies. It primarily leverages a hierarchical path structure combined with strategic denormalization to achieve Authorization Independence and enable secure QAPs.\n\n1.  Authorization Independence (CRITICAL) & Denormalization:\n    *   Every user-owned entity (UserProfile, Client, Quote, ReusableBlock, user-specific Templates) is directly nested under `/userProfiles/{userId}/...`. This automatically ties the data to `request.auth.uid` via the path parameter, making basic ownership checks straightforward (`allow read, write: if request.auth.uid == userId;`).\n    *   For subcollections whose access is dependent on the `UserProfile` owner (e.g., QuoteSection, QuoteItem, user-specific TemplateSection, TemplateItem), the `userId` is explicitly denormalized into each document. This means a `QuoteSection` document, for instance, will contain its `quoteId` and also the `userId` of the `UserProfile` who owns the parent `Quote`. This eliminates the need for expensive and rule-breaking `get()` calls to parent documents within security rules, allowing atomic operations and simplifying rule logic. For example, a rule for `QuoteSection` can directly check `request.auth.uid == resource.data.userId` without needing to fetch the parent `Quote` or `UserProfile`.\n\n2.  QAPs (Rules are not Filters) & Structural Segregation:\n    *   Data is segregated based on its security posture:\n        *   **Private User Data:** All user-specific data (UserProfile, Clients, Quotes, ReusableBlocks, user-defined Templates and their subcollections) are stored under `/userProfiles/{userId}/...`. This ensures that `list` operations (queries) for these collections inherently filter by the authenticated user's ID. A user can only query their own data (`/userProfiles/my-uid/clients`) and cannot accidentally or maliciously query another user's data (`/userProfiles/another-uid/clients`). This makes `list` operations secure by construction, as the path itself acts as the primary filter.\n        *   **System-wide Data:** System-provided templates and their subcollections (`/systemTemplates/{templateId}/...`) are stored in separate top-level collections. These are intended to be globally readable by any authenticated user but are immutable by users. This segregation clearly defines their access patterns (read-only for all authenticated users) and simplifies their respective rules, making `list` operations on these collections safe and efficient.\n    *   The consistent use of path-based ownership (`/users/{userId}/entity/{entityId}`) ensures that every document's ownership is explicitly defined by its location, in addition to the global `/appConfig` collection that is readable by authenticated users and only writeable by admins.\n\n3.  Clarity of Intent & Predictability:\n    *   Path wildcards are semantic (e.g., `{userId}`, `{quoteId}`, `{sectionId}`).\n    *   A dedicated `status` field is used in `Quote` for clear state modeling.\n    *   All authorization-relevant fields like `userId` are consistently named.\n\nThis architecture ensures that security rules will be simple, performing checks primarily against `request.auth.uid` and `resource.data.userId` (or simply `request.auth.uid == userId` for path-based authorization), without complex or performance-impacting `get()` operations, thereby meeting all core design principles."
   }
 }
+    
+
     

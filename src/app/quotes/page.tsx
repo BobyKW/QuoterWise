@@ -49,6 +49,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { QuotePDFDownloader } from '@/components/quote-pdf-downloader';
 import { useAuthModal } from '@/hooks/use-auth-modal';
+import { useQuoteLimits } from '@/hooks/use-quote-limits';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const statusStyles: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
@@ -88,6 +90,8 @@ export default function QuotesPage() {
   const [quoteToDownload, setQuoteToDownload] = React.useState<Quote | null>(null);
   const [isDownloading, setIsDownloading] = React.useState<string | null>(null);
 
+  const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
+
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(firestore, `userProfiles/${user.uid}`);
@@ -103,7 +107,14 @@ export default function QuotesPage() {
     );
   }, [user, firestore]);
 
-  const { data: quotes, isLoading } = useCollection<Quote>(quotesQuery);
+  const { data: quotes, isLoading: isLoadingQuotes } = useCollection<Quote>(quotesQuery);
+  const isLoading = isLoadingLimits || isLoadingQuotes;
+
+  const quoteCount = quotes?.length || 0;
+  const isAnonymous = user?.isAnonymous ?? true;
+  const quoteLimit = isAnonymous ? limits.anonymousQuoteLimit : limits.registeredQuoteLimit;
+  const limitReached = quoteCount >= quoteLimit;
+
 
   const handleDeleteClick = (quote: Quote) => {
     setQuoteToDelete(quote);
@@ -142,14 +153,30 @@ export default function QuotesPage() {
         <div className="flex items-center">
           <h1 className="font-semibold text-lg md:text-2xl">{t('quotes_page.title')}</h1>
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/quotes/new">
-              <Button size="sm" className="h-8 gap-1">
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  {t('quotes_page.new_quote')}
-                </span>
-              </Button>
-            </Link>
+            {limitReached ? (
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button size="sm" className="h-8 gap-1" disabled>
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                      {t('quotes_page.new_quote')}
+                    </span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isAnonymous ? t('quotes_page.anonymous_limit_reached', { count: quoteLimit }) : t('quotes_page.registered_limit_reached', { count: quoteLimit })}</p>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Link href="/quotes/new">
+                <Button size="sm" className="h-8 gap-1">
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    {t('quotes_page.new_quote')}
+                  </span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
         <Card>
@@ -280,3 +307,5 @@ export default function QuotesPage() {
     </>
   );
 }
+
+    

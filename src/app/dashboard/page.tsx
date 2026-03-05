@@ -37,6 +37,10 @@ import {
 } from 'lucide-react';
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useQuoteLimits } from '@/hooks/use-quote-limits';
+import { useTranslation } from 'react-i18next';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
 
 const statusCards: {
   status: QuoteStatus,
@@ -95,10 +99,9 @@ function DashboardSkeleton() {
 }
 
 export default function DashboardPage() {
-  const {
-    user
-  } = useUser();
+  const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useTranslation();
 
   const quotesQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -107,8 +110,10 @@ export default function DashboardPage() {
 
   const {
     data: quotes,
-    isLoading
+    isLoading: isLoadingQuotes
   } = useCollection < Quote > (quotesQuery);
+
+  const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
 
   const quoteCounts = React.useMemo(() => {
     const counts = {
@@ -130,20 +135,40 @@ export default function DashboardPage() {
   }, [quotes]);
   
   const totalQuotes = quotes?.length || 0;
+  const isAnonymous = user?.isAnonymous ?? true;
+  const quoteLimit = isAnonymous ? limits.anonymousQuoteLimit : limits.registeredQuoteLimit;
+  const limitReached = totalQuotes >= quoteLimit;
+  const isLoading = isLoadingLimits || isLoadingQuotes;
 
   return ( 
     <main className = "flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8" >
       <div className = "flex items-center" >
-        <h1 className = "font-semibold text-lg md:text-2xl" > Dashboard </h1> 
+        <h1 className = "font-semibold text-lg md:text-2xl" > {t('dashboard_page.title')} </h1> 
         <div className = "ml-auto flex items-center gap-2" >
-          <Link href = "/quotes/new" >
-            <Button size = "sm" className = "h-8 gap-1" >
-              <PlusCircle className = "h-3.5 w-3.5" />
-              <span className = "sr-only sm:not-sr-only sm:whitespace-nowrap" >
-                New Quote 
-              </span> 
-            </Button> 
-          </Link> 
+          {limitReached ? (
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button size="sm" className="h-8 gap-1" disabled>
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                      {t('dashboard_page.new_quote')}
+                    </span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isAnonymous ? t('quotes_page.anonymous_limit_reached', { count: quoteLimit }) : t('quotes_page.registered_limit_reached', { count: quoteLimit })}</p>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Link href="/quotes/new">
+                <Button size="sm" className="h-8 gap-1">
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    {t('dashboard_page.new_quote')}
+                  </span>
+                </Button>
+              </Link>
+            )}
         </div> 
       </div>
       
@@ -153,7 +178,7 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Quotes</CardTitle>
+                    <CardTitle className="text-sm font-medium">{t('dashboard_page.total_quotes')}</CardTitle>
                     <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -163,7 +188,7 @@ export default function DashboardPage() {
             {statusCards.map(({ status, label, icon: Icon, color }) => (
                 <Card key={status}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{label}</CardTitle>
+                    <CardTitle className="text-sm font-medium">{t(`dashboard_page.${status}`)}</CardTitle>
                     <Icon className={`h-4 w-4 text-muted-foreground ${color}`} />
                     </CardHeader>
                     <CardContent>
@@ -176,3 +201,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+    

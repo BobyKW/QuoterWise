@@ -49,12 +49,18 @@
     "delete_dialog_cancel": "Cancel",
     "delete_dialog_confirm": "Delete",
     "toast_coming_soon_title": "Coming Soon!",
-    "toast_coming_soon_description": "Duplicating quotes will be available soon."
+    "toast_coming_soon_description": "Duplicating quotes will be available soon.",
+    "anonymous_limit_reached": "Guests can create {count} quotes. Sign up for more.",
+    "registered_limit_reached": "You've reached your limit of {count} quotes."
   },
   "new_quote_page": {
     "title": "New Quote",
     "card_title": "Create New Quote",
-    "card_description": "Fill in the details to create a new quote."
+    "card_description": "Fill in the details to create a new quote.",
+    "limit_reached_title": "Quote Limit Reached",
+    "anonymous_limit_reached": "To create more than {count} quotes, please create an account. It's free and allows you to save your work.",
+    "registered_limit_reached": "You have reached the maximum of {count} quotes. To create more, please upgrade your plan (coming soon) or delete some old quotes.",
+    "back_to_quotes": "Back to Quotes"
   },
   "edit_quote_page": {
     "title": "Edit Quote",
@@ -312,7 +318,9 @@
     "block_created_title": "Block Created",
     "block_created_description": "The block \"{blockName}\" has been created successfully.",
     "settings_saved_title": "Settings Saved",
-    "settings_saved_description": "Your profile has been updated successfully."
+    "settings_saved_description": "Your profile has been updated successfully.",
+    "limits_saved_title": "Limits Saved",
+    "limits_saved_description": "Quote creation limits have been updated."
   },
   "auth_modal": {
     "title": "Access Full Features",
@@ -330,7 +338,15 @@
     "table_role": "Role",
     "loading": "Loading users...",
     "access_denied": "You do not have permission to view this page.",
-    "no_users": "No users found."
+    "no_users": "No users found.",
+    "quote_limits_title": "Quote Creation Limits",
+    "quote_limits_description": "Set the maximum number of quotes for each user type."
+  },
+  "quote_limits_form": {
+    "anonymous_label": "Guest User Limit",
+    "registered_label": "Registered User Limit",
+    "save_button": "Save Limits",
+    "saving_button": "Saving..."
   }
 }
 

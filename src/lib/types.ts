@@ -90,6 +90,9 @@ export type ReusableBlock = ReusableBlockDocument & {
   id: string;
 };
 
-    
+export type AppConfig = {
+  anonymousQuoteLimit: number;
+  registeredQuoteLimit: number;
+};
 
     
