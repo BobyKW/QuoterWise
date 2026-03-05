@@ -21,6 +21,13 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const quoteItemSchema = z.object({
   concept: z.string().min(1, 'Concept is required.'),
@@ -35,6 +42,7 @@ const quoteFormSchema = z.object({
   clientName: z.string().min(1, 'Client name is required.'),
   quoteNumber: z.string().min(1, 'Quote number is required.'),
   createdAt: z.date(),
+  status: z.enum(['draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired']),
   items: z.array(quoteItemSchema).min(1, 'At least one item is required.'),
 });
 
@@ -63,6 +71,7 @@ export function QuoteForm() {
       clientName: '',
       quoteNumber: `Q-${new Date().getFullYear()}-0001`,
       createdAt: new Date(),
+      status: 'draft',
       items: [defaultItem],
     },
   });
@@ -99,7 +108,7 @@ export function QuoteForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <FormField
             control={form.control}
             name="clientName"
@@ -160,6 +169,31 @@ export function QuoteForm() {
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem className="flex flex-col pt-2">
+                <FormLabel>Status</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="sent">Sent</SelectItem>
+                    <SelectItem value="accepted">Accepted</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="negotiating">Negotiating</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
