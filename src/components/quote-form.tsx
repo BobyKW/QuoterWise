@@ -28,9 +28,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useFirestore, useUser, addDocumentNonBlocking } from '@/firebase';
-import { collection, serverTimestamp, Timestamp } from 'firebase/firestore';
-import type { QuoteDocument } from '@/lib/types';
+import { useFirestore, useUser, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { collection, serverTimestamp, Timestamp, doc } from 'firebase/firestore';
+import type { Quote, QuoteDocument } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+import React from 'react';
 
 const quoteItemSchema = z.object({
   concept: z.string().min(1, 'Concept is required.'),
@@ -60,11 +62,11 @@ const defaultItem: z.infer<typeof quoteItemSchema> = {
   taxRate: 21,
 };
 
-
-export function QuoteForm() {
+export function QuoteForm({ quote }: { quote?: Quote }) {
   const router = useRouter();
   const firestore = useFirestore();
   const { user } = useUser();
+  const { toast } = useToast();
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
@@ -76,6 +78,16 @@ export function QuoteForm() {
       items: [defaultItem],
     },
   });
+
+  React.useEffect(() => {
+    if (quote) {
+      form.reset({
+        ...quote,
+        createdAt: quote.createdAt instanceof Timestamp ? quote.createdAt.toDate() : quote.createdAt,
+      });
+    }
+  }, [quote, form]);
+
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -105,19 +117,39 @@ export function QuoteForm() {
 
     const { createdAt, ...restOfData } = data;
 
-    const quoteData: Omit<QuoteDocument, 'createdAt'> = {
-      ...restOfData,
-      userId: user.uid,
-      total: total,
-    };
-    
-    const finalQuoteData = {
-        ...quoteData,
-        createdAt: serverTimestamp(),
+    if (quote) {
+      const quoteRef = doc(firestore, `userProfiles/${user.uid}/quotes/${quote.id}`);
+      const updatedData = {
+        ...restOfData,
+        userId: user.uid,
+        total: total,
+        updatedAt: serverTimestamp(),
+      };
+      updateDocumentNonBlocking(quoteRef, updatedData);
+      toast({
+        title: "Quote Updated",
+        description: `Quote ${data.quoteNumber} has been successfully updated.`,
+      });
+    } else {
+      const quoteData: Omit<QuoteDocument, 'createdAt' | 'updatedAt'> = {
+        ...restOfData,
+        userId: user.uid,
+        total: total,
+      };
+      
+      const finalQuoteData = {
+          ...quoteData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+      }
+      
+      const quotesCol = collection(firestore, `userProfiles/${user.uid}/quotes`);
+      addDocumentNonBlocking(quotesCol, finalQuoteData);
+       toast({
+        title: "Quote Created",
+        description: `Quote ${data.quoteNumber} has been successfully created.`,
+      });
     }
-    
-    const quotesCol = collection(firestore, `userProfiles/${user.uid}/quotes`);
-    addDocumentNonBlocking(quotesCol, finalQuoteData);
     
     router.push('/dashboard');
   };
@@ -374,7 +406,7 @@ export function QuoteForm() {
             Cancel
           </Button>
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Saving...' : 'Save Quote'}
+            {form.formState.isSubmitting ? 'Saving...' : (quote ? 'Save Changes' : 'Save Quote')}
           </Button>
         </div>
       </form>

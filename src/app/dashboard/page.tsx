@@ -27,12 +27,25 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from '@/components/ui/badge';
 import type { Quote, QuoteStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
+import { useCollection, useFirestore, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
+import { collection, query, orderBy, Timestamp, doc } from 'firebase/firestore';
+import React from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 const statusStyles: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
@@ -62,6 +75,10 @@ function formatDate(date: Date | Timestamp) {
 export default function Dashboard() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [quoteToDelete, setQuoteToDelete] = React.useState<Quote | null>(null);
 
   const quotesQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -73,99 +90,147 @@ export default function Dashboard() {
 
   const { data: quotes, isLoading } = useCollection<Quote>(quotesQuery);
 
+  const handleDeleteClick = (quote: Quote) => {
+    setQuoteToDelete(quote);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const performDelete = () => {
+    if (!user || !quoteToDelete) return;
+    const quoteRef = doc(firestore, `userProfiles/${user.uid}/quotes/${quoteToDelete.id}`);
+    deleteDocumentNonBlocking(quoteRef);
+    toast({ title: "Quote deleted", description: `Quote "${quoteToDelete.quoteNumber}" has been deleted.` });
+    setIsDeleteDialogOpen(false);
+    setQuoteToDelete(null);
+  };
+
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">Dashboard</h1>
-        <div className="ml-auto flex items-center gap-2">
-          <Link href="/dashboard/quotes/new">
-            <Button size="sm" className="h-8 gap-1">
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                New Quote
-              </span>
-            </Button>
-          </Link>
-        </div>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Quotes</CardTitle>
-          <CardDescription>Manage your quotes and view their status.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Number</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead className="hidden md:table-cell">Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center">
-                      Loading...
-                    </TableCell>
-                  </TableRow>
-                )}
-                {!isLoading && quotes && quotes.map((quote) => (
-                  <TableRow key={quote.id}>
-                    <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
-                    <TableCell>{quote.clientName}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {quote.createdAt && formatDate(quote.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'capitalize',
-                          statusStyles[quote.status]
-                        )}
-                      >
-                        {quote.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">{formatCurrency(quote.total)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View</DropdownMenuItem>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                 {!isLoading && (!quotes || quotes.length === 0) && (
-                    <TableRow>
-                        <TableCell colSpan={6} className="text-center">
-                        No quotes found.
-                        </TableCell>
-                    </TableRow>
-                )}
-              </TableBody>
-            </Table>
+    <>
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="flex items-center">
+          <h1 className="font-semibold text-lg md:text-2xl">Dashboard</h1>
+          <div className="ml-auto flex items-center gap-2">
+            <Link href="/dashboard/quotes/new">
+              <Button size="sm" className="h-8 gap-1">
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  New Quote
+                </span>
+              </Button>
+            </Link>
           </div>
-        </CardContent>
-      </Card>
-    </main>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Quotes</CardTitle>
+            <CardDescription>Manage your quotes and view their status.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Number</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead className="hidden md:table-cell">Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isLoading && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center">
+                        Loading...
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {!isLoading && quotes && quotes.map((quote) => (
+                    <TableRow key={quote.id}>
+                      <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
+                      <TableCell>{quote.clientName}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {quote.createdAt && formatDate(quote.createdAt)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            'capitalize',
+                            statusStyles[quote.status]
+                          )}
+                        >
+                          {quote.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{formatCurrency(quote.total)}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/quotes/${quote.id}`}>View</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/quotes/${quote.id}/edit`}>Edit</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => toast({ title: 'Coming Soon!', description: 'Duplicating quotes will be available soon.'})}>
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                              onClick={() => handleDeleteClick(quote)}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {!isLoading && (!quotes || quotes.length === 0) && (
+                      <TableRow>
+                          <TableCell colSpan={6} className="text-center">
+                          No quotes found.
+                          </TableCell>
+                      </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the quote "{quoteToDelete?.quoteNumber}". This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setQuoteToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={performDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

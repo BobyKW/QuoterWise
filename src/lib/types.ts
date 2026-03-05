@@ -47,6 +47,7 @@ export type QuoteDocument = {
   quoteNumber: string;
   clientName: string;
   createdAt: Timestamp;
+  updatedAt: Timestamp;
   status: QuoteStatus;
   total: number;
   items: QuoteItem[];
