@@ -25,5 +25,6 @@ export function initializeAdminApp() {
   return admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     projectId: firebaseConfig.projectId, // Explicitly set the project ID
+    databaseURL: `https://${firebaseConfig.projectId}.firebaseio.com`
   });
 }
