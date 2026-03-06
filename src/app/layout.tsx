@@ -7,6 +7,7 @@ import I18nProvider from '@/components/i18n-provider';
 export const metadata: Metadata = {
   title: 'QuoterWise',
   description: 'Create professional quotes in seconds.',
+  icons: null,
 };
 
 export default function RootLayout({
