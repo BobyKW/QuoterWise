@@ -3,6 +3,7 @@
 import {
   MoreHorizontal,
   PlusCircle,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -42,8 +43,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { Quote, QuoteStatus, UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, query, orderBy, Timestamp, doc } from 'firebase/firestore';
+import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, Timestamp, doc, writeBatch, getDocs } from 'firebase/firestore';
 import React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
@@ -86,6 +87,7 @@ export default function QuotesPage() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [quoteToDelete, setQuoteToDelete] = React.useState<Quote | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const [quoteToDownload, setQuoteToDownload] = React.useState<Quote | null>(null);
   const [isDownloading, setIsDownloading] = React.useState<string | null>(null);
@@ -121,17 +123,52 @@ export default function QuotesPage() {
     setIsDeleteDialogOpen(true);
   };
 
-  const performDelete = () => {
+  const performDelete = async () => {
     if (!user || !quoteToDelete) return;
+    setIsDeleting(true);
+
     const quoteRef = doc(firestore, `userProfiles/${user.uid}/quotes/${quoteToDelete.id}`);
-    // TODO: This should also delete subcollections (sections and items) in a batch or via a cloud function.
-    deleteDocumentNonBlocking(quoteRef);
-    toast({ 
-      title: t('toasts.quote_deleted_title'),
-      description: t('toasts.quote_deleted_description', { quoteNumber: quoteToDelete.quoteNumber }) 
-    });
-    setIsDeleteDialogOpen(false);
-    setQuoteToDelete(null);
+
+    try {
+      const batch = writeBatch(firestore);
+
+      // Query for all sections
+      const sectionsQuery = query(collection(quoteRef, 'sections'));
+      const sectionsSnapshot = await getDocs(sectionsQuery);
+
+      // For each section, query and delete all its items
+      for (const sectionDoc of sectionsSnapshot.docs) {
+        const itemsQuery = query(collection(sectionDoc.ref, 'items'));
+        const itemsSnapshot = await getDocs(itemsQuery);
+        itemsSnapshot.forEach(itemDoc => {
+          batch.delete(itemDoc.ref);
+        });
+        // After queueing items for deletion, queue the section for deletion
+        batch.delete(sectionDoc.ref);
+      }
+      
+      // Queue the main quote document for deletion
+      batch.delete(quoteRef);
+
+      // Commit all delete operations atomically
+      await batch.commit();
+
+      toast({
+        title: t('toasts.quote_deleted_title'),
+        description: t('toasts.quote_deleted_description', { quoteNumber: quoteToDelete.quoteNumber })
+      });
+    } catch (error) {
+      console.error("Error deleting quote:", error);
+      toast({
+        variant: "destructive",
+        title: t('toasts.quote_delete_failed_title'),
+        description: t('toasts.quote_delete_failed_description')
+      });
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+      setQuoteToDelete(null);
+    }
   };
 
   const handleDownloadClick = (quote: Quote) => {
@@ -287,12 +324,22 @@ export default function QuotesPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setQuoteToDelete(null)}>{t('quotes_page.delete_dialog_cancel')}</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setQuoteToDelete(null)} disabled={isDeleting}>
+              {t('quotes_page.delete_dialog_cancel')}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={performDelete}
+              disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
             >
-              {t('quotes_page.delete_dialog_confirm')}
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t('quotes_page.deleting')}
+                </>
+              ) : (
+                t('quotes_page.delete_dialog_confirm')
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
