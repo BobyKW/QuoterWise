@@ -296,7 +296,7 @@ export default function DashboardPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {actionCards.map((card, index) => {
                   const cardComponent = (
-                      <Card className="hover:bg-accent/50 transition-colors h-full">
+                      <Card className="transition-colors h-full group-hover:border-primary group-hover:bg-primary/5">
                           <CardContent className="pt-6">
                               <card.icon className="h-6 w-6 text-muted-foreground mb-2" />
                               <p className="font-semibold">{t(card.title)}</p>
@@ -319,7 +319,7 @@ export default function DashboardPage() {
                   }
 
                   return (
-                      <Link key={index} href={card.href} className="focus:outline-none focus:ring-2 focus:ring-ring rounded-lg">
+                      <Link key={index} href={card.href} className="group focus:outline-none focus:ring-2 focus:ring-ring rounded-lg">
                           {cardComponent}
                       </Link>
                   );
