@@ -20,12 +20,21 @@
     "new_quote": "New Quote",
     "total_quotes": "Total Quotes",
     "total_clients": "Total Clients",
-    "draft": "Drafts",
+    "drafts": "Drafts",
     "sent": "Sent",
     "accepted": "Accepted",
     "rejected": "Rejected",
     "negotiating": "Negotiating",
-    "expired": "Expired"
+    "expired": "Expired",
+    "quick_links_title": "Quick Links",
+    "create_quote_title": "Create Quote",
+    "create_quote_desc": "Start a new quote for a client.",
+    "create_block_title": "Create Block",
+    "create_block_desc": "Add a new reusable block.",
+    "add_client_title": "Add Client",
+    "add_client_desc": "Register a new client in your records.",
+    "create_template_title": "Create Template",
+    "create_template_desc": "Design a new quote template (soon)."
   },
   "quotes_page": {
     "title": "Quotes",

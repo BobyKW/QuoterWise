@@ -20,12 +20,21 @@
     "new_quote": "Nuevo Presupuesto",
     "total_quotes": "Presupuestos Totales",
     "total_clients": "Clientes Totales",
-    "draft": "Borradores",
+    "drafts": "Borradores",
     "sent": "Enviados",
     "accepted": "Aceptados",
     "rejected": "Rechazados",
     "negotiating": "En negociación",
-    "expired": "Expirados"
+    "expired": "Expirados",
+    "quick_links_title": "Accesos Rápidos",
+    "create_quote_title": "Crear Presupuesto",
+    "create_quote_desc": "Inicia un nuevo presupuesto para un cliente.",
+    "create_block_title": "Crear Bloque",
+    "create_block_desc": "Añade un nuevo bloque reutilizable.",
+    "add_client_title": "Añadir Cliente",
+    "add_client_desc": "Registra un nuevo cliente en tus archivos.",
+    "create_template_title": "Crear Plantilla",
+    "create_template_desc": "Diseña una nueva plantilla de presupuesto (pronto)."
   },
   "quotes_page": {
     "title": "Presupuestos",
