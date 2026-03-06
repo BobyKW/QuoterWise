@@ -19,6 +19,7 @@
     "title": "Dashboard",
     "new_quote": "Nuevo Presupuesto",
     "total_quotes": "Presupuestos Totales",
+    "total_clients": "Clientes Totales",
     "drafts": "Borradores",
     "sent": "Enviados",
     "accepted": "Aceptados",

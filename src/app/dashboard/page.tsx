@@ -23,7 +23,8 @@ import {
 } from 'firebase/firestore';
 import type {
   Quote,
-  QuoteStatus
+  QuoteStatus,
+  Client
 } from '@/lib/types';
 import {
   File,
@@ -33,7 +34,8 @@ import {
   MessageSquare,
   Timer,
   PlusCircle,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react';
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -82,8 +84,8 @@ const statusCards: {
 
 function DashboardSkeleton() {
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 7 }).map((_, i) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
                 <Card key={i}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <Skeleton className="h-5 w-24" />
@@ -108,10 +110,20 @@ export default function DashboardPage() {
     return query(collection(firestore, `userProfiles/${user.uid}/quotes`));
   }, [user, firestore]);
 
+  const clientsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, `userProfiles/${user.uid}/clients`));
+  }, [user, firestore]);
+
   const {
     data: quotes,
     isLoading: isLoadingQuotes
   } = useCollection < Quote > (quotesQuery);
+  
+  const {
+    data: clients,
+    isLoading: isLoadingClients
+  } = useCollection < Client > (clientsQuery);
 
   const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
 
@@ -135,10 +147,11 @@ export default function DashboardPage() {
   }, [quotes]);
   
   const totalQuotes = quotes?.length || 0;
+  const totalClients = clients?.length || 0;
   const isAnonymous = user?.isAnonymous ?? true;
   const quoteLimit = isAnonymous ? limits.anonymousQuoteLimit : limits.registeredQuoteLimit;
   const limitReached = totalQuotes >= quoteLimit;
-  const isLoading = isLoadingLimits || isLoadingQuotes;
+  const isLoading = isLoadingLimits || isLoadingQuotes || isLoadingClients;
 
   return ( 
     <main className = "flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8" >
@@ -175,7 +188,7 @@ export default function DashboardPage() {
       {isLoading ? (
         <DashboardSkeleton />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{t('dashboard_page.total_quotes')}</CardTitle>
@@ -183,6 +196,15 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{totalQuotes}</div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{t('dashboard_page.total_clients')}</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{totalClients}</div>
                 </CardContent>
             </Card>
             {statusCards.map(({ status, label, icon: Icon, color }) => (
@@ -201,5 +223,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
-    
