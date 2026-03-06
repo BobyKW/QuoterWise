@@ -346,7 +346,9 @@
     "settings_saved_title": "Ajustes Guardados",
     "settings_saved_description": "Tu perfil se ha actualizado correctamente.",
     "limits_saved_title": "Límites Guardados",
-    "limits_saved_description": "Los límites de creación de presupuestos han sido actualizados."
+    "limits_saved_description": "Los límites de creación de presupuestos han sido actualizados.",
+    "subscription_updated_title": "Suscripción Actualizada",
+    "subscription_updated_description": "La suscripción para {email} se ha establecido como {status}."
   },
   "auth_modal": {
     "title": "Accede a todas las Funcionalidades",
@@ -366,7 +368,13 @@
     "access_denied": "No tienes permiso para ver esta página.",
     "no_users": "No se encontraron usuarios.",
     "app_limits_title": "Límites de la Aplicación",
-    "app_limits_description": "Establece el número máximo de ítems que los usuarios pueden crear."
+    "app_limits_description": "Establece el número máximo de ítems que los usuarios pueden crear.",
+    "role_admin": "Admin",
+    "subscription_pro": "PRO",
+    "table_subscription": "Suscripción",
+    "table_actions": "Acciones",
+    "action_make_pro": "Hacer PRO",
+    "action_revoke_pro": "Revocar PRO"
   },
   "quote_limits_form": {
     "anonymous_label": "Límite para Invitados",
