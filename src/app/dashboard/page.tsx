@@ -262,20 +262,20 @@ export default function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">{t('dashboard_page.total_quotes')}</CardTitle>
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                      <div className="text-2xl font-bold">{totalQuotes}</div>
-                  </CardContent>
-              </Card>
-              <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">{t('dashboard_page.total_clients')}</CardTitle>
                       <Users className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                       <div className="text-2xl font-bold">{totalClients}</div>
+                  </CardContent>
+              </Card>
+              <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">{t('dashboard_page.total_quotes')}</CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                      <div className="text-2xl font-bold">{totalQuotes}</div>
                   </CardContent>
               </Card>
               {statusCards.map(({ status, label, icon: Icon, color }) => (
