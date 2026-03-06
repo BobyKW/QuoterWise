@@ -55,7 +55,7 @@ export default function AdminPage() {
       </div>
 
       <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
-        <Card>
+        <Card className="lg:col-span-2">
             <CardHeader>
             <CardTitle>{t('admin_page.card_title')}</CardTitle>
             <CardDescription>{t('admin_page.card_description')}</CardDescription>
@@ -108,12 +108,10 @@ export default function AdminPage() {
             </div>
             </CardContent>
         </Card>
-        <div className="flex flex-col gap-4">
+        <div className="lg:col-span-2">
             <QuoteLimitsForm />
         </div>
       </div>
     </main>
   );
 }
-
-    

@@ -6,6 +6,8 @@ import { doc } from 'firebase/firestore';
 const DEFAULT_LIMITS: AppConfig = {
   anonymousQuoteLimit: 2,
   registeredQuoteLimit: 7,
+  anonymousBlockLimit: 7,
+  registeredBlockLimit: 20,
 };
 
 export function useQuoteLimits() {
@@ -14,7 +16,7 @@ export function useQuoteLimits() {
   const { data: limits, isLoading } = useDoc<AppConfig>(limitsRef);
 
   return {
-    limits: limits ?? DEFAULT_LIMITS,
+    limits: limits ? { ...DEFAULT_LIMITS, ...limits } : DEFAULT_LIMITS,
     isLoading,
   };
 }

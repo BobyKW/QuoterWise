@@ -195,12 +195,18 @@
     "delete_dialog_title": "Are you sure?",
     "delete_dialog_description": "This action will permanently delete the block \"{blockName}\". It cannot be undone.",
     "delete_dialog_cancel": "Cancel",
-    "delete_dialog_confirm": "Delete"
+    "delete_dialog_confirm": "Delete",
+    "anonymous_limit_reached": "Guests can create {count} blocks. Sign up for more.",
+    "registered_limit_reached": "You've reached your limit of {count} blocks."
   },
   "new_reusable_block_page": {
     "title": "New Reusable Block",
     "card_title": "Create New Block",
-    "card_description": "Fill in the details to add a new reusable block."
+    "card_description": "Fill in the details to add a new reusable block.",
+    "limit_reached_title": "Block Limit Reached",
+    "anonymous_limit_reached": "To create more than {count} blocks, please create an account.",
+    "registered_limit_reached": "You have reached the maximum of {count} blocks. To create more, please upgrade your plan (coming soon) or delete some old blocks.",
+    "back_to_blocks": "Back to Blocks"
   },
   "edit_reusable_block_page": {
     "title": "Edit Block",
@@ -339,15 +345,17 @@
     "loading": "Loading users...",
     "access_denied": "You do not have permission to view this page.",
     "no_users": "No users found.",
-    "quote_limits_title": "Quote Creation Limits",
-    "quote_limits_description": "Set the maximum number of quotes for each user type."
+    "app_limits_title": "Application Limits",
+    "app_limits_description": "Set the maximum number of items users can create."
   },
   "quote_limits_form": {
     "anonymous_label": "Guest User Limit",
     "registered_label": "Registered User Limit",
     "save_button": "Save Limits",
-    "saving_button": "Saving..."
+    "saving_button": "Saving...",
+    "quote_limits_heading": "Quote Limits",
+    "block_limits_heading": "Reusable Block Limits",
+    "anonymous_block_label": "Guest User Limit",
+    "registered_block_label": "Registered User Limit"
   }
 }
-
-    

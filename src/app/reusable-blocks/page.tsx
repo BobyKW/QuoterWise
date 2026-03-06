@@ -45,6 +45,8 @@ import { collection, query, orderBy, doc } from 'firebase/firestore';
 import React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
+import { useQuoteLimits } from '@/hooks/use-quote-limits';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 function formatCurrency(amount: number, currency: string, locale: string) {
   return new Intl.NumberFormat(locale, {
@@ -62,6 +64,8 @@ export default function ReusableBlocksPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [blockToDelete, setBlockToDelete] = React.useState<ReusableBlock | null>(null);
 
+  const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
+
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(firestore, `userProfiles/${user.uid}`);
@@ -76,7 +80,14 @@ export default function ReusableBlocksPage() {
     );
   }, [user, firestore]);
 
-  const { data: blocks, isLoading } = useCollection<ReusableBlock>(blocksQuery);
+  const { data: blocks, isLoading: isLoadingBlocks } = useCollection<ReusableBlock>(blocksQuery);
+
+  const isLoading = isLoadingBlocks || isLoadingLimits;
+
+  const blockCount = blocks?.length || 0;
+  const isAnonymous = user?.isAnonymous ?? true;
+  const blockLimit = isAnonymous ? limits.anonymousBlockLimit : limits.registeredBlockLimit;
+  const limitReached = blockCount >= blockLimit;
 
   const handleDeleteClick = (block: ReusableBlock) => {
     setBlockToDelete(block);
@@ -101,14 +112,30 @@ export default function ReusableBlocksPage() {
         <div className="flex items-center">
           <h1 className="font-semibold text-lg md:text-2xl">{t('reusable_blocks_page.title')}</h1>
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/reusable-blocks/new">
-              <Button size="sm" className="h-8 gap-1">
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  {t('reusable_blocks_page.new_block')}
-                </span>
-              </Button>
-            </Link>
+            {limitReached ? (
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button size="sm" className="h-8 gap-1" disabled>
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                      {t('reusable_blocks_page.new_block')}
+                    </span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isAnonymous ? t('reusable_blocks_page.anonymous_limit_reached', { count: blockLimit }) : t('reusable_blocks_page.registered_limit_reached', { count: blockLimit })}</p>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Link href="/reusable-blocks/new">
+                <Button size="sm" className="h-8 gap-1">
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    {t('reusable_blocks_page.new_block')}
+                  </span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
         <Card>

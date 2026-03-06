@@ -195,12 +195,18 @@
     "delete_dialog_title": "¿Estás seguro?",
     "delete_dialog_description": "Esta acción eliminará permanentemente el bloque \"{blockName}\". No se puede deshacer.",
     "delete_dialog_cancel": "Cancelar",
-    "delete_dialog_confirm": "Eliminar"
+    "delete_dialog_confirm": "Eliminar",
+    "anonymous_limit_reached": "Invitados pueden crear {count} bloques. Regístrate para más.",
+    "registered_limit_reached": "Has alcanzado tu límite de {count} bloques."
   },
   "new_reusable_block_page": {
     "title": "Nuevo Bloque Reutilizable",
     "card_title": "Crear Nuevo Bloque",
-    "card_description": "Rellena los detalles para añadir un nuevo bloque reutilizable."
+    "card_description": "Rellena los detalles para añadir un nuevo bloque reutilizable.",
+    "limit_reached_title": "Límite de Bloques Alcanzado",
+    "anonymous_limit_reached": "Para crear más de {count} bloques, por favor crea una cuenta.",
+    "registered_limit_reached": "Has alcanzado el máximo de {count} bloques. Para crear más, por favor mejora tu plan (próximamente) o elimina algunos bloques antiguos.",
+    "back_to_blocks": "Volver a Bloques"
   },
   "edit_reusable_block_page": {
     "title": "Editar Bloque",
@@ -339,15 +345,17 @@
     "loading": "Cargando usuarios...",
     "access_denied": "No tienes permiso para ver esta página.",
     "no_users": "No se encontraron usuarios.",
-    "quote_limits_title": "Límites de Creación de Presupuestos",
-    "quote_limits_description": "Establece el número máximo de presupuestos para cada tipo de usuario."
+    "app_limits_title": "Límites de la Aplicación",
+    "app_limits_description": "Establece el número máximo de ítems que los usuarios pueden crear."
   },
   "quote_limits_form": {
     "anonymous_label": "Límite para Invitados",
     "registered_label": "Límite para Registrados",
     "save_button": "Guardar Límites",
-    "saving_button": "Guardando..."
+    "saving_button": "Guardando...",
+    "quote_limits_heading": "Límites de Presupuestos",
+    "block_limits_heading": "Límites de Bloques Reutilizables",
+    "anonymous_block_label": "Límite para Invitados",
+    "registered_block_label": "Límite para Registrados"
   }
 }
-
-    
