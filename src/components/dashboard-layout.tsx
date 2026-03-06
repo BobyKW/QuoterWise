@@ -82,7 +82,7 @@ function MainNav() {
       { href: '/settings', icon: Settings, label: t('sidebar.settings'), protected: false },
   ];
 
-  const paymentLink = "https://buy.stripe.com/test_28E3cu419eeD9Hr5XR7ss00";
+  const paymentLink = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK;
 
   const renderMenuItem = (item: typeof navItems[0]) => {
     const isProtectedAndAnonymous = item.protected && isAnonymous;
