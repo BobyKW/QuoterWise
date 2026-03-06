@@ -54,29 +54,31 @@ const QuoteItemsTable: FC<{ section: QuoteSection; currency: string; }> = ({ sec
     }
 
     return (
-        <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                <th className="p-2 text-left font-semibold">Description</th>
-                <th className="p-2 w-24 text-center font-semibold">Qty</th>
-                <th className="p-2 w-32 text-right font-semibold">Unit Price</th>
-                <th className="p-2 w-32 text-right font-semibold">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {items.map((item, index) => (
-                <tr key={index} className="border-b">
-                    <td className="p-2 align-top">
-                    <p className="font-semibold">{item.concept}</p>
-                    {item.description && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.description}</p>}
-                    </td>
-                    <td className="p-2 text-center align-top">{item.quantity} {item.unit}</td>
-                    <td className="p-2 text-right align-top">{formatCurrency(item.unitPrice, currency)}</td>
-                    <td className="p-2 text-right align-top">{formatCurrency(item.quantity * item.unitPrice, currency)}</td>
-                </tr>
-                ))}
-            </tbody>
-        </table>
+        <div className="overflow-x-auto rounded-lg border">
+            <table className="w-full text-sm">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                    <th className="p-2 text-left font-semibold">Description</th>
+                    <th className="p-2 w-24 text-center font-semibold">Qty</th>
+                    <th className="p-2 w-32 text-right font-semibold">Unit Price</th>
+                    <th className="p-2 w-32 text-right font-semibold">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {items.map((item, index) => (
+                    <tr key={index} className="border-b">
+                        <td className="p-2 align-top">
+                        <p className="font-semibold">{item.concept}</p>
+                        {item.description && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.description}</p>}
+                        </td>
+                        <td className="p-2 text-center align-top">{item.quantity} {item.unit}</td>
+                        <td className="p-2 text-right align-top">{formatCurrency(item.unitPrice, currency)}</td>
+                        <td className="p-2 text-right align-top">{formatCurrency(item.quantity * item.unitPrice, currency)}</td>
+                    </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 };
 
@@ -229,10 +231,10 @@ export default function QuoteViewPage() {
             </Button>
         </div>
 
-      <Card className="p-8" ref={quotePrintRef}>
+      <Card className="p-4 md:p-8" ref={quotePrintRef}>
         <CardContent className="p-0">
           {/* Header */}
-          <div className="flex justify-between items-start mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
             <div>
               {userProfile?.logoUrl && (
                 <img
@@ -248,19 +250,19 @@ export default function QuoteViewPage() {
               <p>Email: {userProfile?.email}</p>
               <p>Phone: {userProfile?.phone}</p>
             </div>
-            <div className="text-right">
-              <h1 className="text-4xl font-bold uppercase text-gray-700">{t('view_quote_page.header_title')}</h1>
+            <div className="text-left md:text-right w-full md:w-auto">
+              <h1 className="text-3xl md:text-4xl font-bold uppercase text-gray-700">{t('view_quote_page.header_title')}</h1>
               <p className="text-gray-500">#{quote.quoteNumber}</p>
             </div>
           </div>
 
           {/* Client Info & Dates */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div>
               <h3 className="font-semibold mb-2">{t('view_quote_page.billed_to')}</h3>
               <p className="font-bold">{quote.clientName}</p>
             </div>
-            <div className="text-right">
+            <div className="md:text-right">
                 <p><span className="font-semibold">{t('view_quote_page.date_of_issue')}:</span> {formatDate(quote.issueDate)}</p>
             </div>
           </div>
