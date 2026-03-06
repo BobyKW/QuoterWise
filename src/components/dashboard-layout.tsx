@@ -122,7 +122,7 @@ function MainNav() {
         {!isPro && (
             <div className="p-2">
                 <Button className="w-full justify-start" asChild>
-                    <Link href="#">
+                    <Link href="https://buy.stripe.com/8x28wOfDk6W7dC1e9Y7IY02" target="_blank">
                         <Zap className="mr-2 h-4 w-4" />
                         <span className="group-data-[collapsible=icon]:hidden">{t('sidebar.upgrade_to_pro')}</span>
                     </Link>
