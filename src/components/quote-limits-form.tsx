@@ -76,14 +76,16 @@ export function QuoteLimitsForm() {
           <Skeleton className="h-4 w-4/5" />
         </CardHeader>
         <CardContent className="space-y-8">
-           <div className="space-y-2">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-10 w-full" />
-          </div>
+           <div className="grid md:grid-cols-2 gap-6">
+             <div className="space-y-2">
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+           </div>
           <div className="flex justify-end">
             <Skeleton className="h-10 w-24" />
           </div>
@@ -101,32 +103,34 @@ export function QuoteLimitsForm() {
         <CardContent>
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField
-                    control={form.control}
-                    name="anonymousQuoteLimit"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>{t('quote_limits_form.anonymous_label')}</FormLabel>
-                        <FormControl>
-                        <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="registeredQuoteLimit"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>{t('quote_limits_form.registered_label')}</FormLabel>
-                        <FormControl>
-                        <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="anonymousQuoteLimit"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('quote_limits_form.anonymous_label')}</FormLabel>
+                            <FormControl>
+                            <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="registeredQuoteLimit"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('quote_limits_form.registered_label')}</FormLabel>
+                            <FormControl>
+                            <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </div>
 
                 <div className="flex justify-end">
                 <Button type="submit" disabled={form.formState.isSubmitting}>
@@ -139,5 +143,3 @@ export function QuoteLimitsForm() {
     </Card>
   );
 }
-
-    

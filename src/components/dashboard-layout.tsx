@@ -86,7 +86,7 @@ function MainNav() {
             <SidebarMenuButton 
               onClick={onOpen}
               tooltip={item.label}
-              className="flex justify-between items-center w-full"
+              className="flex justify-between items-center w-full cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <item.icon />
@@ -113,23 +113,23 @@ function MainNav() {
     <>
     <SidebarMenu>
       {navItems.map(renderMenuItem)}
-      {userProfile?.role === 'admin' && (
-        <SidebarMenuItem>
-            <Link href="/admin">
-                <SidebarMenuButton
-                    isActive={pathname.startsWith('/admin')}
-                    tooltip={t('sidebar.admin')}
-                >
-                    <Shield />
-                    <span>{t('sidebar.admin')}</span>
-                </SidebarMenuButton>
-            </Link>
-        </SidebarMenuItem>
-      )}
     </SidebarMenu>
 
     <div className="mt-auto">
         <SidebarMenu>
+            {userProfile?.role === 'admin' && (
+                <SidebarMenuItem>
+                    <Link href="/admin">
+                        <SidebarMenuButton
+                            isActive={pathname.startsWith('/admin')}
+                            tooltip={t('sidebar.admin')}
+                        >
+                            <Shield />
+                            <span>{t('sidebar.admin')}</span>
+                        </SidebarMenuButton>
+                    </Link>
+                </SidebarMenuItem>
+            )}
             {bottomNavItems.map(renderMenuItem)}
         </SidebarMenu>
     </div>
@@ -174,12 +174,12 @@ function UserMenu() {
       <DropdownMenuContent side="right" align="start" className="w-56">
         <DropdownMenuLabel>{t('user_menu.my_account')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push('/settings')}>
+        <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             <span>{t('user_menu.settings')}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>{t('user_menu.logout')}</span>
         </DropdownMenuItem>
@@ -213,7 +213,7 @@ function LogoutButton() {
     router.push('/login');
   };
   return (
-    <DropdownMenuItem onClick={handleLogout}>
+    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
       <LogOut className="mr-2 h-4 w-4" />
       <span>{t('sidebar.logout')}</span>
     </DropdownMenuItem>
@@ -249,7 +249,7 @@ function CollapsedUserMenu() {
             <DropdownMenuContent side="right" align="center" className="w-56">
             <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push('/settings')}>
+            <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>{t('user_menu.settings')}</span>
             </DropdownMenuItem>
