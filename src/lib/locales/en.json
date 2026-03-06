@@ -155,6 +155,7 @@
     "loading": "Loading clients...",
     "no_clients": "No clients found. Create one to get started.",
     "actions_label": "Actions",
+    "actions_view": "View",
     "actions_edit": "Edit",
     "actions_delete": "Delete",
     "delete_dialog_title": "Are you sure?",
@@ -187,6 +188,14 @@
     "save_changes": "Save Changes",
     "save_client": "Save Client",
     "saving": "Saving..."
+  },
+  "client_view_page": {
+    "edit_client": "Edit Client",
+    "not_found": "Client not found.",
+    "contact_details": "Contact Details",
+    "quotes_title": "Quotes",
+    "quotes_description": "A list of all quotes for {clientName}.",
+    "no_quotes": "No quotes found for this client."
   },
   "reusable_blocks_page": {
     "title": "Reusable Blocks",
@@ -369,3 +378,5 @@
     "registered_block_label": "Registered User Limit"
   }
 }
+
+    

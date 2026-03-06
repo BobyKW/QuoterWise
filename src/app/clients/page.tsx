@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -44,11 +45,13 @@ import { useCollection, useFirestore, useUser, useMemoFirebase, deleteDocumentNo
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import React from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 export default function ClientsPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [clientToDelete, setClientToDelete] = React.useState<Client | null>(null);
@@ -72,7 +75,7 @@ export default function ClientsPage() {
     if (!user || !clientToDelete) return;
     const clientRef = doc(firestore, `userProfiles/${user.uid}/clients/${clientToDelete.id}`);
     deleteDocumentNonBlocking(clientRef);
-    toast({ title: "Client deleted", description: `Client "${clientToDelete.companyName}" has been deleted.` });
+    toast({ title: t('toasts.client_deleted_title'), description: t('toasts.client_deleted_description', { clientName: clientToDelete.companyName }) });
     setIsDeleteDialogOpen(false);
     setClientToDelete(null);
   };
@@ -81,13 +84,13 @@ export default function ClientsPage() {
     <>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center">
-          <h1 className="font-semibold text-lg md:text-2xl">Clients</h1>
+          <h1 className="font-semibold text-lg md:text-2xl">{t('clients_page.title')}</h1>
           <div className="ml-auto flex items-center gap-2">
             <Link href="/clients/new">
               <Button size="sm" className="h-8 gap-1">
                 <PlusCircle className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  New Client
+                  {t('clients_page.new_client')}
                 </span>
               </Button>
             </Link>
@@ -95,20 +98,20 @@ export default function ClientsPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Client List</CardTitle>
-            <CardDescription>Manage your clients.</CardDescription>
+            <CardTitle>{t('clients_page.card_title')}</CardTitle>
+            <CardDescription>{t('clients_page.card_description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead className="hidden md:table-cell">Email</TableHead>
-                    <TableHead className="hidden sm:table-cell">Phone</TableHead>
+                    <TableHead>{t('clients_page.table_company')}</TableHead>
+                    <TableHead>{t('clients_page.table_contact')}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t('clients_page.table_email')}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t('clients_page.table_phone')}</TableHead>
                     <TableHead>
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t('clients_page.table_actions')}</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -116,7 +119,7 @@ export default function ClientsPage() {
                   {isLoading && (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center">
-                        Loading clients...
+                        {t('clients_page.loading')}
                       </TableCell>
                     </TableRow>
                   )}
@@ -139,16 +142,19 @@ export default function ClientsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel>{t('clients_page.actions_label')}</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                              <Link href={`/clients/${client.id}/edit`}>Edit</Link>
+                                <Link href={`/clients/${client.id}`}>{t('clients_page.actions_view')}</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/clients/${client.id}/edit`}>{t('clients_page.actions_edit')}</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive focus:bg-destructive/10"
                               onClick={() => handleDeleteClick(client)}
                             >
-                              Delete
+                              {t('clients_page.actions_delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -158,7 +164,7 @@ export default function ClientsPage() {
                   {!isLoading && (!clients || clients.length === 0) && (
                       <TableRow>
                           <TableCell colSpan={5} className="text-center">
-                          No clients found. Create one to get started.
+                          {t('clients_page.no_clients')}
                           </TableCell>
                       </TableRow>
                   )}
@@ -172,18 +178,18 @@ export default function ClientsPage() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('clients_page.delete_dialog_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the client "{clientToDelete?.companyName}". This action cannot be undone.
+              {t('clients_page.delete_dialog_description', { clientName: clientToDelete?.companyName })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setClientToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setClientToDelete(null)}>{t('clients_page.delete_dialog_cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={performDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
             >
-              Delete
+              {t('clients_page.delete_dialog_confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -191,3 +197,5 @@ export default function ClientsPage() {
     </>
   );
 }
+
+    

@@ -155,6 +155,7 @@
     "loading": "Cargando clientes...",
     "no_clients": "No se encontraron clientes. Crea uno para empezar.",
     "actions_label": "Acciones",
+    "actions_view": "Ver",
     "actions_edit": "Editar",
     "actions_delete": "Eliminar",
     "delete_dialog_title": "¿Estás seguro?",
@@ -187,6 +188,14 @@
     "save_changes": "Guardar Cambios",
     "save_client": "Guardar Cliente",
     "saving": "Guardando..."
+  },
+  "client_view_page": {
+    "edit_client": "Editar Cliente",
+    "not_found": "Cliente no encontrado.",
+    "contact_details": "Detalles de Contacto",
+    "quotes_title": "Presupuestos",
+    "quotes_description": "Una lista de todos los presupuestos para {clientName}.",
+    "no_quotes": "No se encontraron presupuestos para este cliente."
   },
   "reusable_blocks_page": {
     "title": "Bloques Reutilizables",
@@ -369,3 +378,5 @@
     "registered_block_label": "Límite para Registrados"
   }
 }
+
+    
