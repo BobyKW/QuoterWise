@@ -43,7 +43,6 @@ export async function generateQuoteItemDescription(
 
   const ai = genkit({
     plugins: [googleAI({ apiKey })],
-    model: 'googleai/gemini-2.5-flash',
   });
 
   const promptTemplate = `You are an expert copywriter specialized in creating professional and concise descriptions for business quotes.
@@ -62,10 +61,13 @@ For 'brief', provide a short, single-sentence summary.
 For 'standard', provide a clear and concise paragraph.
 For 'detailed', provide a comprehensive description with multiple sentences, possibly listing key aspects or steps.`;
 
-  const { output } = await ai.generate({
+  const generateResponse = await ai.generate({
+    model: 'googleai/gemini-2.5-flash',
     prompt: promptTemplate,
     output: { schema: GenerateQuoteItemDescriptionOutputSchema },
   });
+
+  const output = generateResponse.output;
 
   if (!output) {
     throw new Error('AI generation failed to produce an output.');

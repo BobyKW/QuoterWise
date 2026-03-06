@@ -187,7 +187,7 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
     }
 
     setAiLoadingIndex(index);
-    const { id: toastId } = toast({
+    const loadingToast = toast({
       title: t('toasts.ai_generating_title'),
       description: t('toasts.ai_generating_description'),
     });
@@ -210,7 +210,8 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
 
         if (result.description) {
             form.setValue(`items.${index}.description`, result.description);
-            toast.update(toastId, {
+            loadingToast.update({
+                id: loadingToast.id,
                 title: t('toasts.ai_success_title'),
                 description: t('toasts.ai_success_description'),
             });
@@ -220,7 +221,8 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
 
     } catch (error) {
         console.error("AI description generation failed:", error);
-        toast.update(toastId, {
+        loadingToast.update({
+            id: loadingToast.id,
             variant: 'destructive',
             title: t('toasts.ai_error_title'),
             description: t('toasts.ai_error_description'),
