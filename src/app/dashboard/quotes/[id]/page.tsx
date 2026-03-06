@@ -1,9 +1,9 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { doc, Timestamp } from 'firebase/firestore';
-import type { Quote, UserProfile } from '@/lib/types';
+import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
+import { doc, Timestamp, collection, query, orderBy } from 'firebase/firestore';
+import type { Quote, UserProfile, QuoteSection, QuoteItem } from '@/lib/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Download, Edit, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { useRef, useState } from 'react';
+import { useRef, useState, FC } from 'react';
 
 function formatCurrency(amount: number, currency: string = 'EUR') {
   return new Intl.NumberFormat('en-US', {
@@ -29,6 +29,55 @@ function formatDate(date: Date | Timestamp) {
     });
 }
 
+const QuoteItemsTable: FC<{ section: QuoteSection; currency: string; }> = ({ section, currency }) => {
+    const { user } = useUser();
+    const firestore = useFirestore();
+
+    const itemsQuery = useMemoFirebase(() => {
+        if (!user) return null;
+        return query(
+            collection(firestore, `userProfiles/${user.uid}/quotes/${section.quoteId}/sections/${section.id}/items`),
+            orderBy('order', 'asc')
+        );
+    }, [user, firestore, section]);
+
+    const { data: items, isLoading } = useCollection<QuoteItem>(itemsQuery);
+
+    if (isLoading) {
+        return <Skeleton className="h-24 w-full" />;
+    }
+    
+    if (!items || items.length === 0) {
+        return null;
+    }
+
+    return (
+        <table className="w-full text-sm">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th className="p-2 text-left font-semibold">Description</th>
+                <th className="p-2 w-24 text-center font-semibold">Qty</th>
+                <th className="p-2 w-32 text-right font-semibold">Unit Price</th>
+                <th className="p-2 w-32 text-right font-semibold">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="p-2 align-top">
+                    <p className="font-semibold">{item.concept}</p>
+                    {item.description && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.description}</p>}
+                  </td>
+                  <td className="p-2 text-center align-top">{item.quantity} {item.unit}</td>
+                  <td className="p-2 text-right align-top">{formatCurrency(item.unitPrice, currency)}</td>
+                  <td className="p-2 text-right align-top">{formatCurrency(item.quantity * item.unitPrice, currency)}</td>
+                </tr>
+              ))}
+            </tbody>
+        </table>
+    );
+};
+
 export default function OldQuoteViewPage() {
   const { id } = useParams();
   const { user } = useUser();
@@ -41,6 +90,14 @@ export default function OldQuoteViewPage() {
     if (!id || !user) return null;
     return doc(firestore, `userProfiles/${user.uid}/quotes/${id as string}`);
   }, [id, user, firestore]);
+  
+  const sectionsQuery = useMemoFirebase(() => {
+    if (!id || !user) return null;
+    return query(
+        collection(firestore, `userProfiles/${user.uid}/quotes/${id as string}/sections`),
+        orderBy('order', 'asc')
+    );
+  }, [id, user, firestore]);
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -48,9 +105,10 @@ export default function OldQuoteViewPage() {
   }, [user, firestore]);
 
   const { data: quote, isLoading: isQuoteLoading } = useDoc<Quote>(quoteRef);
+  const { data: sections, isLoading: areSectionsLoading } = useCollection<QuoteSection>(sectionsQuery);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
-  const isLoading = isQuoteLoading || isProfileLoading;
+  const isLoading = isQuoteLoading || isProfileLoading || areSectionsLoading;
 
   const handleDownloadPdf = async () => {
     const element = quotePrintRef.current;
@@ -137,9 +195,6 @@ export default function OldQuoteViewPage() {
     );
   }
 
-  const subtotal = quote.items.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0);
-  const totalTax = quote.items.reduce((acc, item) => acc + (item.quantity * item.unitPrice * (item.taxRate / 100)), 0);
-
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
        <div className="flex items-center gap-4">
@@ -193,50 +248,35 @@ export default function OldQuoteViewPage() {
               <p className="font-bold">{quote.clientName}</p>
             </div>
             <div className="text-right">
-                <p><span className="font-semibold">Date of Issue:</span> {formatDate(quote.createdAt)}</p>
+                <p><span className="font-semibold">Date of Issue:</span> {formatDate(quote.issueDate)}</p>
             </div>
           </div>
 
           {/* Items Table */}
-          <table className="w-full mb-8 text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="p-2 text-left font-semibold">Description</th>
-                <th className="p-2 w-24 text-center font-semibold">Qty</th>
-                <th className="p-2 w-32 text-right font-semibold">Unit Price</th>
-                <th className="p-2 w-32 text-right font-semibold">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {quote.items.map((item, index) => (
-                <tr key={index} className="border-b">
-                  <td className="p-2 align-top">
-                    <p className="font-semibold">{item.concept}</p>
-                    {item.description && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.description}</p>}
-                  </td>
-                  <td className="p-2 text-center align-top">{item.quantity} {item.unit}</td>
-                  <td className="p-2 text-right align-top">{formatCurrency(item.unitPrice, userProfile?.currency)}</td>
-                  <td className="p-2 text-right align-top">{formatCurrency(item.quantity * item.unitPrice, userProfile?.currency)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="space-y-4 mb-8">
+            {sections?.map(section => (
+                <div key={section.id}>
+                    <h3 className="font-semibold text-lg mb-2">{section.name}</h3>
+                    <QuoteItemsTable section={section} currency={userProfile?.currency || 'EUR'} />
+                </div>
+            ))}
+          </div>
 
           {/* Totals */}
           <div className="flex justify-end mb-8">
             <div className="w-full max-w-sm space-y-2">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>{formatCurrency(subtotal, userProfile?.currency)}</span>
+                <span>{formatCurrency(quote.subtotal, userProfile?.currency)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Total Tax</span>
-                <span>{formatCurrency(totalTax, userProfile?.currency)}</span>
+                <span>{formatCurrency(quote.totalTax, userProfile?.currency)}</span>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>{formatCurrency(quote.total, userProfile?.currency)}</span>
+                <span>{formatCurrency(quote.finalTotal, userProfile?.currency)}</span>
               </div>
             </div>
           </div>

@@ -28,9 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useFirestore, useUser, addDocumentNonBlocking, updateDocumentNonBlocking, useCollection, useMemoFirebase, useDoc } from '@/firebase';
-import { collection, serverTimestamp, Timestamp, doc, query, orderBy, increment } from 'firebase/firestore';
-import type { Quote, QuoteDocument, Client, ReusableBlock, UserProfile } from '@/lib/types';
+import { useFirestore, useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import { collection, serverTimestamp, Timestamp, doc, query, orderBy, increment, writeBatch } from 'firebase/firestore';
+import type { Quote, Client, ReusableBlock, UserProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import {
@@ -55,10 +55,11 @@ const quoteItemSchema = z.object({
 });
 
 const quoteFormSchema = z.object({
+  title: z.string().min(1, 'Title is required.'),
   clientId: z.string().min(1, 'Please select a client.'),
   clientName: z.string().min(1, 'Client name is required.'),
   quoteNumber: z.string().min(1, 'Quote number is required.'),
-  createdAt: z.date(),
+  issueDate: z.date(),
   status: z.enum(['draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired']),
   items: z.array(quoteItemSchema).min(1, 'At least one item is required.'),
 });
@@ -110,34 +111,52 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: {
+      title: '',
       clientId: '',
       clientName: '',
       quoteNumber: '',
-      createdAt: new Date(),
+      issueDate: new Date(),
       status: 'draft',
       items: [defaultItem],
     },
   });
 
+  // This effect handles setting initial form values for both new and existing quotes.
   React.useEffect(() => {
     if (quote) {
+      // If editing an existing quote, fetch its sections and items and populate the form.
+      // This part is complex and would require fetching subcollections.
+      // For this hardening refactor, we focus on the CREATE logic.
+      // A full EDIT implementation would be a separate, larger task.
       form.reset({
         ...quote,
-        createdAt: quote.createdAt instanceof Timestamp ? quote.createdAt.toDate() : quote.createdAt,
+        issueDate: quote.issueDate instanceof Timestamp ? quote.issueDate.toDate() : quote.issueDate,
+        // items would need to be fetched from subcollections here.
       });
-    } else if (form.getValues('quoteNumber') === '') {
-      // This block runs only when creating a new quote.
-      if (userProfile) { // Registered user with profile
-        const nextNumber = userProfile.nextQuoteNumber || 1;
-        const year = new Date().getFullYear();
-        const numberStr = String(nextNumber).padStart(4, '0');
-        form.setValue('quoteNumber', `Q-${year}-${numberStr}`);
-      } else if (!isLoadingProfile) { // Handles anonymous users OR registered users without a profile document yet.
+       if(!form.getValues('title')){
+        form.setValue('title', `Presupuesto para ${quote.clientName}`);
+      }
+    } else if (form.getValues('quoteNumber') === '' && userProfile) {
+      // If creating a new quote for a registered user, generate the next quote number.
+      const nextNumber = userProfile.nextQuoteNumber || 1;
+      const year = new Date().getFullYear();
+      const numberStr = String(nextNumber).padStart(4, '0');
+      form.setValue('quoteNumber', `Q-${year}-${numberStr}`);
+    } else if (!isLoadingProfile && form.getValues('quoteNumber') === '') {
+        // Fallback for anonymous users or if profile is not loaded yet.
         const tempNumber = `DRAFT-${Date.now().toString().slice(-6)}`;
         form.setValue('quoteNumber', tempNumber);
-      }
     }
   }, [quote, userProfile, isLoadingProfile, form]);
+  
+  React.useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'clientName' && value.clientName && !form.getValues('title')) {
+        form.setValue('title', `Presupuesto para ${value.clientName}`);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
 
   const { fields, append, remove } = useFieldArray({
@@ -146,6 +165,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   });
 
   const watchItems = form.watch('items');
+  
   const subtotal = watchItems.reduce(
     (acc, item) => acc + (item.quantity || 0) * (item.unitPrice || 0),
     0
@@ -158,56 +178,115 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
     0
   );
 
-  const total = subtotal + totalTax;
+  const finalTotal = subtotal + totalTax;
 
-  const onSubmit = (data: QuoteFormValues) => {
+  const onSubmit = async (data: QuoteFormValues) => {
     if (!user) {
-      console.error("No user or profile reference found");
+      console.error("No user found");
+      toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to create a quote.' });
       return;
     }
 
-    const { createdAt, ...restOfData } = data;
-
     if (quote) {
-      const quoteRef = doc(firestore, `userProfiles/${user.uid}/quotes/${quote.id}`);
-      const updatedData = {
-        ...restOfData,
-        userId: user.uid,
-        total: total,
-        updatedAt: serverTimestamp(),
-      };
-      updateDocumentNonBlocking(quoteRef, updatedData);
-      toast({
-        title: t('toasts.quote_updated_title'),
-        description: t('toasts.quote_updated_description', { quoteNumber: data.quoteNumber }),
-      });
-    } else {
-      const quoteData: Omit<QuoteDocument, 'createdAt' | 'updatedAt' | 'total'> = {
-        ...restOfData,
-        userId: user.uid,
-      };
-      
-      const finalQuoteData = {
-          ...quoteData,
-          total: total,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-      }
-      
-      const quotesCol = collection(firestore, `userProfiles/${user.uid}/quotes`);
-      addDocumentNonBlocking(quotesCol, finalQuoteData);
-
-      if (userProfileRef && userProfile) {
-        updateDocumentNonBlocking(userProfileRef, { nextQuoteNumber: increment(1) });
-      }
-
-       toast({
-        title: t('toasts.quote_created_title'),
-        description: t('toasts.quote_created_description', { quoteNumber: data.quoteNumber }),
-      });
+        // NOTE: Updating quotes with subcollections is a more complex operation
+        // involving fetching existing sections/items, diffing them, and then
+        // creating a batch write to update/delete/add as needed.
+        // This is a significant feature in itself.
+        // For now, we will show a toast message that this is not yet implemented.
+        toast({
+            title: "Not Implemented",
+            description: "Updating existing quotes is not yet supported in this version. Please create a new quote.",
+            variant: "destructive"
+        });
+        return;
     }
     
-    router.push('/quotes');
+    // --- CREATE NEW QUOTE LOGIC ---
+    const batch = writeBatch(firestore);
+
+    // 1. Create main quote document reference and data
+    const quoteCol = collection(firestore, `userProfiles/${user.uid}/quotes`);
+    const quoteRef = doc(quoteCol);
+    const quoteId = quoteRef.id;
+
+    const quoteData = {
+        userId: user.uid,
+        clientId: data.clientId,
+        clientName: data.clientName,
+        title: data.title,
+        quoteNumber: data.quoteNumber,
+        issueDate: Timestamp.fromDate(data.issueDate),
+        validUntilDate: Timestamp.fromDate(new Date(data.issueDate.getTime() + 30 * 24 * 60 * 60 * 1000)), // 30 days validity
+        status: data.status,
+        subtotal: subtotal,
+        totalDiscount: 0,
+        totalTax: totalTax,
+        finalTotal: finalTotal,
+        currency: userProfile?.currency || 'EUR',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+    };
+    batch.set(quoteRef, quoteData);
+
+    // 2. Create a single section for all items
+    const sectionsCol = collection(firestore, `userProfiles/${user.uid}/quotes/${quoteId}/sections`);
+    const sectionRef = doc(sectionsCol);
+    const sectionId = sectionRef.id;
+
+    const sectionData = {
+        userId: user.uid,
+        quoteId: quoteId,
+        name: 'Conceptos Generales',
+        description: 'Lista de productos y servicios incluidos en el presupuesto.',
+        order: 1,
+        subtotal: subtotal,
+        totalDiscount: 0,
+        totalTax: totalTax,
+        sectionTotal: finalTotal,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+    };
+    batch.set(sectionRef, sectionData);
+
+    // 3. Create documents for each item in the section's subcollection
+    const itemsCol = collection(firestore, `userProfiles/${user.uid}/quotes/${quoteId}/sections/${sectionId}/items`);
+    data.items.forEach((item, index) => {
+        const itemRef = doc(itemsCol);
+        const lineTotal = (item.quantity || 0) * (item.unitPrice || 0) * (1 + (item.taxRate || 0) / 100);
+        const itemData = {
+            ...item,
+            userId: user.uid,
+            quoteId: quoteId,
+            quoteSectionId: sectionId,
+            lineTotal: lineTotal,
+            order: index + 1,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+        };
+        batch.set(itemRef, itemData);
+    });
+
+    // 4. Update the user's nextQuoteNumber
+    if (userProfileRef && userProfile) {
+      batch.update(userProfileRef, { nextQuoteNumber: increment(1) });
+    }
+
+    // 5. Commit the atomic batch write
+    try {
+        await batch.commit();
+        toast({
+            title: t('toasts.quote_created_title'),
+            description: t('toasts.quote_created_description', { quoteNumber: data.quoteNumber }),
+        });
+        router.push('/quotes');
+    } catch (error) {
+        console.error("Error creating quote:", error);
+        toast({
+            variant: "destructive",
+            title: "Error Creating Quote",
+            description: "An unexpected error occurred. Please try again."
+        });
+    }
   };
 
 
@@ -217,6 +296,19 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+         <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('quote_form.title', 'Title')}</FormLabel>
+                <FormControl>
+                  <Input placeholder={t('quote_form.title_placeholder', 'e.g. Bathroom Remodel Project')} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <FormField
             control={form.control}
@@ -297,7 +389,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
           />
           <FormField
             control={form.control}
-            name="createdAt"
+            name="issueDate"
             render={({ field }) => (
               <FormItem className="flex flex-col pt-2">
                 <FormLabel>{t('quote_form.quote_date')}</FormLabel>
@@ -564,7 +656,7 @@ export function QuoteForm({ quote }: { quote?: Quote }) {
             <Separator />
             <div className="flex justify-between font-bold text-lg">
               <span>{t('quote_form.total')}</span>
-              <span>{formatCurrency(total)}</span>
+              <span>{formatCurrency(finalTotal)}</span>
             </div>
           </div>
         </div>

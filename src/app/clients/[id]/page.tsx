@@ -188,7 +188,7 @@ export default function ClientViewPage() {
                                                     {t(`quote_form.status_${quote.status}`)}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell className="text-right">{formatCurrency(quote.total, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
+                                                <TableCell className="text-right">{formatCurrency(quote.finalTotal, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
                                             </TableRow>
                                         )) : (
                                             <TableRow>

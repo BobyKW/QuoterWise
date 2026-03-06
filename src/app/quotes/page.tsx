@@ -124,6 +124,7 @@ export default function QuotesPage() {
   const performDelete = () => {
     if (!user || !quoteToDelete) return;
     const quoteRef = doc(firestore, `userProfiles/${user.uid}/quotes/${quoteToDelete.id}`);
+    // TODO: This should also delete subcollections (sections and items) in a batch or via a cloud function.
     deleteDocumentNonBlocking(quoteRef);
     toast({ 
       title: t('toasts.quote_deleted_title'),
@@ -225,7 +226,7 @@ export default function QuotesPage() {
                           {t(`quote_form.status_${quote.status}`)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">{formatCurrency(quote.total, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(quote.finalTotal, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -307,5 +308,3 @@ export default function QuotesPage() {
     </>
   );
 }
-
-    
