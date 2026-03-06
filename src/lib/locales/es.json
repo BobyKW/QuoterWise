@@ -397,5 +397,54 @@
     "block_limits_heading": "Límites de Bloques Reutilizables",
     "anonymous_block_label": "Límite para Invitados",
     "registered_block_label": "Límite para Registrados"
+  },
+  "landing_page": {
+    "header": {
+      "dashboard": "Dashboard"
+    },
+    "hero": {
+      "title": "Crea Presupuestos Profesionales en Segundos",
+      "description": "QuoterWise utiliza IA para ayudarte a generar presupuestos atractivos y precisos sin esfuerzo. Gestiona clientes, reutiliza conceptos y cobra más rápido.",
+      "cta": "Empieza Gratis"
+    },
+    "features": {
+      "tagline": "Funcionalidades Clave",
+      "title": "Todo lo que Necesitas para Triunfar",
+      "description": "Nuestra plataforma está repleta de funciones diseñadas para agilizar tu proceso de presupuestos e impresionar a tus clientes.",
+      "item1": {
+        "title": "Descripciones con IA",
+        "description": "Genera descripciones de conceptos atractivas con un solo clic, ahorrándote tiempo y esfuerzo."
+      },
+      "item2": {
+        "title": "Gestión de Clientes",
+        "description": "Mantén toda la información de tus clientes organizada y accesible en un solo lugar."
+      },
+      "item3": {
+        "title": "Bloques Reutilizables",
+        "description": "Guarda conceptos y servicios comunes como \"bloques\" para añadirlos a futuros presupuestos al instante."
+      },
+      "item4": {
+        "title": "Plantillas Profesionales",
+        "description": "Crea presupuestos atractivos y con tu marca que impresionen a tus clientes cada vez."
+      },
+      "item5": {
+        "title": "Integración con Stripe",
+        "description": "Gestiona las suscripciones PRO de forma fluida y segura con Stripe."
+      },
+      "item6": {
+        "title": "Dashboard Intuitivo",
+        "description": "Obtén una visión clara de tu negocio con estadísticas sobre presupuestos, clientes e ingresos."
+      }
+    },
+    "cta": {
+      "title": "¿Listo para optimizar tu proceso de presupuestos?",
+      "description": "Deja de perder tiempo en presupuestos manuales. Empieza a ganar más negocio hoy mismo.",
+      "button": "Empieza Gratis"
+    },
+    "footer": {
+      "copyright": "© 2024 QuoterWise. Todos los derechos reservados.",
+      "terms": "Términos de Servicio",
+      "privacy": "Privacidad"
+    }
   }
 }

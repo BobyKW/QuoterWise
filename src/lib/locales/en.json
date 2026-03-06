@@ -397,5 +397,54 @@
     "block_limits_heading": "Reusable Block Limits",
     "anonymous_block_label": "Guest User Limit",
     "registered_block_label": "Registered User Limit"
+  },
+  "landing_page": {
+    "header": {
+      "dashboard": "Dashboard"
+    },
+    "hero": {
+      "title": "Create Professional Quotes in Seconds",
+      "description": "QuoterWise leverages AI to help you generate beautiful, accurate quotes effortlessly. Manage clients, reuse items, and get paid faster.",
+      "cta": "Get Started Free"
+    },
+    "features": {
+      "tagline": "Key Features",
+      "title": "Everything You Need to Succeed",
+      "description": "Our platform is packed with features designed to streamline your quoting process and impress your clients.",
+      "item1": {
+        "title": "AI-Powered Descriptions",
+        "description": "Generate compelling item descriptions with a single click, saving you time and effort."
+      },
+      "item2": {
+        "title": "Client Management",
+        "description": "Keep all your client information organized and accessible in one place."
+      },
+      "item3": {
+        "title": "Reusable Blocks",
+        "description": "Save common items and services as \"blocks\" to add them to future quotes instantly."
+      },
+      "item4": {
+        "title": "Professional Templates",
+        "description": "Create beautiful, branded quotes that impress your clients every time."
+      },
+      "item5": {
+        "title": "Stripe Integration",
+        "description": "Manage PRO subscriptions seamlessly and securely with Stripe."
+      },
+      "item6": {
+        "title": "Insightful Dashboard",
+        "description": "Get a clear overview of your business with stats on quotes, clients, and revenue."
+      }
+    },
+    "cta": {
+      "title": "Ready to streamline your quoting process?",
+      "description": "Stop wasting time on manual quotes. Start winning more business today.",
+      "button": "Start for Free"
+    },
+    "footer": {
+      "copyright": "© 2024 QuoterWise. All rights reserved.",
+      "terms": "Terms of Service",
+      "privacy": "Privacy"
+    }
   }
 }

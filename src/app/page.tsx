@@ -1,11 +1,15 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
 import { ArrowRight, Bot, Database, LayoutTemplate, Zap, Users, BarChart } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useTranslation } from 'react-i18next';
 
 export default function LandingPage() {
+  const { t } = useTranslation();
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
 
   return (
@@ -18,7 +22,7 @@ export default function LandingPage() {
           </Link>
           <nav className="ml-auto flex items-center gap-4">
             <Button asChild>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/dashboard">{t('landing_page.header.dashboard')}</Link>
             </Button>
           </nav>
         </div>
@@ -32,16 +36,16 @@ export default function LandingPage() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                    Create Professional Quotes in Seconds
+                    {t('landing_page.hero.title')}
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    QuoterWise leverages AI to help you generate beautiful, accurate quotes effortlessly. Manage clients, reuse items, and get paid faster.
+                    {t('landing_page.hero.description')}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button asChild size="lg" className="group">
                     <Link href="/dashboard">
-                      Get Started Free
+                      {t('landing_page.hero.cta')}
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
@@ -66,10 +70,10 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Key Features</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Everything You Need to Succeed</h2>
+                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">{t('landing_page.features.tagline')}</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">{t('landing_page.features.title')}</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Our platform is packed with features designed to streamline your quoting process and impress your clients.
+                  {t('landing_page.features.description')}
                 </p>
               </div>
             </div>
@@ -78,43 +82,43 @@ export default function LandingPage() {
                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
                     <Bot className="h-8 w-8 text-primary" />
                  </div>
-                <h3 className="text-lg font-bold">AI-Powered Descriptions</h3>
-                <p className="text-sm text-muted-foreground">Generate compelling item descriptions with a single click, saving you time and effort.</p>
+                <h3 className="text-lg font-bold">{t('landing_page.features.item1.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('landing_page.features.item1.description')}</p>
               </div>
               <div className="grid gap-1 text-center">
                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
                     <Users className="h-8 w-8 text-primary" />
                  </div>
-                <h3 className="text-lg font-bold">Client Management</h3>
-                <p className="text-sm text-muted-foreground">Keep all your client information organized and accessible in one place.</p>
+                <h3 className="text-lg font-bold">{t('landing_page.features.item2.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('landing_page.features.item2.description')}</p>
               </div>
               <div className="grid gap-1 text-center">
                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
                     <Database className="h-8 w-8 text-primary" />
                  </div>
-                <h3 className="text-lg font-bold">Reusable Blocks</h3>
-                <p className="text-sm text-muted-foreground">Save common items and services as "blocks" to add them to future quotes instantly.</p>
+                <h3 className="text-lg font-bold">{t('landing_page.features.item3.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('landing_page.features.item3.description')}</p>
               </div>
                <div className="grid gap-1 text-center">
                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
                     <LayoutTemplate className="h-8 w-8 text-primary" />
                  </div>
-                <h3 className="text-lg font-bold">Professional Templates</h3>
-                <p className="text-sm text-muted-foreground">Create beautiful, branded quotes that impress your clients every time.</p>
+                <h3 className="text-lg font-bold">{t('landing_page.features.item4.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('landing_page.features.item4.description')}</p>
               </div>
                <div className="grid gap-1 text-center">
                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
                     <Zap className="h-8 w-8 text-primary" />
                  </div>
-                <h3 className="text-lg font-bold">Stripe Integration</h3>
-                <p className="text-sm text-muted-foreground">Manage PRO subscriptions seamlessly and securely with Stripe.</p>
+                <h3 className="text-lg font-bold">{t('landing_page.features.item5.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('landing_page.features.item5.description')}</p>
               </div>
                <div className="grid gap-1 text-center">
                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
                     <BarChart className="h-8 w-8 text-primary" />
                  </div>
-                <h3 className="text-lg font-bold">Insightful Dashboard</h3>
-                <p className="text-sm text-muted-foreground">Get a clear overview of your business with stats on quotes, clients, and revenue.</p>
+                <h3 className="text-lg font-bold">{t('landing_page.features.item6.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('landing_page.features.item6.description')}</p>
               </div>
             </div>
           </div>
@@ -124,15 +128,15 @@ export default function LandingPage() {
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card">
             <div className="container mx-auto grid items-center justify-center gap-4 px-4 text-center md:px-6">
                 <div className="space-y-3">
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Ready to streamline your quoting process?</h2>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">{t('landing_page.cta.title')}</h2>
                 <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                    Stop wasting time on manual quotes. Start winning more business today.
+                    {t('landing_page.cta.description')}
                 </p>
                 </div>
                 <div className="mx-auto w-full max-w-sm space-y-2">
                      <Button asChild size="lg" className="group w-full">
                         <Link href="/dashboard">
-                            Start for Free
+                            {t('landing_page.cta.button')}
                             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </Link>
                     </Button>
@@ -142,13 +146,13 @@ export default function LandingPage() {
       </main>
 
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-muted-foreground">&copy; 2024 QuoterWise. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">{t('landing_page.footer.copyright')}</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link href="#" className="text-xs hover:underline underline-offset-4">
-            Terms of Service
+            {t('landing_page.footer.terms')}
           </Link>
           <Link href="#" className="text-xs hover:underline underline-offset-4">
-            Privacy
+            {t('landing_page.footer.privacy')}
           </Link>
         </nav>
       </footer>
