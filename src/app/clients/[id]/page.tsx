@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -95,8 +94,7 @@ export default function ClientViewPage() {
         if (!id || !user) return null;
         return query(
             collection(firestore, `userProfiles/${user.uid}/quotes`),
-            where('clientId', '==', id as string),
-            orderBy('createdAt', 'desc')
+            where('clientId', '==', id as string)
         );
     }, [id, user, firestore]);
     const { data: quotes, isLoading: areQuotesLoading } = useCollection<Quote>(quotesQuery);
@@ -213,5 +211,3 @@ export default function ClientViewPage() {
         </main>
     )
 }
-
-    
