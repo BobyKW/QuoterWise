@@ -3,7 +3,8 @@
 import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
-import { adminDb, initializeAdminApp } from '@/firebase/server';
+import * as admin from 'firebase-admin';
+import { initializeAdminApp } from '@/firebase/server';
 
 // Initialize Stripe with the secret key from environment variables
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
 
   // Initialize Firebase Admin SDK
   initializeAdminApp();
+  const adminDb = admin.firestore();
 
   console.log('✅ Success:', event.id);
 

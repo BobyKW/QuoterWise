@@ -9,11 +9,8 @@ const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
   ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
   : undefined;
 
-let adminApp: admin.app.App;
-
 export function initializeAdminApp() {
   if (admin.apps.length > 0) {
-    adminApp = admin.app();
     return;
   }
   
@@ -21,10 +18,8 @@ export function initializeAdminApp() {
     throw new Error('Firebase service account not found in environment variables.');
   }
   
-  adminApp = admin.initializeApp({
+  admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     projectId: firebaseConfig.projectId,
   });
 }
-
-export const adminDb = admin.firestore();
