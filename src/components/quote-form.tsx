@@ -44,6 +44,7 @@ import {
 import { ClientForm } from '@/components/client-form';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import { generateQuoteItemDescription } from '@/ai/flows/generate-quote-item-description-flow';
 
 const quoteItemSchema = z.object({
   id: z.string().optional(), // Keep track of original item id for updates
@@ -196,43 +197,19 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
         if (!concept) {
             throw new Error("Concept is empty.");
         }
-
-        const { genkit } = await import('genkit');
-        const { googleAI } = await import('@genkit-ai/google-genai');
-        const { z } = await import('zod');
-
-        const ai = genkit({
-            plugins: [googleAI({ apiKey: userProfile.geminiApiKey })],
-        });
-
-        const outputSchema = z.object({
-            description: z.string().describe('The generated professional description for the quote item or section.'),
-        });
-
+        
         const language = i18n.language === 'es' ? 'Spanish' : 'English';
-        
-        const prompt = `You are an expert copywriter specialized in creating professional and concise descriptions for business quotes.
 
-        Generate a detailed description for a quote item or section based on the following information.
-        Ensure the description is professional, clear, and relevant to the specified industry.
-        The output language must be ${language}.
-        
-        Concept Keywords: ${concept}
-        Industry: general business
-        Detail Level: standard
-        
-        Craft the description to be suitable for a professional quote. Adjust the length and complexity based on the 'Detail Level'.
-        
-        For 'standard', provide a clear and concise paragraph.`;
-        
-        const { output } = await ai.generate({
-            model: 'gemini-2.5-flash',
-            prompt: prompt,
-            output: { schema: outputSchema },
+        const result = await generateQuoteItemDescription({
+            conceptKeywords: concept,
+            industry: 'general business',
+            detailLevel: 'standard',
+            language: language,
+            apiKey: userProfile.geminiApiKey,
         });
 
-        if (output?.description) {
-            form.setValue(`items.${index}.description`, output.description);
+        if (result.description) {
+            form.setValue(`items.${index}.description`, result.description);
             toast.update(toastId, {
                 title: t('toasts.ai_success_title'),
                 description: t('toasts.ai_success_description'),

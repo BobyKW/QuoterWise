@@ -1,14 +1,16 @@
 'use server';
 /**
  * @fileOverview A Genkit flow for generating detailed and professional descriptions for quote items or sections.
+ * This function takes a user-provided API key to initialize Genkit for a single call.
  *
  * - generateQuoteItemDescription - A function that handles the AI-powered description generation process.
  * - GenerateQuoteItemDescriptionInput - The input type for the generateQuoteItemDescription function.
  * - GenerateQuoteItemDescriptionOutput - The return type for the generateQuoteItemDescription function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { genkit } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
+import { z } from 'zod';
 
 const GenerateQuoteItemDescriptionInputSchema = z.object({
   conceptKeywords: z
@@ -20,7 +22,8 @@ const GenerateQuoteItemDescriptionInputSchema = z.object({
   detailLevel: z
     .enum(['brief', 'standard', 'detailed'])
     .describe('The desired level of detail for the description.'),
-  language: z.string().describe('The language for the output description (e.g., "Spanish", "English").')
+  language: z.string().describe('The language for the output description (e.g., "Spanish", "English").'),
+  apiKey: z.string().min(1).describe('The user-provided Google Gemini API Key.'),
 });
 export type GenerateQuoteItemDescriptionInput = z.infer<
   typeof GenerateQuoteItemDescriptionInputSchema
@@ -36,38 +39,37 @@ export type GenerateQuoteItemDescriptionOutput = z.infer<
 export async function generateQuoteItemDescription(
   input: GenerateQuoteItemDescriptionInput
 ): Promise<GenerateQuoteItemDescriptionOutput> {
-  return generateQuoteItemDescriptionFlow(input);
-}
+  const { apiKey, ...promptData } = input;
 
-const prompt = ai.definePrompt({
-  name: 'generateQuoteItemDescriptionPrompt',
-  input: {schema: GenerateQuoteItemDescriptionInputSchema},
-  output: {schema: GenerateQuoteItemDescriptionOutputSchema},
-  prompt: `You are an expert copywriter specialized in creating professional and concise descriptions for business quotes.
+  const ai = genkit({
+    plugins: [googleAI({ apiKey })],
+    model: 'googleai/gemini-2.5-flash',
+  });
+
+  const promptTemplate = `You are an expert copywriter specialized in creating professional and concise descriptions for business quotes.
 
 Generate a detailed description for a quote item or section based on the following information.
 Ensure the description is professional, clear, and relevant to the specified industry.
-The output language must be {{{language}}}.
+The output language must be ${promptData.language}.
 
-Concept Keywords: {{{conceptKeywords}}}
-Industry: {{{industry}}}
-Detail Level: {{{detailLevel}}}
+Concept Keywords: ${promptData.conceptKeywords}
+Industry: ${promptData.industry}
+Detail Level: ${promptData.detailLevel}
 
 Craft the description to be suitable for a professional quote. Adjust the length and complexity based on the 'Detail Level'.
 
 For 'brief', provide a short, single-sentence summary.
 For 'standard', provide a clear and concise paragraph.
-For 'detailed', provide a comprehensive description with multiple sentences, possibly listing key aspects or steps.`,
-});
+For 'detailed', provide a comprehensive description with multiple sentences, possibly listing key aspects or steps.`;
 
-const generateQuoteItemDescriptionFlow = ai.defineFlow(
-  {
-    name: 'generateQuoteItemDescriptionFlow',
-    inputSchema: GenerateQuoteItemDescriptionInputSchema,
-    outputSchema: GenerateQuoteItemDescriptionOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  const { output } = await ai.generate({
+    prompt: promptTemplate,
+    output: { schema: GenerateQuoteItemDescriptionOutputSchema },
+  });
+
+  if (!output) {
+    throw new Error('AI generation failed to produce an output.');
   }
-);
+
+  return output;
+}
