@@ -126,6 +126,7 @@
     "description": "Descripción",
     "description_placeholder": "Descripción detallada del servicio o producto...",
     "ai_button": "IA",
+    "ai_button_generating": "Generando...",
     "quantity": "Cantidad",
     "unit": "Unidad",
     "unit_placeholder": "ud, h, m2",
@@ -265,7 +266,9 @@
     "language": "Idioma",
     "language_description": "Elige el idioma de la aplicación.",
     "currency": "Moneda",
-    "currency_description": "Elige tu moneda por defecto para los presupuestos."
+    "currency_description": "Elige tu moneda por defecto para los presupuestos.",
+    "integrations_title": "Integraciones",
+    "integrations_description": "Gestiona las claves de API para servicios de terceros."
   },
   "settings_form": {
     "business_name": "Nombre del Negocio",
@@ -288,7 +291,10 @@
     "default_terms_description": "Estos términos se añadirán automáticamente a los nuevos presupuestos.",
     "save_settings": "Guardar Ajustes",
     "saving": "Guardando...",
-    "currency_placeholder": "Selecciona una moneda"
+    "currency_placeholder": "Selecciona una moneda",
+    "gemini_api_key": "Clave de API de Gemini",
+    "gemini_api_key_placeholder": "Introduce tu clave de API de Google Gemini",
+    "gemini_api_key_description": "Tu clave se almacena de forma segura y se utiliza para funciones de IA como la generación de descripciones."
   },
   "login_page": {
     "welcome": "Bienvenido de nuevo",
@@ -349,7 +355,15 @@
     "settings_saved_title": "Ajustes Guardados",
     "settings_saved_description": "Tu perfil se ha actualizado correctamente.",
     "limits_saved_title": "Límites Guardados",
-    "limits_saved_description": "Los límites de creación de presupuestos han sido actualizados."
+    "limits_saved_description": "Los límites de creación de presupuestos han sido actualizados.",
+    "gemini_key_missing_title": "Falta la Clave de API de Gemini",
+    "gemini_key_missing_description": "Por favor, añade tu clave de API de Google Gemini en la página de Ajustes para usar esta función.",
+    "ai_generating_title": "Generando Descripción...",
+    "ai_generating_description": "La IA está trabajando. Por favor, espera un momento.",
+    "ai_success_title": "¡Descripción Generada!",
+    "ai_success_description": "La nueva descripción se ha añadido al concepto.",
+    "ai_error_title": "Error de IA",
+    "ai_error_description": "No se pudo generar la descripción. Comprueba tu clave de API y vuelve a intentarlo."
   },
   "auth_modal": {
     "title": "Accede a todas las Funcionalidades",

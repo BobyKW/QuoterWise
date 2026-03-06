@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Separator } from './ui/separator';
 
 const settingsFormSchema = z.object({
   businessName: z.string().min(1, 'Business name is required.'),
@@ -34,6 +35,7 @@ const settingsFormSchema = z.object({
   logoUrl: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
   defaultTerms: z.string().min(1, 'Default terms are required.'),
   currency: z.string().optional(),
+  geminiApiKey: z.string().optional(),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -63,6 +65,7 @@ export function SettingsForm() {
       logoUrl: '',
       defaultTerms: '',
       currency: 'EUR',
+      geminiApiKey: '',
     },
   });
 
@@ -323,6 +326,31 @@ export function SettingsForm() {
             </FormItem>
           )}
         />
+        
+        <Separator />
+
+        <div>
+            <h3 className="text-lg font-medium">{t('settings_page.integrations_title')}</h3>
+            <p className="text-sm text-muted-foreground">{t('settings_page.integrations_description')}</p>
+        </div>
+
+         <FormField
+            control={form.control}
+            name="geminiApiKey"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>{t('settings_form.gemini_api_key')}</FormLabel>
+                <FormControl>
+                    <Input type="password" placeholder={t('settings_form.gemini_api_key_placeholder')} {...field} />
+                </FormControl>
+                <FormDescription>
+                    {t('settings_form.gemini_api_key_description')}
+                </FormDescription>
+                <FormMessage />
+                </FormItem>
+            )}
+        />
+
 
         <div className="flex justify-end">
           <Button type="submit" disabled={form.formState.isSubmitting}>

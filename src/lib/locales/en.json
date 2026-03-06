@@ -126,6 +126,7 @@
     "description": "Description",
     "description_placeholder": "Detailed description of the service or product...",
     "ai_button": "AI",
+    "ai_button_generating": "Generating...",
     "quantity": "Quantity",
     "unit": "Unit",
     "unit_placeholder": "ud, h, m2",
@@ -265,7 +266,9 @@
     "language": "Language",
     "language_description": "Choose the application language.",
     "currency": "Currency",
-    "currency_description": "Choose your default currency for quotes."
+    "currency_description": "Choose your default currency for quotes.",
+    "integrations_title": "Integrations",
+    "integrations_description": "Manage API keys for third-party services."
   },
   "settings_form": {
     "business_name": "Business Name",
@@ -288,7 +291,10 @@
     "default_terms_description": "These terms will be automatically added to new quotes.",
     "save_settings": "Save Settings",
     "saving": "Saving...",
-    "currency_placeholder": "Select a currency"
+    "currency_placeholder": "Select a currency",
+    "gemini_api_key": "Gemini API Key",
+    "gemini_api_key_placeholder": "Enter your Google Gemini API key",
+    "gemini_api_key_description": "Your key is stored securely and used for AI features like description generation."
   },
   "login_page": {
     "welcome": "Welcome back",
@@ -349,7 +355,15 @@
     "settings_saved_title": "Settings Saved",
     "settings_saved_description": "Your profile has been updated successfully.",
     "limits_saved_title": "Limits Saved",
-    "limits_saved_description": "Quote creation limits have been updated."
+    "limits_saved_description": "Quote creation limits have been updated.",
+    "gemini_key_missing_title": "Gemini API Key Missing",
+    "gemini_key_missing_description": "Please add your Google Gemini API key in the Settings page to use this feature.",
+    "ai_generating_title": "Generating Description...",
+    "ai_generating_description": "The AI is at work. Please wait a moment.",
+    "ai_success_title": "Description Generated!",
+    "ai_success_description": "The new description has been added to the item.",
+    "ai_error_title": "AI Error",
+    "ai_error_description": "Could not generate description. Please check your API key and try again."
   },
   "auth_modal": {
     "title": "Access Full Features",

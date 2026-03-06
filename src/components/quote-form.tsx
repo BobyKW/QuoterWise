@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Library, PlusCircle, Trash2, Wand2 } from 'lucide-react';
+import { CalendarIcon, Library, Loader2, PlusCircle, Trash2, Wand2 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
@@ -32,7 +32,7 @@ import { useFirestore, useUser, useCollection, useMemoFirebase, useDoc } from '@
 import { collection, serverTimestamp, Timestamp, doc, query, orderBy, increment, writeBatch, getDocs } from 'firebase/firestore';
 import type { Quote, Client, ReusableBlock, UserProfile, QuoteItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -81,9 +81,10 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isClientDialogOpen, setIsClientDialogOpen] = React.useState(false);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = React.useState(false);
+  const [aiLoadingIndex, setAiLoadingIndex] = useState<number | null>(null);
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -173,6 +174,84 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
   );
 
   const finalTotal = subtotal + totalTax;
+
+  const handleGenerateDescription = async (index: number) => {
+    if (!userProfile?.geminiApiKey) {
+        toast({
+            variant: 'destructive',
+            title: t('toasts.gemini_key_missing_title'),
+            description: t('toasts.gemini_key_missing_description'),
+        });
+        return;
+    }
+
+    setAiLoadingIndex(index);
+    const { id: toastId } = toast({
+      title: t('toasts.ai_generating_title'),
+      description: t('toasts.ai_generating_description'),
+    });
+
+    try {
+        const concept = form.getValues(`items.${index}.concept`);
+        if (!concept) {
+            throw new Error("Concept is empty.");
+        }
+
+        const { genkit } = await import('genkit');
+        const { googleAI } = await import('@genkit-ai/google-genai');
+        const { z } = await import('zod');
+
+        const ai = genkit({
+            plugins: [googleAI({ apiKey: userProfile.geminiApiKey })],
+        });
+
+        const outputSchema = z.object({
+            description: z.string().describe('The generated professional description for the quote item or section.'),
+        });
+
+        const language = i18n.language === 'es' ? 'Spanish' : 'English';
+        
+        const prompt = `You are an expert copywriter specialized in creating professional and concise descriptions for business quotes.
+
+        Generate a detailed description for a quote item or section based on the following information.
+        Ensure the description is professional, clear, and relevant to the specified industry.
+        The output language must be ${language}.
+        
+        Concept Keywords: ${concept}
+        Industry: general business
+        Detail Level: standard
+        
+        Craft the description to be suitable for a professional quote. Adjust the length and complexity based on the 'Detail Level'.
+        
+        For 'standard', provide a clear and concise paragraph.`;
+        
+        const { output } = await ai.generate({
+            model: 'gemini-2.5-flash',
+            prompt: prompt,
+            output: { schema: outputSchema },
+        });
+
+        if (output?.description) {
+            form.setValue(`items.${index}.description`, output.description);
+            toast.update(toastId, {
+                title: t('toasts.ai_success_title'),
+                description: t('toasts.ai_success_description'),
+            });
+        } else {
+            throw new Error("AI did not return a description.");
+        }
+
+    } catch (error) {
+        console.error("AI description generation failed:", error);
+        toast.update(toastId, {
+            variant: 'destructive',
+            title: t('toasts.ai_error_title'),
+            description: t('toasts.ai_error_description'),
+        });
+    } finally {
+        setAiLoadingIndex(null);
+    }
+  };
 
   const onSubmit = async (data: QuoteFormValues) => {
     if (!user) {
@@ -491,9 +570,20 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
                         </FormItem>
                       )}
                     />
-                    <Button type="button" size="sm" variant="outline" className="absolute top-0 right-0 gap-1.5" disabled>
-                      <Wand2 className="h-3 w-3" />
-                      {t('quote_form.ai_button')}
+                    <Button type="button" size="sm" variant="outline" className="absolute top-0 right-0 gap-1.5" 
+                      onClick={() => handleGenerateDescription(index)}
+                      disabled={!userProfile?.geminiApiKey || aiLoadingIndex !== null}>
+                      {aiLoadingIndex === index ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          {t('quote_form.ai_button_generating')}
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="h-3 w-3" />
+                          {t('quote_form.ai_button')}
+                        </>
+                      )}
                     </Button>
                   </div>
                   <FormField
