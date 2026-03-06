@@ -5,6 +5,12 @@
       "description": "User avatar in the sidebar",
       "imageUrl": "https://picsum.photos/seed/avatar/40/40",
       "imageHint": "person face"
+    },
+    {
+      "id": "landing-hero",
+      "description": "Hero image for the landing page",
+      "imageUrl": "https://picsum.photos/seed/hero/600/400",
+      "imageHint": "app interface"
     }
   ]
 }

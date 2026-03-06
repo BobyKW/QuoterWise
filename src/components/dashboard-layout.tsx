@@ -43,7 +43,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { useUser, useAuth, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { useUser, useAuth, useDoc, useFirestore, useMemoFirebase, initiateAnonymousSignIn } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { useEffect } from 'react';
@@ -163,7 +163,7 @@ function UserMenu() {
 
   const handleLogout = async () => {
     await signOut(auth);
-    router.push('/login');
+    router.push('/');
   };
   
   const getInitials = (email?: string | null) => {
@@ -236,7 +236,7 @@ function LogoutButton() {
   const { t } = useTranslation();
   const handleLogout = async () => {
     await signOut(auth);
-    router.push('/login');
+    router.push('/');
   };
   return (
     <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
@@ -303,14 +303,18 @@ export default function DashboardLayout({
   children: ReactNode;
 }) {
   const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
 
   useEffect(() => {
     if (!isUserLoading && !user) {
-      router.replace('/');
+      // If there's no user at all, sign in anonymously.
+      // The onAuthStateChanged listener will then pick up the new anonymous user,
+      // and on the next render, the `!user` condition will be false.
+      initiateAnonymousSignIn(auth);
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, router, auth]);
 
   if (isUserLoading || !user) {
     return (
