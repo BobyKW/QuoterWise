@@ -80,6 +80,10 @@ function MainNav() {
       { href: '/settings', icon: Settings, label: t('sidebar.settings'), protected: false },
   ];
 
+  const paymentLink = process.env.NODE_ENV === 'production'
+    ? process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_LIVE
+    : process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_TEST;
+
   const renderMenuItem = (item: typeof navItems[0]) => {
     const isProtectedAndAnonymous = item.protected && isAnonymous;
 
@@ -119,10 +123,10 @@ function MainNav() {
     </SidebarMenu>
 
     <div className="mt-auto">
-        {!isPro && (
+        {!isPro && paymentLink && (
             <div className="p-2">
                 <Button className="w-full justify-start" asChild>
-                    <Link href="https://buy.stripe.com/8x28wOfDk6W7dC1e9Y7IY02" target="_blank">
+                    <Link href={paymentLink} target="_blank">
                         <Zap className="mr-2 h-4 w-4" />
                         <span className="group-data-[collapsible=icon]:hidden">{t('sidebar.upgrade_to_pro')}</span>
                     </Link>
