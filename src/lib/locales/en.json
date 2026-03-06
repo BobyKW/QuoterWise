@@ -346,9 +346,7 @@
     "settings_saved_title": "Settings Saved",
     "settings_saved_description": "Your profile has been updated successfully.",
     "limits_saved_title": "Limits Saved",
-    "limits_saved_description": "Quote creation limits have been updated.",
-    "subscription_updated_title": "Subscription Updated",
-    "subscription_updated_description": "Subscription for {email} set to {status}."
+    "limits_saved_description": "Quote creation limits have been updated."
   },
   "auth_modal": {
     "title": "Access Full Features",
@@ -371,10 +369,7 @@
     "app_limits_description": "Set the maximum number of items users can create.",
     "role_admin": "Admin",
     "subscription_pro": "PRO",
-    "table_subscription": "Subscription",
-    "table_actions": "Actions",
-    "action_make_pro": "Make PRO",
-    "action_revoke_pro": "Revoke PRO"
+    "table_subscription": "Subscription"
   },
   "quote_limits_form": {
     "anonymous_label": "Guest User Limit",

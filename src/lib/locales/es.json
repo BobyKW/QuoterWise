@@ -346,9 +346,7 @@
     "settings_saved_title": "Ajustes Guardados",
     "settings_saved_description": "Tu perfil se ha actualizado correctamente.",
     "limits_saved_title": "Límites Guardados",
-    "limits_saved_description": "Los límites de creación de presupuestos han sido actualizados.",
-    "subscription_updated_title": "Suscripción Actualizada",
-    "subscription_updated_description": "La suscripción para {email} se ha establecido como {status}."
+    "limits_saved_description": "Los límites de creación de presupuestos han sido actualizados."
   },
   "auth_modal": {
     "title": "Accede a todas las Funcionalidades",
@@ -371,10 +369,7 @@
     "app_limits_description": "Establece el número máximo de ítems que los usuarios pueden crear.",
     "role_admin": "Admin",
     "subscription_pro": "PRO",
-    "table_subscription": "Suscripción",
-    "table_actions": "Acciones",
-    "action_make_pro": "Hacer PRO",
-    "action_revoke_pro": "Revocar PRO"
+    "table_subscription": "Suscripción"
   },
   "quote_limits_form": {
     "anonymous_label": "Límite para Invitados",
