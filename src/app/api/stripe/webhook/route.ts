@@ -25,9 +25,6 @@ function initializeFirebaseAdmin() {
     if (serviceAccount.private_key) {
       serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
     }
-    
-    // Log the project ID and client email to verify the correct key is being used.
-    console.log(`Initializing Firebase Admin with Project ID: ${serviceAccount.project_id} and Client Email: ${serviceAccount.client_email}`);
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
