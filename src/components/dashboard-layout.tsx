@@ -15,6 +15,7 @@ import {
   Lock,
   Shield,
   Zap,
+  Star,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -51,6 +52,7 @@ import { AuthModalProvider, useAuthModal } from '@/hooks/use-auth-modal';
 import { AuthModal } from '@/components/auth-modal';
 import type { UserProfile } from '@/lib/types';
 import { useQuoteLimits } from '@/hooks/use-quote-limits';
+import { Badge } from './ui/badge';
 
 
 function MainNav() {
@@ -157,6 +159,7 @@ function UserMenu() {
   const auth = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
+  const { isPro } = useQuoteLimits();
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -181,7 +184,15 @@ function UserMenu() {
             <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
           </Avatar>
           <div className="flex-grow truncate">
-            <p className="font-medium text-sm text-sidebar-foreground">{user?.displayName || 'User'}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-medium text-sm text-sidebar-foreground">{user?.displayName || 'User'}</p>
+              {isPro && (
+                <Badge className="gap-1 bg-amber-500 text-white hover:bg-amber-600">
+                  <Star className="h-3 w-3" />
+                  PRO
+                </Badge>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
         </button>
@@ -240,6 +251,7 @@ function CollapsedUserMenu() {
     const router = useRouter();
     const { t } = useTranslation();
     const { onOpen } = useAuthModal();
+    const { isPro } = useQuoteLimits();
 
     if(user?.isAnonymous) {
         return (
@@ -257,12 +269,22 @@ function CollapsedUserMenu() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-            <Avatar className="h-8 w-8 cursor-pointer">
-                <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
-            </Avatar>
+                <div className="relative cursor-pointer">
+                    <Avatar className="h-8 w-8">
+                        <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
+                    </Avatar>
+                    {isPro && (
+                        <span className="absolute -bottom-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-amber-500">
+                            <Star className="h-2 w-2 text-white" fill="white" />
+                        </span>
+                    )}
+                </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center" className="w-56">
-            <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+            <DropdownMenuLabel className="flex items-center justify-between">
+                <span>{user?.email}</span>
+                {isPro && <Badge className="gap-1 bg-amber-500 text-white hover:bg-amber-600">PRO</Badge>}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
                 <Settings className="mr-2 h-4 w-4" />
