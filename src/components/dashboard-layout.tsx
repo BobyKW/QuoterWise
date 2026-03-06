@@ -14,6 +14,7 @@ import {
   Library,
   Lock,
   Shield,
+  Zap,
 } from 'lucide-react';
 import {
   SidebarProvider,
@@ -49,6 +50,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthModalProvider, useAuthModal } from '@/hooks/use-auth-modal';
 import { AuthModal } from '@/components/auth-modal';
 import type { UserProfile } from '@/lib/types';
+import { useQuoteLimits } from '@/hooks/use-quote-limits';
 
 
 function MainNav() {
@@ -58,6 +60,7 @@ function MainNav() {
   const { onOpen } = useAuthModal();
   const isAnonymous = user?.isAnonymous ?? true;
   const firestore = useFirestore();
+  const { isPro } = useQuoteLimits();
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user || isAnonymous) return null;
@@ -116,6 +119,16 @@ function MainNav() {
     </SidebarMenu>
 
     <div className="mt-auto">
+        {!isPro && (
+            <div className="p-2">
+                <Button className="w-full justify-start" asChild>
+                    <Link href="#">
+                        <Zap className="mr-2 h-4 w-4" />
+                        <span className="group-data-[collapsible=icon]:hidden">{t('sidebar.upgrade_to_pro')}</span>
+                    </Link>
+                </Button>
+            </div>
+        )}
         <SidebarMenu>
             {userProfile?.role === 'admin' && (
                 <SidebarMenuItem>

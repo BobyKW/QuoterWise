@@ -22,6 +22,7 @@ export type UserProfile = {
   updatedAt: Timestamp;
   role?: 'admin';
   currency?: string;
+  subscriptionStatus?: 'active' | 'inactive';
 };
 
 // This will be the shape of the data in Firestore

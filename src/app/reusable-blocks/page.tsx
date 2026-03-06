@@ -64,7 +64,7 @@ export default function ReusableBlocksPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [blockToDelete, setBlockToDelete] = React.useState<ReusableBlock | null>(null);
 
-  const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
+  const { limits, isLoading: isLoadingLimits, isPro } = useQuoteLimits();
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -87,7 +87,7 @@ export default function ReusableBlocksPage() {
   const blockCount = blocks?.length || 0;
   const isAnonymous = user?.isAnonymous ?? true;
   const blockLimit = isAnonymous ? limits.anonymousBlockLimit : limits.registeredBlockLimit;
-  const limitReached = blockCount >= blockLimit;
+  const limitReached = !isPro && blockCount >= blockLimit;
 
   const handleDeleteClick = (block: ReusableBlock) => {
     setBlockToDelete(block);

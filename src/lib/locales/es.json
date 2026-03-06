@@ -8,7 +8,8 @@
     "settings": "Ajustes",
     "logout": "Cerrar sesión",
     "login_to_access": "Inicia sesión para acceder",
-    "admin": "Admin"
+    "admin": "Admin",
+    "upgrade_to_pro": "Hazte Pro"
   },
   "user_menu": {
     "my_account": "Mi Cuenta",
@@ -378,5 +379,3 @@
     "registered_block_label": "Límite para Registrados"
   }
 }
-
-    

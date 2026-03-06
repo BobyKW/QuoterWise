@@ -61,7 +61,7 @@ export default function NewReusableBlockPage() {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
+  const { limits, isLoading, isPro } = useQuoteLimits();
   
   const blocksQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -70,14 +70,14 @@ export default function NewReusableBlockPage() {
 
   const { data: blocks, isLoading: isLoadingBlocks } = useCollection<ReusableBlock>(blocksQuery);
 
-  if (isLoadingLimits || isLoadingBlocks || !user) {
+  if (isLoading || isLoadingBlocks || !user) {
     return <NewBlockSkeleton />;
   }
 
   const isAnonymous = user.isAnonymous;
   const blockCount = blocks?.length || 0;
   const blockLimit = isAnonymous ? limits.anonymousBlockLimit : limits.registeredBlockLimit;
-  const limitReached = blockCount >= blockLimit;
+  const limitReached = !isPro && blockCount >= blockLimit;
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

@@ -90,7 +90,7 @@ export default function QuotesPage() {
   const [quoteToDownload, setQuoteToDownload] = React.useState<Quote | null>(null);
   const [isDownloading, setIsDownloading] = React.useState<string | null>(null);
 
-  const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
+  const { limits, isLoading: isLoadingLimits, isPro } = useQuoteLimits();
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -113,7 +113,7 @@ export default function QuotesPage() {
   const quoteCount = quotes?.length || 0;
   const isAnonymous = user?.isAnonymous ?? true;
   const quoteLimit = isAnonymous ? limits.anonymousQuoteLimit : limits.registeredQuoteLimit;
-  const limitReached = quoteCount >= quoteLimit;
+  const limitReached = !isPro && quoteCount >= quoteLimit;
 
 
   const handleDeleteClick = (quote: Quote) => {

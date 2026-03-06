@@ -61,7 +61,7 @@ export default function NewQuotePage() {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
+  const { limits, isLoading, isPro } = useQuoteLimits();
   
   const quotesQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -70,14 +70,14 @@ export default function NewQuotePage() {
 
   const { data: quotes, isLoading: isLoadingQuotes } = useCollection<Quote>(quotesQuery);
 
-  if (isLoadingLimits || isLoadingQuotes || !user) {
+  if (isLoading || isLoadingQuotes || !user) {
     return <NewQuoteSkeleton />;
   }
 
   const isAnonymous = user.isAnonymous;
   const quoteCount = quotes?.length || 0;
   const quoteLimit = isAnonymous ? limits.anonymousQuoteLimit : limits.registeredQuoteLimit;
-  const limitReached = quoteCount >= quoteLimit;
+  const limitReached = !isPro && quoteCount >= quoteLimit;
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
