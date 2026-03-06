@@ -4,9 +4,31 @@ import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 import * as admin from 'firebase-admin';
-import { initializeAdminApp } from '@/firebase/server';
 
-// Initialize Stripe with the secret key from environment variables
+// This function initializes the Firebase Admin SDK, but only if it hasn't been initialized already.
+// This "lazy initialization" pattern is safe for serverless environments like Vercel.
+function initializeFirebaseAdmin() {
+  if (admin.apps.length > 0) {
+    return;
+  }
+
+  const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (!serviceAccountString) {
+    throw new Error('Firebase service account not found in environment variables. Please ensure FIREBASE_SERVICE_ACCOUNT is set in Vercel.');
+  }
+
+  try {
+    const serviceAccount = JSON.parse(serviceAccountString);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : 'Unknown error during Firebase Admin init.';
+    throw new Error(`Failed to initialize Firebase Admin SDK: ${errorMessage}`);
+  }
+}
+
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
 });
@@ -27,8 +49,15 @@ export async function POST(req: NextRequest) {
     return new Response(`Webhook Error: ${errorMessage}`, { status: 400 });
   }
 
-  // Initialize Firebase Admin SDK
-  initializeAdminApp();
+  // Initialize Firebase Admin SDK right before we need it
+  try {
+    initializeFirebaseAdmin();
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : 'Unknown server configuration error';
+    console.error("Firebase Admin initialization failed:", errorMessage);
+    return new Response(`Webhook handler error: ${errorMessage}`, { status: 500 });
+  }
+  
   const adminDb = admin.firestore();
 
   console.log('✅ Success:', event.id);
