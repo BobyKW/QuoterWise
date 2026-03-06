@@ -295,10 +295,8 @@ service cloud.firestore {
     // Publicly readable data that can only be modified by admins.
     // ------------------------------------------------------------------------
     match /appConfig/{configId} {
-      allow get: if isSignedIn();
+      allow read: if isSignedIn();
       allow write: if isAdmin();
     }
   }
 }
-
-    
