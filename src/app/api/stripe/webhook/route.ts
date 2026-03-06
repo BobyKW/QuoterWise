@@ -19,11 +19,16 @@ function initializeFirebaseAdmin() {
 
   try {
     const serviceAccount = JSON.parse(serviceAccountString);
+    
+    // Log the project ID and client email to verify the correct key is being used.
+    console.log(`Initializing Firebase Admin with Project ID: ${serviceAccount.project_id} and Client Email: ${serviceAccount.client_email}`);
+
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : 'Unknown error during Firebase Admin init.';
+    console.error(`Failed to parse or initialize Firebase Admin SDK: ${errorMessage}`);
     throw new Error(`Failed to initialize Firebase Admin SDK: ${errorMessage}`);
   }
 }
@@ -45,7 +50,7 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-    console.log(`❌ Error message: ${errorMessage}`);
+    console.log(`❌ Error constructing Stripe event: ${errorMessage}`);
     return new Response(`Webhook Error: ${errorMessage}`, { status: 400 });
   }
 
@@ -60,7 +65,7 @@ export async function POST(req: NextRequest) {
   
   const adminDb = admin.firestore();
 
-  console.log('✅ Success:', event.id);
+  console.log('✅ Success processing Stripe event:', event.id);
 
   try {
     switch (event.type) {
@@ -83,7 +88,7 @@ export async function POST(req: NextRequest) {
 
         const userDoc = userSnapshot.docs[0];
         await userDoc.ref.update({ subscriptionStatus: 'active' });
-        console.log(`Subscription activated for ${userDoc.id}`);
+        console.log(`Successfully activated subscription for ${userDoc.id}`);
         break;
       }
       
@@ -126,5 +131,5 @@ export async function POST(req: NextRequest) {
      return new Response(`Webhook handler error: ${errorMessage}`, { status: 500 });
   }
 
-  return new Response(null, { status: 200 });
+  return new Response(JSON.stringify({ received: true }), { status: 200 });
 }
