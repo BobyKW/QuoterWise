@@ -3,39 +3,7 @@
 import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
-import * as admin from 'firebase-admin';
-
-// This function initializes the Firebase Admin SDK, but only if it hasn't been initialized already.
-// This "lazy initialization" pattern is safe for serverless environments like Vercel.
-function initializeFirebaseAdmin() {
-  if (admin.apps.length > 0) {
-    return;
-  }
-
-  const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT;
-  if (!serviceAccountString) {
-    throw new Error('Firebase service account not found in environment variables. Please ensure FIREBASE_SERVICE_ACCOUNT is set in Vercel.');
-  }
-
-  try {
-    const serviceAccount = JSON.parse(serviceAccountString);
-
-    // CRITICAL: Vercel's environment variable handling can escape newlines.
-    // We must un-escape them for the private key to be valid.
-    if (serviceAccount.private_key) {
-      serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-    }
-
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-  } catch (e) {
-    const errorMessage = e instanceof Error ? e.message : 'Unknown error during Firebase Admin init.';
-    console.error(`Failed to parse or initialize Firebase Admin SDK: ${errorMessage}`);
-    throw new Error(`Failed to initialize Firebase Admin SDK: ${errorMessage}`);
-  }
-}
-
+import { getFirebaseAdmin } from '@/firebase/server-init';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
@@ -57,16 +25,16 @@ export async function POST(req: NextRequest) {
     return new Response(`Webhook Error: ${errorMessage}`, { status: 400 });
   }
 
-  // Initialize Firebase Admin SDK right before we need it
+  let adminDb;
   try {
-    initializeFirebaseAdmin();
+    // Get the initialized firestore instance from our centralized function
+    const { firestore } = getFirebaseAdmin();
+    adminDb = firestore;
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : 'Unknown server configuration error';
-    console.error("Firebase Admin initialization failed:", errorMessage);
+    console.error("Firebase Admin initialization failed in webhook:", errorMessage);
     return new Response(`Webhook handler error: ${errorMessage}`, { status: 500 });
   }
-  
-  const adminDb = admin.firestore();
 
   console.log('✅ Success processing Stripe event:', event.id);
 
