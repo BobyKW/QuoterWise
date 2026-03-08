@@ -7,6 +7,7 @@ import { ArrowRight, Bot, Database, LayoutTemplate, Zap, Users, BarChart } from 
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export default function LandingPage() {
   const { t } = useTranslation();
@@ -51,9 +52,9 @@ export default function LandingPage() {
         <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <Logo className="h-7 w-7 text-primary" />
-            <span className="font-semibold text-foreground text-lg">QuoterWise</span>
+            <span className="font-bold text-foreground text-lg">QuoterWise</span>
           </Link>
-          <nav className="ml-auto flex items-center gap-4">
+          <nav className="ml-auto flex items-center gap-2 sm:gap-4">
              <Button variant="ghost" asChild>
                 <Link href="/login">{t('login_page.login_button')}</Link>
             </Button>
@@ -66,11 +67,11 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-24 sm:py-32 md:py-40">
+        <section className="w-full py-24 sm:py-32 md:py-48">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+            <div className="grid gap-10 lg:grid-cols-2 lg:gap-24">
               <div className="flex flex-col items-start justify-center space-y-8">
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h1 className="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl xl:text-7xl/none">
                     {t('landing_page.hero.title')}
                   </h1>
@@ -104,10 +105,10 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="w-full py-20 md:py-28 lg:py-32 bg-card border-t border-b">
+        <section id="features" className="w-full py-24 md:py-32 bg-card border-t border-b">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-6 text-center">
-              <div className="space-y-3">
+            <div className="flex flex-col items-center justify-center space-y-6 text-center mb-16">
+              <div className="space-y-4">
                 <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">{t('landing_page.features.tagline')}</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">{t('landing_page.features.title')}</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -115,22 +116,24 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-6xl items-stretch gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-16">
+            <div className="mx-auto grid max-w-6xl items-start gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {features.map((feature, index) => (
-                <div key={index} className="flex flex-col items-center text-center p-6 rounded-lg transition-all duration-300 hover:bg-background hover:shadow-lg border border-transparent hover:border-border">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-5">
+                <Card key={index} className="flex flex-col items-center text-center p-6 transition-all duration-300 hover:shadow-lg border-2 border-transparent hover:border-primary/20 hover:-translate-y-2">
+                  <CardHeader className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
                       <feature.icon className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <h3 className="text-xl font-bold">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="w-full py-20 md:py-28 lg:py-32">
+        <section className="w-full py-24 md:py-32">
             <div className="container mx-auto grid items-center justify-center gap-4 px-4 text-center md:px-6">
                 <div className="space-y-4">
                   <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">{t('landing_page.cta.title')}</h2>
