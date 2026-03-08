@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Line, LineChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DateRange } from 'react-day-picker';
-import { subDays, format, isWithinInterval } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
+import { subDays, format, isWithinInterval, eachDayOfInterval } from 'date-fns';
 import type { Quote } from '@/lib/types';
 import { useTranslation } from 'react-i18next';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -84,32 +84,39 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
 
 
   const chartData = useMemo(() => {
-    if (!quotes) return [];
-    
-    const filteredQuotes = quotes.filter(quote => {
-        if (!quote.issueDate) return false;
-        const quoteDate = quote.issueDate.toDate();
-        return date?.from && date?.to && isWithinInterval(quoteDate, { start: date.from, end: date.to });
+    if (!quotes || !date?.from || !date?.to) {
+      return [];
+    }
+
+    const allDays = eachDayOfInterval({ start: date.from, end: date.to });
+    const dataMap = new Map<string, { date: string; created: number; accepted: number; revenue: number }>();
+
+    allDays.forEach(day => {
+      const formattedDateKey = format(day, 'yyyy-MM-dd');
+      const formattedDateLabel = format(day, 'MMM d');
+      dataMap.set(formattedDateKey, { date: formattedDateLabel, created: 0, accepted: 0, revenue: 0 });
     });
 
-    const groupedByDay = filteredQuotes.reduce((acc, quote) => {
-        const day = format(quote.issueDate.toDate(), 'yyyy-MM-dd');
-        if (!acc[day]) {
-            acc[day] = { date: format(quote.issueDate.toDate(), 'MMM d'), created: 0, sent: 0, accepted: 0, revenue: 0 };
-        }
-        acc[day].created += 1;
-        if (quote.status === 'sent' || quote.status === 'accepted') {
-            acc[day].sent += 1;
-        }
+    const filteredQuotes = quotes.filter(quote => {
+      if (!quote.issueDate) return false;
+      const quoteDate = quote.issueDate.toDate();
+      return isWithinInterval(quoteDate, { start: date.from!, end: date.to! });
+    });
+
+    filteredQuotes.forEach(quote => {
+      const dayKey = format(quote.issueDate.toDate(), 'yyyy-MM-dd');
+      const dayData = dataMap.get(dayKey);
+
+      if (dayData) {
+        dayData.created += 1;
         if (quote.status === 'accepted') {
-            acc[day].accepted += 1;
-            acc[day].revenue += quote.finalTotal;
+          dayData.accepted += 1;
+          dayData.revenue += quote.finalTotal;
         }
-        return acc;
-    }, {} as Record<string, { date: string; created: number; sent: number; accepted: number, revenue: number }>);
-    
-    const sortedData = Object.values(groupedByDay).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    return sortedData;
+      }
+    });
+
+    return Array.from(dataMap.values());
   }, [quotes, date]);
   
   const totalRevenue = useMemo(() => {
@@ -131,7 +138,7 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
         <CardContent>
             <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
+                  <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" stroke="#888888" fontSize={12} tickLine={false} axisLine={false}/>
                       <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`}/>
@@ -139,9 +146,9 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
                         contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
                       />
                       <Legend />
-                      <Bar dataKey="created" name={t('dashboard_analytics.created')} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="accepted" name={t('dashboard_analytics.accepted')} fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                  </BarChart>
+                      <Line type="monotone" dataKey="created" name={t('dashboard_analytics.created')} stroke="hsl(var(--primary))" strokeWidth={2} dot={false} activeDot={{ r: 8 }} />
+                      <Line type="monotone" dataKey="accepted" name={t('dashboard_analytics.accepted')} stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} activeDot={{ r: 8 }} />
+                  </LineChart>
               </ResponsiveContainer>
             </div>
         </CardContent>
@@ -154,7 +161,7 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
         <CardContent>
             <div className="h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
+                    <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" stroke="#888888" fontSize={12} tickLine={false} axisLine={false}/>
                         <YAxis yAxisId="left" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => formatCurrency(value)}/>
@@ -167,9 +174,9 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
                             }}
                         />
                         <Legend />
-                        <Bar yAxisId="left" dataKey="revenue" name={t('dashboard_analytics.revenue')} fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]}/>
-                        <Bar yAxisId="right" dataKey="accepted" name={t('dashboard_analytics.accepted_quotes')} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}/>
-                    </BarChart>
+                        <Line yAxisId="left" type="monotone" dataKey="revenue" name={t('dashboard_analytics.revenue')} stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} activeDot={{ r: 8 }}/>
+                        <Line yAxisId="right" type="monotone" dataKey="accepted" name={t('dashboard_analytics.accepted_quotes')} stroke="hsl(var(--primary))" strokeWidth={2} dot={false} activeDot={{ r: 8 }}/>
+                    </LineChart>
                 </ResponsiveContainer>
             </div>
             <div className="text-2xl font-bold mt-4">
