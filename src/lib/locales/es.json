@@ -19,11 +19,11 @@
   "dashboard_page": {
     "title": "Dashboard",
     "new_quote": "Nuevo Presupuesto",
-    "total_quotes": "Presupuestos Totales",
-    "total_clients": "Clientes Totales",
-    "draft": "Borradores",
+    "total_quotes": "Presupuestos totales",
+    "total_clients": "Clientes totales",
+    "drafts": "Borradores",
     "sent": "Enviados",
-    "accepted": "Aceptados",
+    "accepted_quotes": "Presupuestos aceptados",
     "rejected": "Rechazados",
     "negotiating": "En negociación",
     "expired": "Expirados",
@@ -35,7 +35,8 @@
     "add_client_title": "Añadir Cliente",
     "add_client_desc": "Registra un nuevo cliente en tus archivos.",
     "create_template_title": "Crear Plantilla",
-    "create_template_desc": "Diseña una nueva plantilla de presupuesto (pronto)."
+    "create_template_desc": "Diseña una nueva plantilla de presupuesto (pronto).",
+    "at_a_glance_title": "De un vistazo"
   },
   "quotes_page": {
     "title": "Presupuestos",

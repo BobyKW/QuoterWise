@@ -141,48 +141,22 @@ export default function DashboardPage() {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">
         <h1 className="font-semibold text-lg md:text-2xl">{t('dashboard_page.title')}</h1>
-        <div className="ml-auto flex items-center gap-2">
-          {quoteLimitReached ? (
-            <Tooltip>
-              <TooltipTrigger>
-                <Button size="sm" className="h-8 gap-1" disabled>
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    {t('dashboard_page.new_quote')}
-                  </span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{isAnonymous ? t('quotes_page.anonymous_limit_reached', { count: quoteLimit }) : t('quotes_page.registered_limit_reached', { count: quoteLimit })}</p>
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Link href="/quotes/new">
-              <Button size="sm" className="h-8 gap-1">
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  {t('dashboard_page.new_quote')}
-                </span>
-              </Button>
-            </Link>
-          )}
-        </div>
       </div>
 
       {isLoading ? (
         <DashboardSkeleton />
       ) : (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
-            <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2">
                 <div className="space-y-4">
                     <h2 className="font-semibold text-lg md:text-xl">{t('dashboard_page.quick_links_title')}</h2>
                     <div className="grid gap-4 md:grid-cols-2">
                     {actionCards.map((card, index) => {
                         const cardComponent = (
                             <Link href={card.disabled ? '#' : card.href} className="block group">
-                                <Card className="transition-colors h-full group-hover:border-primary group-hover:bg-accent">
-                                    <CardHeader>
-                                        <card.icon className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                <Card className="transition-colors h-full hover:border-primary hover:bg-accent/50">
+                                    <CardHeader className='pb-4'>
+                                        <card.icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-primary" />
                                     </CardHeader>
                                     <CardContent>
                                         <p className="font-semibold text-card-foreground">{card.title}</p>
@@ -205,31 +179,31 @@ export default function DashboardPage() {
                             );
                         }
 
-                        return cardComponent;
+                        return React.cloneElement(cardComponent, { key: index });
                     })}
                     </div>
                 </div>
             </div>
-            <div className="lg:col-span-1 space-y-8">
+            <div className="lg:col-span-1">
                 <Card>
                     <CardHeader>
-                        <CardTitle>At a Glance</CardTitle>
+                        <CardTitle>{t('dashboard_page.at_a_glance_title')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground flex items-center gap-2"><FileText className="h-4 w-4" /> Total Quotes</span>
+                            <span className="text-muted-foreground flex items-center gap-2"><FileText className="h-4 w-4" /> {t('dashboard_page.total_quotes')}</span>
                             <span className="font-semibold">{totalQuotes}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground flex items-center gap-2"><Users className="h-4 w-4" /> Total Clients</span>
+                            <span className="text-muted-foreground flex items-center gap-2"><Users className="h-4 w-4" /> {t('dashboard_page.total_clients')}</span>
                             <span className="font-semibold">{totalClients}</span>
                         </div>
                          <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4" /> Accepted Quotes</span>
+                            <span className="text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4" /> {t('dashboard_page.accepted_quotes')}</span>
                             <span className="font-semibold">{totalAccepted}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground flex items-center gap-2"><File className="h-4 w-4" /> Drafts</span>
+                            <span className="text-muted-foreground flex items-center gap-2"><File className="h-4 w-4" /> {t('dashboard_page.drafts')}</span>
                             <span className="font-semibold">{quotes?.filter(q => q.status === 'draft').length || 0}</span>
                         </div>
                     </CardContent>
