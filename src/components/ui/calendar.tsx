@@ -20,36 +20,47 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
-        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+        // Add padding-bottom to make space for the nav bar, and make it relative
+        months: "relative flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 pb-8",
         month: "space-y-4",
-        caption: "flex flex-col gap-1.5 justify-center text-center pt-1 relative items-center mb-2",
+        
+        caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
+        
+        // This targets the single <nav> for the multi-month view.
+        // On small screens, it's a normal flex item.
+        // On sm+, we position it absolutely at the bottom and center it.
+        nav: "space-x-1 flex items-center justify-center sm:absolute sm:bottom-1 sm:left-1/2 sm:-translate-x-1/2",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
+        // Remove absolute positioning from individual buttons as we now position the whole nav container
         nav_button_previous: "",
         nav_button_next: "",
+
+        // The core fix for table alignment. Remove all layout-breaking classes.
         table: "w-full border-collapse space-y-1",
-        head_row: "",
+        head_row: "", // NO FLEX
         head_cell:
           "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-        row: "w-full mt-2",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-range-start)]:rounded-l-md [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        row: "", // NO FLEX OR WIDTH
+
+        // Cell is the <td>. It should handle background colors and rounding for ranges.
+        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        
+        // Day is the <button>. It should be sized and centered.
         day: cn(
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          buttonVariants({ variant: "ghost" }),
+          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
         ),
         day_selected:
           "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
         day_today: "bg-accent text-accent-foreground",
-        day_outside:
-          "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+        day_outside: "text-muted-foreground opacity-50",
         day_disabled: "text-muted-foreground opacity-50",
-        day_range_start: "day-range-start",
-        day_range_end: "day-range-end",
         day_range_middle:
-          "aria-selected:bg-accent aria-selected:text-accent-foreground !rounded-none",
+          "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
         ...classNames,
       }}
