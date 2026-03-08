@@ -523,5 +523,27 @@
     "header_qty": "Cant.",
     "header_unit_price": "Precio Unit.",
     "header_total": "Total"
+  },
+  "validation": {
+    "company_name_required": "El nombre de la empresa es obligatorio.",
+    "contact_name_required": "El nombre de contacto es obligatorio.",
+    "email_invalid": "Dirección de correo electrónico no válida.",
+    "phone_required": "El número de teléfono es obligatorio.",
+    "address_required": "La dirección es obligatoria.",
+    "title_required": "El título es obligatorio.",
+    "client_id_required": "Por favor, selecciona un cliente.",
+    "client_name_required": "El nombre del cliente es obligatorio.",
+    "quote_number_required": "El número de presupuesto es obligatorio.",
+    "items_min": "Se requiere al menos un concepto.",
+    "concept_required": "El concepto es obligatorio.",
+    "positive_number": "Debe ser un número positivo.",
+    "name_required": "El nombre es obligatorio.",
+    "business_name_required": "El nombre del negocio es obligatorio.",
+    "city_required": "La ciudad es obligatoria.",
+    "country_required": "El país es obligatorio.",
+    "url_invalid": "Por favor, introduce una URL válida.",
+    "default_terms_required": "Los términos por defecto son obligatorios.",
+    "email_subject_required": "El asunto es obligatorio.",
+    "email_body_required": "El cuerpo del correo es obligatorio."
   }
 }

@@ -24,27 +24,30 @@ import { Skeleton } from './ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import type { TFunction } from 'i18next';
 
-const settingsFormSchema = z.object({
-  businessName: z.string().min(1, 'Business name is required.'),
+const getSettingsFormSchema = (t: TFunction) => z.object({
+  businessName: z.string().min(1, t('validation.business_name_required')),
   taxId: z.string().optional(),
-  address: z.string().min(1, 'Address is required.'),
-  city: z.string().min(1, 'City is required.'),
-  country: z.string().min(1, 'Country is required.'),
-  phone: z.string().min(1, 'Phone is required.'),
-  logoUrl: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
-  defaultTerms: z.string().min(1, 'Default terms are required.'),
+  address: z.string().min(1, t('validation.address_required')),
+  city: z.string().min(1, t('validation.city_required')),
+  country: z.string().min(1, t('validation.country_required')),
+  phone: z.string().min(1, t('validation.phone_required')),
+  logoUrl: z.string().url(t('validation.url_invalid')).optional().or(z.literal('')),
+  defaultTerms: z.string().min(1, t('validation.default_terms_required')),
   currency: z.string().optional(),
   geminiApiKey: z.string().optional(),
 });
 
-type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+type SettingsFormValues = z.infer<ReturnType<typeof getSettingsFormSchema>>;
 
 export function SettingsForm() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
+
+  const settingsFormSchema = getSettingsFormSchema(t);
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;

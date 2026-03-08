@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import type { TFunction } from 'i18next';
 
 const defaultEmailBody = `Hello {{clientName}},
 
@@ -35,19 +36,20 @@ Please let me know if you have any questions.
 Best regards,
 {{businessName}}`;
 
-
-const emailSettingsFormSchema = z.object({
-  emailSubject: z.string().min(1, 'Subject is required.'),
-  emailBody: z.string().min(1, 'Body is required.'),
+const getEmailSettingsFormSchema = (t: TFunction) => z.object({
+  emailSubject: z.string().min(1, t('validation.email_subject_required')),
+  emailBody: z.string().min(1, t('validation.email_body_required')),
 });
 
-type EmailSettingsFormValues = z.infer<typeof emailSettingsFormSchema>;
+type EmailSettingsFormValues = z.infer<ReturnType<typeof getEmailSettingsFormSchema>>;
 
 export function EmailSettingsForm() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   const { t } = useTranslation();
+
+  const emailSettingsFormSchema = getEmailSettingsFormSchema(t);
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;

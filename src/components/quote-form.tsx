@@ -46,30 +46,33 @@ import { ClientForm } from '@/components/client-form';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { generateQuoteItemDescription } from '@/ai/flows/generate-quote-item-description-flow';
+import type { TFunction } from 'i18next';
 
-const quoteItemSchema = z.object({
-  id: z.string().optional(), // Keep track of original item id for updates
-  concept: z.string().min(1, 'Concept is required.'),
-  description: z.string().optional(),
-  quantity: z.coerce.number().min(0, 'Must be positive.'),
-  unit: z.string().optional(),
-  unitPrice: z.coerce.number().min(0, 'Must be positive.'),
-  taxRate: z.coerce.number().min(0).max(100).optional().default(0),
-});
+const getQuoteFormSchema = (t: TFunction) => {
+  const quoteItemSchema = z.object({
+    id: z.string().optional(), // Keep track of original item id for updates
+    concept: z.string().min(1, t('validation.concept_required')),
+    description: z.string().optional(),
+    quantity: z.coerce.number().min(0, t('validation.positive_number')),
+    unit: z.string().optional(),
+    unitPrice: z.coerce.number().min(0, t('validation.positive_number')),
+    taxRate: z.coerce.number().min(0).max(100).optional().default(0),
+  });
 
-const quoteFormSchema = z.object({
-  title: z.string().min(1, 'Title is required.'),
-  clientId: z.string().min(1, 'Please select a client.'),
-  clientName: z.string().min(1, 'Client name is required.'),
-  quoteNumber: z.string().min(1, 'Quote number is required.'),
-  issueDate: z.date(),
-  status: z.enum(['draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired', 'paid']),
-  items: z.array(quoteItemSchema).min(1, 'At least one item is required.'),
-});
+  return z.object({
+    title: z.string().min(1, t('validation.title_required')),
+    clientId: z.string().min(1, t('validation.client_id_required')),
+    clientName: z.string().min(1, t('validation.client_name_required')),
+    quoteNumber: z.string().min(1, t('validation.quote_number_required')),
+    issueDate: z.date(),
+    status: z.enum(['draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired', 'paid']),
+    items: z.array(quoteItemSchema).min(1, t('validation.items_min')),
+  });
+};
 
-type QuoteFormValues = z.infer<typeof quoteFormSchema>;
+type QuoteFormValues = z.infer<ReturnType<typeof getQuoteFormSchema>>;
 
-const defaultItem: z.infer<typeof quoteItemSchema> = {
+const defaultItem: Omit<z.infer<ReturnType<typeof getQuoteFormSchema>['shape']['items']['element']>, 'id'> = {
   concept: '',
   description: '',
   quantity: 1,
@@ -87,6 +90,8 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
   const [isClientDialogOpen, setIsClientDialogOpen] = React.useState(false);
   const [isBlockDialogOpen, setIsBlockDialogOpen] = React.useState(false);
   const [aiLoadingIndex, setAiLoadingIndex] = useState<number | null>(null);
+
+  const quoteFormSchema = getQuoteFormSchema(t);
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -130,7 +135,7 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
       form.reset({
         ...quote,
         issueDate: quote.issueDate instanceof Timestamp ? quote.issueDate.toDate() : quote.issueDate,
-        items: quote.items && quote.items.length > 0 ? quote.items : [defaultItem],
+        items: quote.items && quote.items.length > 0 ? quote.items.map(({ lineTotal, ...item }) => item) : [defaultItem],
       });
        if(!form.getValues('title')){
         form.setValue('title', t('quote_form.default_title', { clientName: quote.clientName }));

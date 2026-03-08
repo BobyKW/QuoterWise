@@ -21,16 +21,17 @@ import type { Client, ClientDocument } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
-const clientFormSchema = z.object({
-  companyName: z.string().min(1, 'Company name is required.'),
-  contactName: z.string().min(1, 'Contact name is required.'),
-  email: z.string().email('Invalid email address.'),
-  phone: z.string().min(1, 'Phone number is required.'),
-  address: z.string().min(1, 'Address is required.'),
+const getClientFormSchema = (t: TFunction) => z.object({
+  companyName: z.string().min(1, t('validation.company_name_required')),
+  contactName: z.string().min(1, t('validation.contact_name_required')),
+  email: z.string().email(t('validation.email_invalid')),
+  phone: z.string().min(1, t('validation.phone_required')),
+  address: z.string().min(1, t('validation.address_required')),
 });
 
-type ClientFormValues = z.infer<typeof clientFormSchema>;
+type ClientFormValues = z.infer<ReturnType<typeof getClientFormSchema>>;
 
 export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, onSuccess?: () => void, onCancel?: () => void }) {
   const router = useRouter();
@@ -38,6 +39,8 @@ export function ClientForm({ client, onSuccess, onCancel }: { client?: Client, o
   const { user } = useUser();
   const { toast } = useToast();
   const { t } = useTranslation();
+  
+  const clientFormSchema = getClientFormSchema(t);
 
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),

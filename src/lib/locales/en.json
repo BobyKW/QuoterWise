@@ -523,5 +523,27 @@
     "header_qty": "Qty",
     "header_unit_price": "Unit Price",
     "header_total": "Total"
+  },
+  "validation": {
+    "company_name_required": "Company name is required.",
+    "contact_name_required": "Contact name is required.",
+    "email_invalid": "Invalid email address.",
+    "phone_required": "Phone number is required.",
+    "address_required": "Address is required.",
+    "title_required": "Title is required.",
+    "client_id_required": "Please select a client.",
+    "client_name_required": "Client name is required.",
+    "quote_number_required": "Quote number is required.",
+    "items_min": "At least one item is required.",
+    "concept_required": "Concept is required.",
+    "positive_number": "Must be a positive number.",
+    "name_required": "Name is required.",
+    "business_name_required": "Business name is required.",
+    "city_required": "City is required.",
+    "country_required": "Country is required.",
+    "url_invalid": "Please enter a valid URL.",
+    "default_terms_required": "Default terms are required.",
+    "email_subject_required": "Subject is required.",
+    "email_body_required": "Body is required."
   }
 }

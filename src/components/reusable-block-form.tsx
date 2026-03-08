@@ -22,18 +22,19 @@ import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import { Separator } from './ui/separator';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
-const reusableBlockFormSchema = z.object({
-  name: z.string().min(1, 'El nombre es obligatorio.'),
-  concept: z.string().min(1, 'El concepto es obligatorio.'),
+const getReusableBlockFormSchema = (t: TFunction) => z.object({
+  name: z.string().min(1, t('validation.name_required')),
+  concept: z.string().min(1, t('validation.concept_required')),
   description: z.string().optional(),
-  quantity: z.coerce.number().min(0, 'Debe ser un número positivo.'),
+  quantity: z.coerce.number().min(0, t('validation.positive_number')),
   unit: z.string().optional(),
-  unitPrice: z.coerce.number().min(0, 'Debe ser un número positivo.'),
-  taxRate: z.coerce.number().min(0, 'Debe ser un número positivo.').max(100).optional().default(0),
+  unitPrice: z.coerce.number().min(0, t('validation.positive_number')),
+  taxRate: z.coerce.number().min(0, t('validation.positive_number')).max(100).optional().default(0),
 });
 
-type ReusableBlockFormValues = z.infer<typeof reusableBlockFormSchema>;
+type ReusableBlockFormValues = z.infer<ReturnType<typeof getReusableBlockFormSchema>>;
 
 export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
   const router = useRouter();
@@ -41,6 +42,8 @@ export function ReusableBlockForm({ block }: { block?: ReusableBlock }) {
   const { user } = useUser();
   const { toast } = useToast();
   const { t } = useTranslation();
+
+  const reusableBlockFormSchema = getReusableBlockFormSchema(t);
 
   const form = useForm<ReusableBlockFormValues>({
     resolver: zodResolver(reusableBlockFormSchema),
