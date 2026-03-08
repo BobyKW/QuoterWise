@@ -143,26 +143,26 @@ export default function TemplatesPage() {
                             <RadioGroup
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                            className="grid grid-cols-1 sm:grid-cols-2 gap-8"
                             >
-                            <FormItem className="flex flex-col items-center justify-center space-y-3">
+                            <FormItem className="flex flex-col items-center space-y-2">
                                 <FormControl>
                                 <RadioGroupItem value="modern" className="sr-only" />
                                 </FormControl>
-                                <FormLabel className="font-normal cursor-pointer">
-                                    <div className={cn("border-2 rounded-lg transition-all", field.value === 'modern' ? "border-primary ring-2 ring-primary" : "border-muted")}>
-                                        {templatePreviews.modern && <Image src={templatePreviews.modern.imageUrl} alt="Modern Template Preview" width={400} height={565} className="rounded-md" />}
+                                <FormLabel className="font-normal cursor-pointer w-full">
+                                    <div className={cn("border-2 rounded-lg transition-all overflow-hidden", field.value === 'modern' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
+                                        {templatePreviews.modern && <Image src={templatePreviews.modern.imageUrl} alt="Modern Template Preview" width={400} height={565} className="w-full h-auto object-cover aspect-[400/565] rounded-md" />}
                                     </div>
                                     <span className="block w-full p-2 text-center font-medium">{t('templates_page.modern_template')}</span>
                                 </FormLabel>
                             </FormItem>
-                             <FormItem className="flex flex-col items-center justify-center space-y-3">
+                             <FormItem className="flex flex-col items-center space-y-2">
                                 <FormControl>
                                 <RadioGroupItem value="classic" className="sr-only" />
                                 </FormControl>
-                                <FormLabel className="font-normal cursor-pointer">
-                                   <div className={cn("border-2 rounded-lg transition-all", field.value === 'classic' ? "border-primary ring-2 ring-primary" : "border-muted")}>
-                                        {templatePreviews.classic && <Image src={templatePreviews.classic.imageUrl} alt="Classic Template Preview" width={400} height={565} className="rounded-md" />}
+                                <FormLabel className="font-normal cursor-pointer w-full">
+                                   <div className={cn("border-2 rounded-lg transition-all overflow-hidden", field.value === 'classic' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
+                                        {templatePreviews.classic && <Image src={templatePreviews.classic.imageUrl} alt="Classic Template Preview" width={400} height={565} className="w-full h-auto object-cover aspect-[400/565] rounded-md" />}
                                     </div>
                                     <span className="block w-full p-2 text-center font-medium">{t('templates_page.classic_template')}</span>
                                 </FormLabel>
