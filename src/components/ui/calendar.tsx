@@ -15,6 +15,7 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+  const isMultiMonth = props.numberOfMonths && props.numberOfMonths > 1;
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -24,13 +25,17 @@ function Calendar({
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
+        nav: cn(
+          "space-x-1 flex items-center",
+          isMultiMonth ? "absolute bottom-1 left-1/2 -translate-x-1/2" : ""
+        ),
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+          !isMultiMonth && "absolute",
         ),
-        nav_button_previous: 'absolute left-1',
-        nav_button_next: 'absolute right-1',
+        nav_button_previous: !isMultiMonth ? 'left-1' : "",
+        nav_button_next: !isMultiMonth ? 'right-1' : "",
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell:
