@@ -17,12 +17,24 @@ export function QuotePreview({ template, brandColor }: QuotePreviewProps) {
         clientName: 'Innovate Corp.',
         issueDate: 'October 26, 2024',
         items: [
-            { concept: t('reusable_block_form.concept_placeholder'), total: 1500 },
-            { concept: t('reusable_block_form.block_name_placeholder'), total: 200 },
+            { 
+                concept: t('quote_preview.item1_concept'), 
+                description: t('quote_preview.item1_description'),
+                qty: '13 ud',
+                unitPrice: '$120.00',
+                total: '$1,560.00' 
+            },
+            { 
+                concept: t('quote_preview.item2_concept'), 
+                description: t('quote_preview.item2_description'),
+                qty: '12 h',
+                unitPrice: '$30.00',
+                total: '$360.00'
+            },
         ],
-        subtotal: 1700,
-        tax: 357,
-        total: 2057,
+        subtotal: 1920,
+        tax: 403.20,
+        total: 2323.20,
     };
 
   return (
@@ -67,7 +79,7 @@ export function QuotePreview({ template, brandColor }: QuotePreviewProps) {
       <div className="grid grid-cols-2 gap-2 mb-4 p-2 bg-gray-50 rounded">
         <div>
           <h3 className="font-semibold text-gray-500 mb-1">{t('view_quote_page.billed_to')}</h3>
-          <p className="font-bold text-gray-800">{fakeQuoteData.clientName}</p>
+          <p className="font-bold text-gray-800 text-[9px]">{fakeQuoteData.clientName}</p>
         </div>
         <div className="text-right">
           <p>
@@ -77,28 +89,36 @@ export function QuotePreview({ template, brandColor }: QuotePreviewProps) {
         </div>
       </div>
 
-      {/* Items Table */}
+      {/* Items Section */}
       <div className="flex-grow mb-4">
-        <div
-          className="font-semibold mb-1 pb-1 border-b text-gray-800 text-[9px]"
-          style={{ borderColor: brandColor }}
-        >
-          {t('view_quote_page.table_description')}
+        <h3 className="font-semibold text-[11px] mb-1 pb-1 border-b" style={{ borderColor: brandColor }}>
+          {t('quote_form.default_section_name')}
+        </h3>
+        <div className="flex text-[9px] font-medium text-gray-500 py-1">
+          <div className="w-1/2">{t('quote_preview.header_description')}</div>
+          <div className="w-[15%] text-center">{t('quote_preview.header_qty')}</div>
+          <div className="w-[20%] text-right">{t('quote_preview.header_unit_price')}</div>
+          <div className="w-[15%] text-right">{t('quote_preview.header_total')}</div>
         </div>
-        <table className="w-full">
-          <tbody>
-            {fakeQuoteData.items.map((item, i) => (
-              <tr key={i} className="border-b border-gray-100">
-                <td className="py-1">{item.concept}</td>
-                <td className="py-1 text-right">$ {item.total.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className='border-b border-gray-200'></div>
+        
+        <div className="space-y-2 mt-1">
+          {fakeQuoteData.items.map((item, i) => (
+            <div key={i} className="flex pt-1 border-b border-gray-100 last:border-b-0">
+              <div className="w-1/2 pr-2">
+                <p className="font-semibold text-[10px] text-gray-800">{item.concept}</p>
+                <p className="text-gray-500 leading-snug mt-0.5">{item.description}</p>
+              </div>
+              <div className="w-[15%] text-center text-gray-600 text-[9px] pt-0.5">{item.qty}</div>
+              <div className="w-[20%] text-right text-gray-600 text-[9px] pt-0.5">{item.unitPrice}</div>
+              <div className="w-[15%] text-right font-medium text-gray-800 text-[9px] pt-0.5">{item.total}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Totals */}
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-auto">
         <div className="w-1/2 space-y-1">
           <div className="flex justify-between">
             <span className="text-gray-500">{t('view_quote_page.subtotal')}</span>
@@ -110,7 +130,6 @@ export function QuotePreview({ template, brandColor }: QuotePreviewProps) {
           </div>
           <div
             className="border-t my-1"
-            style={{ borderColor: brandColor }}
           ></div>
           <div className="flex justify-between font-bold text-[10px]">
             <span className="text-gray-900">{t('view_quote_page.final_total')}</span>

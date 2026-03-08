@@ -498,5 +498,15 @@
       "terms": "Términos de Servicio",
       "privacy": "Privacidad"
     }
+  },
+  "quote_preview": {
+    "item1_concept": "Diseño web",
+    "item1_description": "Este servicio abarca el diseño y desarrollo de un sitio web profesional y moderno, optimizado para una excelente experiencia de usuario y compatibilidad móvil.",
+    "item2_concept": "Desarrollo plugin personalizado",
+    "item2_description": "Este servicio abarca el desarrollo de un plugin personalizado, diseñado específicamente para satisfacer las necesidades únicas de su negocio.",
+    "header_description": "Descripción",
+    "header_qty": "Cant.",
+    "header_unit_price": "Precio Unit.",
+    "header_total": "Total"
   }
 }

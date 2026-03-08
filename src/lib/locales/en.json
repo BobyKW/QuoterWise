@@ -498,5 +498,15 @@
       "terms": "Terms of Service",
       "privacy": "Privacy"
     }
+  },
+  "quote_preview": {
+    "item1_concept": "Web Design",
+    "item1_description": "This service covers the design and development of a professional, modern website, optimized for an excellent user experience and mobile compatibility.",
+    "item2_concept": "Custom Plugin Development",
+    "item2_description": "This service involves developing a custom plugin, specifically designed to meet your business's unique needs. We focus on creating seamlessly integrated solutions.",
+    "header_description": "Description",
+    "header_qty": "Qty",
+    "header_unit_price": "Unit Price",
+    "header_total": "Total"
   }
 }
