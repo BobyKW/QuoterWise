@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useFirestore, useUser, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
-import { doc, serverTimestamp } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import type { UserProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -22,9 +22,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
+import { QuotePreview } from '@/components/quote-preview';
 
 
 const templateSettingsSchema = z.object({
@@ -33,11 +32,6 @@ const templateSettingsSchema = z.object({
 });
 
 type TemplateSettingsFormValues = z.infer<typeof templateSettingsSchema>;
-
-const templatePreviews = {
-    classic: PlaceHolderImages.find(img => img.id === 'template-classic-preview'),
-    modern: PlaceHolderImages.find(img => img.id === 'template-modern-preview'),
-}
 
 function TemplateSettingsSkeleton() {
     return (
@@ -90,6 +84,8 @@ export default function TemplatesPage() {
       brandColor: '#2563eb', // default blue
     },
   });
+
+  const watchBrandColor = form.watch('brandColor');
 
   useEffect(() => {
     if (userProfile) {
@@ -150,8 +146,8 @@ export default function TemplatesPage() {
                                 <RadioGroupItem value="modern" className="sr-only" />
                                 </FormControl>
                                 <FormLabel className="font-normal cursor-pointer w-full">
-                                    <div className={cn("border-2 rounded-lg transition-all overflow-hidden", field.value === 'modern' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
-                                        {templatePreviews.modern && <Image src={templatePreviews.modern.imageUrl} alt="Modern Template Preview" width={400} height={565} className="w-full h-auto object-cover aspect-[400/565] rounded-md" />}
+                                    <div className={cn("border-2 rounded-lg transition-all overflow-hidden p-2 bg-gray-200", field.value === 'modern' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
+                                        <QuotePreview template="modern" brandColor={watchBrandColor || '#2563eb'} />
                                     </div>
                                     <span className="block w-full p-2 text-center font-medium">{t('templates_page.modern_template')}</span>
                                 </FormLabel>
@@ -161,8 +157,8 @@ export default function TemplatesPage() {
                                 <RadioGroupItem value="classic" className="sr-only" />
                                 </FormControl>
                                 <FormLabel className="font-normal cursor-pointer w-full">
-                                   <div className={cn("border-2 rounded-lg transition-all overflow-hidden", field.value === 'classic' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
-                                        {templatePreviews.classic && <Image src={templatePreviews.classic.imageUrl} alt="Classic Template Preview" width={400} height={565} className="w-full h-auto object-cover aspect-[400/565] rounded-md" />}
+                                   <div className={cn("border-2 rounded-lg transition-all overflow-hidden p-2 bg-gray-200", field.value === 'classic' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
+                                        <QuotePreview template="classic" brandColor={watchBrandColor || '#2563eb'} />
                                     </div>
                                     <span className="block w-full p-2 text-center font-medium">{t('templates_page.classic_template')}</span>
                                 </FormLabel>
