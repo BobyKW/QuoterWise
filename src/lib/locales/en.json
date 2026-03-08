@@ -55,8 +55,6 @@
     "actions_edit": "Edit",
     "actions_duplicate": "Duplicate",
     "actions_delete": "Delete",
-    "actions_send": "Send",
-    "actions_sending": "Sending...",
     "delete_dialog_title": "Are you sure?",
     "delete_dialog_description": "This will permanently delete the quote \"{quoteNumber}\". This action cannot be undone.",
     "delete_dialog_cancel": "Cancel",
@@ -267,7 +265,6 @@
   "settings_page": {
     "title": "Settings",
     "profile_tab": "Profile",
-    "email_tab": "Email",
     "card_title": "Business Profile",
     "card_description": "Update your company information and default settings.",
     "language": "Language",
@@ -275,13 +272,7 @@
     "currency": "Currency",
     "currency_description": "Choose your default currency for quotes.",
     "integrations_title": "Integrations",
-    "integrations_description": "Manage API keys for third-party services.",
-    "email_template_title": "Email Template",
-    "email_template_description": "Configure the default email sent to your clients with their quote.",
-    "email_subject_label": "Email Subject",
-    "email_body_label": "Email Body",
-    "available_variables_title": "Available Variables",
-    "login_to_configure_email": "Please log in to configure your email template."
+    "integrations_description": "Manage API keys for third-party services."
   },
   "settings_form": {
     "business_name": "Business Name",
@@ -367,8 +358,6 @@
     "block_created_description": "The block \"{blockName}\" has been created successfully.",
     "settings_saved_title": "Settings Saved",
     "settings_saved_description": "Your profile has been updated successfully.",
-    "email_settings_saved_title": "Email Template Saved",
-    "email_settings_saved_description": "Your default email settings have been updated.",
     "limits_saved_title": "Limits Saved",
     "limits_saved_description": "Quote creation limits have been updated.",
     "gemini_key_missing_title": "Gemini API Key Missing",
@@ -378,14 +367,7 @@
     "ai_success_title": "Description Generated!",
     "ai_success_description": "The new description has been added to the item.",
     "ai_error_title": "AI Error",
-    "ai_error_description": "Could not generate description. Please check your API key and try again.",
-    "quote_sending_title": "Sending Quote...",
-    "quote_sending_description": "Preparing your shareable link.",
-    "quote_sent_title": "Link Generated!",
-    "quote_sent_description": "The shareable link is ready.",
-    "copy_link_button": "Copy Link",
-    "quote_send_failed_title": "Send Failed",
-    "quote_send_failed_description": "Could not generate a shareable link for the quote."
+    "ai_error_description": "Could not generate description. Please check your API key and try again."
   },
   "auth_modal": {
     "title": "Access Full Features",

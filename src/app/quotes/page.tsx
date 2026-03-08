@@ -4,8 +4,6 @@ import {
   MoreHorizontal,
   PlusCircle,
   Loader2,
-  Send,
-  Link as LinkIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -54,7 +52,6 @@ import { QuotePDFDownloader } from '@/components/quote-pdf-downloader';
 import { useAuthModal } from '@/hooks/use-auth-modal';
 import { useQuoteLimits } from '@/hooks/use-quote-limits';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { sendQuoteEmail } from '@/app/actions/send-quote-action';
 
 const statusStyles: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
@@ -94,9 +91,6 @@ export default function QuotesPage() {
 
   const [quoteToDownload, setQuoteToDownload] = React.useState<Quote | null>(null);
   const [isDownloading, setIsDownloading] = React.useState<string | null>(null);
-  
-  const [isSending, setIsSending] = React.useState<string | null>(null);
-
 
   const { limits, isLoading: isLoadingLimits, isPro } = useQuoteLimits();
 
@@ -122,55 +116,6 @@ export default function QuotesPage() {
   const isAnonymous = user?.isAnonymous ?? true;
   const quoteLimit = isAnonymous ? limits.anonymousQuoteLimit : limits.registeredQuoteLimit;
   const limitReached = !isPro && quoteCount >= quoteLimit;
-
-  const handleSendClick = async (quote: Quote) => {
-    if (isAnonymous) {
-      onOpen();
-      return;
-    }
-    
-    setIsSending(quote.id);
-    const { id: toastId } = toast({
-      title: t('toasts.quote_sending_title'),
-      description: t('toasts.quote_sending_description'),
-    });
-
-    try {
-      if (!user) throw new Error("User not authenticated.");
-      const idToken = await user.getIdToken();
-      const result = await sendQuoteEmail(quote.id, idToken);
-
-      if (result.success && result.shareableLink) {
-        toast({
-          id: toastId,
-          title: t('toasts.quote_sent_title'),
-          description: t('toasts.quote_sent_description'),
-          action: (
-            <Button variant="outline" size="sm" onClick={() => {
-              navigator.clipboard.writeText(result.shareableLink as string);
-              toast({ title: "Link copied!" });
-            }}>
-              <LinkIcon className="mr-2 h-4 w-4" />
-              {t('toasts.copy_link_button')}
-            </Button>
-          ),
-        });
-      } else {
-        throw new Error(result.error || t('toasts.quote_send_failed_description'));
-      }
-    } catch (error) {
-      console.error('Failed to send quote:', error);
-      toast({
-        id: toastId,
-        variant: 'destructive',
-        title: t('toasts.quote_send_failed_title'),
-        description: error instanceof Error ? error.message : String(error),
-      });
-    } finally {
-      setIsSending(null);
-    }
-  };
-
 
   const handleDeleteClick = (quote: Quote) => {
     setQuoteToDelete(quote);
@@ -326,13 +271,6 @@ export default function QuotesPage() {
                             <DropdownMenuItem asChild>
                               <Link href={`/quotes/${quote.id}`}>{t('quotes_page.actions_view')}</Link>
                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handleSendClick(quote)} disabled={isSending === quote.id || isAnonymous}>
-                                {isSending === quote.id ? (
-                                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('quotes_page.actions_sending')}</>
-                                ) : (
-                                  <><Send className="mr-2 h-4 w-4" />{t('quotes_page.actions_send')}</>
-                                )}
-                              </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link href={`/quotes/${quote.id}/edit`}>{t('quotes_page.actions_edit')}</Link>
                             </DropdownMenuItem>
@@ -391,7 +329,7 @@ export default function QuotesPage() {
               {isDeleting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('quotes_page.deleting')}
+                  {t('deleting')}
                 </>
               ) : (
                 t('quotes_page.delete_dialog_confirm')
