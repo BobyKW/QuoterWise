@@ -98,9 +98,12 @@
     "subtotal": "Subtotal",
     "total_tax": "Total Impuestos",
     "final_total": "Total",
-    "terms_conditions": "Términos y Condiciones"
+    "terms_conditions": "Términos y Condiciones",
+    "discount": "Descuento"
   },
   "quote_form": {
+    "title": "Título del Presupuesto",
+    "title_placeholder": "Ej: Proyecto de reforma de baño",
     "client": "Cliente",
     "new_client": "Nuevo Cliente",
     "new_client_dialog_title": "Crear Nuevo Cliente",

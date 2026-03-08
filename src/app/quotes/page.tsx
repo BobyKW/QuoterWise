@@ -130,27 +130,33 @@ export default function QuotesPage() {
     }
     
     setIsSending(quote.id);
-    const toastId = toast({
+    const { id: toastId } = toast({
       title: t('toasts.quote_sending_title'),
       description: t('toasts.quote_sending_description'),
-    }).id;
+    });
 
     try {
-      const result = await sendQuoteEmail(quote.id);
+      if (!user) throw new Error("User not authenticated.");
+      const idToken = await user.getIdToken();
+      const result = await sendQuoteEmail(quote.id, idToken);
+
       if (result.success && result.shareableLink) {
         toast({
           id: toastId,
           title: t('toasts.quote_sent_title'),
           description: t('toasts.quote_sent_description'),
           action: (
-            <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(result.shareableLink)}>
+            <Button variant="outline" size="sm" onClick={() => {
+              navigator.clipboard.writeText(result.shareableLink as string);
+              toast({ title: "Link copied!" });
+            }}>
               <LinkIcon className="mr-2 h-4 w-4" />
               {t('toasts.copy_link_button')}
             </Button>
           ),
         });
       } else {
-        throw new Error(result.error || 'Unknown error');
+        throw new Error(result.error || t('toasts.quote_send_failed_description'));
       }
     } catch (error) {
       console.error('Failed to send quote:', error);
@@ -180,25 +186,20 @@ export default function QuotesPage() {
     try {
       const batch = writeBatch(firestore);
 
-      // Query for all sections
       const sectionsQuery = query(collection(quoteRef, 'sections'));
       const sectionsSnapshot = await getDocs(sectionsQuery);
 
-      // For each section, query and delete all its items
       for (const sectionDoc of sectionsSnapshot.docs) {
         const itemsQuery = query(collection(sectionDoc.ref, 'items'));
         const itemsSnapshot = await getDocs(itemsQuery);
         itemsSnapshot.forEach(itemDoc => {
           batch.delete(itemDoc.ref);
         });
-        // After queueing items for deletion, queue the section for deletion
         batch.delete(sectionDoc.ref);
       }
       
-      // Queue the main quote document for deletion
       batch.delete(quoteRef);
 
-      // Commit all delete operations atomically
       await batch.commit();
 
       toast({
@@ -325,7 +326,7 @@ export default function QuotesPage() {
                             <DropdownMenuItem asChild>
                               <Link href={`/quotes/${quote.id}`}>{t('quotes_page.actions_view')}</Link>
                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handleSendClick(quote)} disabled={isSending === quote.id}>
+                             <DropdownMenuItem onClick={() => handleSendClick(quote)} disabled={isSending === quote.id || isAnonymous}>
                                 {isSending === quote.id ? (
                                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('quotes_page.actions_sending')}</>
                                 ) : (

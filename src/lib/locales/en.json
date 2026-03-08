@@ -98,9 +98,12 @@
     "subtotal": "Subtotal",
     "total_tax": "Total Tax",
     "final_total": "Total",
-    "terms_conditions": "Terms & Conditions"
+    "terms_conditions": "Terms & Conditions",
+    "discount": "Discount"
   },
   "quote_form": {
+    "title": "Quote Title",
+    "title_placeholder": "e.g. Bathroom Remodel Project",
     "client": "Client",
     "new_client": "New Client",
     "new_client_dialog_title": "Create New Client",

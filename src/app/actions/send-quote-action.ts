@@ -2,9 +2,8 @@
 
 import { getFirebaseAdmin } from '@/firebase/server-init';
 import { FieldValue } from 'firebase-admin/firestore';
-import { headers } from 'next/headers';
 import { randomBytes } from 'crypto';
-import type { Quote, Client, UserProfile, QuoteSection, QuoteItem, PublicQuote } from '@/lib/types';
+import type { Quote, UserProfile, QuoteSection, QuoteItem, PublicQuote } from '@/lib/types';
 
 type ActionResponse = {
   success: boolean;
@@ -12,21 +11,19 @@ type ActionResponse = {
   error?: string;
 };
 
-export async function sendQuoteEmail(quoteId: string): Promise<ActionResponse> {
+export async function sendQuoteEmail(quoteId: string, idToken: string): Promise<ActionResponse> {
   try {
     const { auth, firestore } = getFirebaseAdmin();
-    const headersList = headers();
-    const token = headersList.get('Authorization')?.split('Bearer ')[1];
 
-    if (!token) {
+    if (!idToken) {
       return { success: false, error: 'Authentication token not found.' };
     }
 
-    const decodedToken = await auth.verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(idToken);
     const userId = decodedToken.uid;
     
-    if (decodedToken.isAnonymous) {
-        return { success: false, error: 'Guest users cannot send quotes.'}
+    if (decodedToken.firebase.sign_in_provider === 'anonymous') {
+        return { success: false, error: 'Guest users cannot send quotes.'};
     }
 
     const batch = firestore.batch();
@@ -49,7 +46,6 @@ export async function sendQuoteEmail(quoteId: string): Promise<ActionResponse> {
     const shareableLinkToken = quote.shareableLinkToken || randomBytes(16).toString('hex');
     const shareableLink = `${process.env.NEXT_PUBLIC_BASE_URL}/view-quote/${shareableLinkToken}`;
 
-    // Fetch all sections and their items
     const sectionsRef = quoteRef.collection('sections');
     const sectionsSnap = await sectionsRef.get();
 
@@ -62,7 +58,6 @@ export async function sendQuoteEmail(quoteId: string): Promise<ActionResponse> {
         sectionsWithItems.push({ ...sectionData, items });
     }
 
-    // Denormalize data for the public quote document
     const publicQuoteData: PublicQuote = {
       userProfile: {
         businessName: userProfile.businessName,
@@ -96,6 +91,12 @@ export async function sendQuoteEmail(quoteId: string): Promise<ActionResponse> {
             unitPrice: i.unitPrice,
             taxRate: i.taxRate,
             order: i.order,
+            createdAt: i.createdAt,
+            updatedAt: i.updatedAt,
+            lineTotal: i.lineTotal,
+            userId: i.userId,
+            quoteId: i.quoteId,
+            quoteSectionId: i.quoteSectionId
         })),
       })),
     };
@@ -103,7 +104,6 @@ export async function sendQuoteEmail(quoteId: string): Promise<ActionResponse> {
     const publicQuoteRef = firestore.collection('publicQuotes').doc(shareableLinkToken);
     batch.set(publicQuoteRef, publicQuoteData);
 
-    // Update the original quote
     batch.update(quoteRef, {
       status: 'sent',
       shareableLinkToken: shareableLinkToken,
@@ -112,8 +112,6 @@ export async function sendQuoteEmail(quoteId: string): Promise<ActionResponse> {
 
     await batch.commit();
     
-    // Here you would integrate with an email service like SendGrid, Nodemailer, etc.
-    // For this example, we'll just log and return the link.
     console.log(`Simulating email send. Shareable Link: ${shareableLink}`);
 
     return { success: true, shareableLink };
