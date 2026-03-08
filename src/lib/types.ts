@@ -24,6 +24,8 @@ export type UserProfile = {
   currency?: string;
   subscriptionStatus?: 'active' | 'inactive';
   geminiApiKey?: string;
+  pdfTemplate?: 'classic' | 'modern';
+  brandColor?: string;
 };
 
 // This will be the shape of the data in Firestore

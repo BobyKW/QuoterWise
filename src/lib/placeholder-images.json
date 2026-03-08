@@ -11,6 +11,18 @@
       "description": "Hero image for the landing page",
       "imageUrl": "https://picsum.photos/seed/hero/600/400",
       "imageHint": "app interface"
+    },
+    {
+      "id": "template-classic-preview",
+      "description": "Preview for the 'Classic' PDF template",
+      "imageUrl": "https://picsum.photos/seed/template1/400/565",
+      "imageHint": "document layout"
+    },
+    {
+      "id": "template-modern-preview",
+      "description": "Preview for the 'Modern' PDF template",
+      "imageUrl": "https://picsum.photos/seed/template2/400/565",
+      "imageHint": "document design"
     }
   ]
 }

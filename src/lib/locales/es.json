@@ -4,7 +4,7 @@
     "quotes": "Presupuestos",
     "clients": "Clientes",
     "blocks": "Bloques",
-    "templates": "Plantillas",
+    "templates": "Plantillas PDF",
     "settings": "Ajustes",
     "logout": "Cerrar sesión",
     "login_to_access": "Inicia sesión para acceder",
@@ -35,7 +35,7 @@
     "create_block_title": "Crear Bloque",
     "create_block_desc": "Añade un nuevo bloque reutilizable.",
     "create_template_title": "Gestionar Plantillas",
-    "create_template_desc": "Crea y edita plantillas."
+    "create_template_desc": "Personaliza la apariencia de tus PDF."
   },
   "dashboard_analytics": {
     "title": "Análisis de Presupuestos",
@@ -278,10 +278,19 @@
     "saving": "Guardando..."
   },
   "templates_page": {
-    "title": "Plantillas",
+    "title": "Diseño y Plantillas PDF",
     "card_title": "Próximamente",
     "card_description": "Un potente sistema de gestión de plantillas está en camino.",
-    "content": "Esta sección está en construcción. ¡Pronto podrás crear y gestionar plantillas de presupuestos para acelerar tu flujo de trabajo!"
+    "content": "Esta sección está en construcción. ¡Pronto podrás crear y gestionar plantillas de presupuestos para acelerar tu flujo de trabajo!",
+    "layout_title": "Diseño del PDF",
+    "layout_description": "Elige la estructura general para tus presupuestos.",
+    "modern_template": "Moderno",
+    "classic_template": "Clásico",
+    "branding_title": "Branding",
+    "branding_description": "Personaliza los colores para que coincidan con tu identidad de marca.",
+    "brand_color_label": "Color de Marca",
+    "save_button": "Guardar Ajustes",
+    "saving_button": "Guardando..."
   },
   "settings_page": {
     "title": "Ajustes",
@@ -295,7 +304,13 @@
     "currency": "Moneda",
     "currency_description": "Elige tu moneda por defecto para los presupuestos.",
     "integrations_title": "Integraciones",
-    "integrations_description": "Gestiona las claves de API para servicios de terceros."
+    "integrations_description": "Gestiona las claves de API para servicios de terceros.",
+    "email_template_title": "Plantilla de Email",
+    "email_template_description": "Personaliza el email por defecto que se envía con los presupuestos.",
+    "login_to_configure_email": "Inicia sesión para configurar las plantillas de email.",
+    "email_subject_label": "Asunto del Email",
+    "email_body_label": "Cuerpo del Email",
+    "available_variables_title": "Variables Disponibles"
   },
   "settings_form": {
     "business_name": "Nombre del Negocio",
@@ -398,7 +413,9 @@
     "ai_success_title": "¡Descripción Generada!",
     "ai_success_description": "La nueva descripción se ha añadido al concepto.",
     "ai_error_title": "Error de IA",
-    "ai_error_description": "No se pudo generar la descripción. Comprueba tu clave de API y vuelve a intentarlo."
+    "ai_error_description": "No se pudo generar la descripción. Comprueba tu clave de API y vuelve a intentarlo.",
+    "template_settings_saved_title": "Ajustes de Plantilla Guardados",
+    "template_settings_saved_description": "Tus preferencias de diseño de PDF han sido actualizadas."
   },
   "auth_modal": {
     "title": "Accede a todas las Funcionalidades",

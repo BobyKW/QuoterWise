@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRef, useState, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthModal } from '@/hooks/use-auth-modal';
+import { cn } from '@/lib/utils';
 
 function formatCurrency(amount: number, currency: string = 'EUR') {
   return new Intl.NumberFormat('en-US', {
@@ -212,6 +213,9 @@ export default function QuoteViewPage() {
     );
   }
 
+  const brandColor = userProfile?.brandColor || 'hsl(var(--primary))';
+  const template = userProfile?.pdfTemplate || 'modern';
+
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
        <div className="flex items-center gap-4">
@@ -234,9 +238,9 @@ export default function QuoteViewPage() {
         </div>
 
       <Card className="p-4 sm:p-6 md:p-8" id="pdf-content">
-        <div ref={quotePrintRef} className="p-2 bg-white text-black">
+        <div ref={quotePrintRef} className="p-2 bg-white text-black" style={{ '--brand-color': brandColor } as React.CSSProperties}>
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start mb-10 gap-8">
+          <div className={cn("mb-10 items-start gap-8", template === 'classic' ? 'flex flex-col' : 'flex flex-col md:flex-row justify-between')}>
             <div>
               {userProfile?.logoUrl && (
                 <img
@@ -246,14 +250,14 @@ export default function QuoteViewPage() {
                   crossOrigin="anonymous"
                 />
               )}
-              <h2 className="text-2xl font-bold text-gray-900">{userProfile?.businessName || 'Your Company'}</h2>
+              <h2 className="text-2xl font-bold" style={{ color: brandColor }}>{userProfile?.businessName || 'Your Company'}</h2>
               <p className="text-sm text-gray-500 whitespace-pre-line">{userProfile?.address}</p>
               <p className="text-sm text-gray-500">{userProfile?.city}, {userProfile?.country}</p>
               <p className="text-sm text-gray-500">Email: {userProfile?.email}</p>
               <p className="text-sm text-gray-500">Phone: {userProfile?.phone}</p>
             </div>
-            <div className="text-left md:text-right w-full md:w-auto flex-shrink-0">
-              <h1 className="text-4xl font-bold uppercase text-gray-800 tracking-tight">{t('view_quote_page.header_title')}</h1>
+            <div className={cn("flex-shrink-0", template === 'classic' ? 'text-left' : 'text-left md:text-right w-full md:w-auto')}>
+              <h1 className="text-4xl font-bold uppercase tracking-tight" style={{ color: brandColor }}>{t('view_quote_page.header_title')}</h1>
               <p className="text-gray-500 mt-1">#{quote.quoteNumber}</p>
             </div>
           </div>
@@ -273,7 +277,7 @@ export default function QuoteViewPage() {
           <div className="space-y-6 mb-10">
             {sections?.map(section => (
                 <div key={section.id}>
-                    <h3 className="font-semibold text-lg mb-2 pb-2 border-b text-gray-800">{section.name}</h3>
+                    <h3 className="font-semibold text-lg mb-2 pb-2 border-b text-gray-800" style={{ borderColor: brandColor }}>{section.name}</h3>
                     <QuoteItemsTable section={section} currency={userProfile?.currency || 'EUR'} />
                 </div>
             ))}
@@ -298,7 +302,7 @@ export default function QuoteViewPage() {
               <Separator className="my-2 bg-gray-200" />
               <div className="flex justify-between font-bold text-xl">
                 <span className="text-gray-900">{t('view_quote_page.final_total')}</span>
-                <span className="text-gray-900">{formatCurrency(quote.finalTotal, userProfile?.currency)}</span>
+                <span className="text-gray-900" style={{ color: brandColor }}>{formatCurrency(quote.finalTotal, userProfile?.currency)}</span>
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@
     "quotes": "Quotes",
     "clients": "Clients",
     "blocks": "Blocks",
-    "templates": "Templates",
+    "templates": "PDF Templates",
     "settings": "Settings",
     "logout": "Log out",
     "login_to_access": "Log in to access",
@@ -35,7 +35,7 @@
     "create_block_title": "Create Block",
     "create_block_desc": "Add a new reusable block.",
     "create_template_title": "Manage Templates",
-    "create_template_desc": "Create and edit templates."
+    "create_template_desc": "Customize your PDF appearance."
   },
   "dashboard_analytics": {
     "title": "Quote Analytics",
@@ -278,10 +278,19 @@
     "saving": "Saving..."
   },
   "templates_page": {
-    "title": "Templates",
+    "title": "PDF Design & Templates",
     "card_title": "Coming Soon",
     "card_description": "A powerful template management system is on its way.",
-    "content": "This section is under construction. Soon you'll be able to create and manage quote templates to speed up your workflow!"
+    "content": "This section is under construction. Soon you'll be able to create and manage quote templates to speed up your workflow!",
+    "layout_title": "PDF Layout",
+    "layout_description": "Choose the general structure for your quotes.",
+    "modern_template": "Modern",
+    "classic_template": "Classic",
+    "branding_title": "Branding",
+    "branding_description": "Customize colors to match your brand identity.",
+    "brand_color_label": "Brand Color",
+    "save_button": "Save Settings",
+    "saving_button": "Saving..."
   },
   "settings_page": {
     "title": "Settings",
@@ -295,7 +304,13 @@
     "currency": "Currency",
     "currency_description": "Choose your default currency for quotes.",
     "integrations_title": "Integrations",
-    "integrations_description": "Manage API keys for third-party services."
+    "integrations_description": "Manage API keys for third-party services.",
+    "email_template_title": "Email Template",
+    "email_template_description": "Customize the default email sent with quotes.",
+    "login_to_configure_email": "Log in to configure email templates.",
+    "email_subject_label": "Email Subject",
+    "email_body_label": "Email Body",
+    "available_variables_title": "Available Variables"
   },
   "settings_form": {
     "business_name": "Business Name",
@@ -398,7 +413,9 @@
     "ai_success_title": "Description Generated!",
     "ai_success_description": "The new description has been added to the item.",
     "ai_error_title": "AI Error",
-    "ai_error_description": "Could not generate description. Please check your API key and try again."
+    "ai_error_description": "Could not generate description. Please check your API key and try again.",
+    "template_settings_saved_title": "Template Settings Saved",
+    "template_settings_saved_description": "Your PDF design preferences have been updated."
   },
   "auth_modal": {
     "title": "Access Full Features",
