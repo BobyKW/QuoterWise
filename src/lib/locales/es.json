@@ -55,6 +55,8 @@
     "actions_edit": "Editar",
     "actions_duplicate": "Duplicar",
     "actions_delete": "Eliminar",
+    "actions_send": "Enviar",
+    "actions_sending": "Enviando...",
     "delete_dialog_title": "¿Estás seguro?",
     "delete_dialog_description": "Esto eliminará permanentemente el presupuesto \"{quoteNumber}\". Esta acción no se puede deshacer.",
     "delete_dialog_cancel": "Cancelar",
@@ -261,6 +263,8 @@
   },
   "settings_page": {
     "title": "Ajustes",
+    "profile_tab": "Perfil",
+    "email_tab": "Email",
     "card_title": "Perfil de Negocio",
     "card_description": "Actualiza la información de tu empresa y los ajustes por defecto.",
     "language": "Idioma",
@@ -268,7 +272,13 @@
     "currency": "Moneda",
     "currency_description": "Elige tu moneda por defecto para los presupuestos.",
     "integrations_title": "Integraciones",
-    "integrations_description": "Gestiona las claves de API para servicios de terceros."
+    "integrations_description": "Gestiona las claves de API para servicios de terceros.",
+    "email_template_title": "Plantilla de Email",
+    "email_template_description": "Configura el email por defecto que se envía a tus clientes con su presupuesto.",
+    "email_subject_label": "Asunto del Email",
+    "email_body_label": "Cuerpo del Email",
+    "available_variables_title": "Variables Disponibles",
+    "login_to_configure_email": "Por favor, inicia sesión para configurar tu plantilla de email."
   },
   "settings_form": {
     "business_name": "Nombre del Negocio",
@@ -354,6 +364,8 @@
     "block_created_description": "El bloque \"{blockName}\" se ha creado correctamente.",
     "settings_saved_title": "Ajustes Guardados",
     "settings_saved_description": "Tu perfil se ha actualizado correctamente.",
+    "email_settings_saved_title": "Plantilla de Email Guardada",
+    "email_settings_saved_description": "Tus ajustes de email por defecto han sido actualizados.",
     "limits_saved_title": "Límites Guardados",
     "limits_saved_description": "Los límites de creación de presupuestos han sido actualizados.",
     "gemini_key_missing_title": "Falta la Clave de API de Gemini",
@@ -363,7 +375,14 @@
     "ai_success_title": "¡Descripción Generada!",
     "ai_success_description": "La nueva descripción se ha añadido al concepto.",
     "ai_error_title": "Error de IA",
-    "ai_error_description": "No se pudo generar la descripción. Comprueba tu clave de API y vuelve a intentarlo."
+    "ai_error_description": "No se pudo generar la descripción. Comprueba tu clave de API y vuelve a intentarlo.",
+    "quote_sending_title": "Enviando Presupuesto...",
+    "quote_sending_description": "Preparando tu enlace para compartir.",
+    "quote_sent_title": "¡Enlace Generado!",
+    "quote_sent_description": "El enlace para compartir está listo.",
+    "copy_link_button": "Copiar Enlace",
+    "quote_send_failed_title": "Error al Enviar",
+    "quote_send_failed_description": "No se pudo generar un enlace para el presupuesto."
   },
   "auth_modal": {
     "title": "Accede a todas las Funcionalidades",

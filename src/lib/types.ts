@@ -24,6 +24,8 @@ export type UserProfile = {
   currency?: string;
   subscriptionStatus?: 'active' | 'inactive';
   geminiApiKey?: string;
+  emailSubject?: string;
+  emailBody?: string;
 };
 
 // This will be the shape of the data in Firestore
@@ -98,6 +100,7 @@ export type QuoteDocument = {
   currency: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  shareableLinkToken?: string;
 };
 
 // This will be the shape of the data in the app, with the id
@@ -129,4 +132,32 @@ export type AppConfig = {
   registeredQuoteLimit: number;
   anonymousBlockLimit: number;
   registeredBlockLimit: number;
+};
+
+export type PublicQuote = {
+    userProfile: {
+        businessName: string;
+        address: string;
+        city: string;
+        country: string;
+        phone: string;
+        email: string;
+        logoUrl?: string;
+        defaultTerms?: string;
+    };
+    quote: {
+        quoteNumber: string;
+        issueDate: Timestamp;
+        clientName: string;
+        subtotal: number;
+        totalDiscount: number;
+        totalTax: number;
+        finalTotal: number;
+        currency: string;
+    };
+    sections: Array<{
+        name: string;
+        description: string;
+        items: Array<Omit<QuoteItem, 'userId' | 'quoteId' | 'quoteSectionId' | 'createdAt' | 'updatedAt' | 'lineTotal'>>;
+    }>;
 };
