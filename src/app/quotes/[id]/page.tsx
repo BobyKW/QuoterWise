@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { doc, Timestamp, collection, query, where, orderBy } from 'firebase/firestore';
+import { doc, Timestamp, collection, query, orderBy } from 'firebase/firestore';
 import type { Quote, UserProfile, QuoteSection, QuoteItem } from '@/lib/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -34,6 +34,7 @@ function formatDate(date: Date | Timestamp) {
 const QuoteItemsTable: FC<{ section: QuoteSection; currency: string; }> = ({ section, currency }) => {
     const { user } = useUser();
     const firestore = useFirestore();
+    const { t } = useTranslation();
 
     const itemsQuery = useMemoFirebase(() => {
         if (!user) return null;
@@ -54,26 +55,26 @@ const QuoteItemsTable: FC<{ section: QuoteSection; currency: string; }> = ({ sec
     }
 
     return (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="overflow-x-auto">
             <table className="w-full text-sm">
-                <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                    <th className="p-2 text-left font-semibold">Description</th>
-                    <th className="p-2 w-24 text-center font-semibold">Qty</th>
-                    <th className="p-2 w-32 text-right font-semibold">Unit Price</th>
-                    <th className="p-2 w-32 text-right font-semibold">Total</th>
+                <thead className="text-muted-foreground">
+                    <tr className="border-b border-border">
+                    <th className="p-2 text-left font-medium">{t('view_quote_page.table_description')}</th>
+                    <th className="p-2 w-24 text-center font-medium">{t('view_quote_page.table_qty')}</th>
+                    <th className="p-2 w-32 text-right font-medium">{t('view_quote_page.table_unit_price')}</th>
+                    <th className="p-2 w-32 text-right font-medium">{t('view_quote_page.table_total')}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {items.map((item, index) => (
-                    <tr key={index} className="border-b">
-                        <td className="p-2 align-top">
-                        <p className="font-semibold">{item.concept}</p>
-                        {item.description && <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.description}</p>}
+                    <tr key={index} className="border-b border-border">
+                        <td className="p-3 align-top">
+                        <p className="font-semibold text-foreground">{item.concept}</p>
+                        {item.description && <p className="text-xs text-muted-foreground whitespace-pre-wrap mt-1">{item.description}</p>}
                         </td>
-                        <td className="p-2 text-center align-top">{item.quantity} {item.unit}</td>
-                        <td className="p-2 text-right align-top">{formatCurrency(item.unitPrice, currency)}</td>
-                        <td className="p-2 text-right align-top">{formatCurrency(item.quantity * item.unitPrice, currency)}</td>
+                        <td className="p-3 text-center align-top text-muted-foreground">{item.quantity} {item.unit}</td>
+                        <td className="p-3 text-right align-top text-muted-foreground">{formatCurrency(item.unitPrice, currency)}</td>
+                        <td className="p-3 text-right align-top font-medium text-foreground">{formatCurrency(item.quantity * item.unitPrice, currency)}</td>
                     </tr>
                     ))}
                 </tbody>
@@ -138,6 +139,7 @@ export default function QuoteViewPage() {
         const canvas = await html2canvas(element, {
             scale: 2,
             useCORS: true,
+            backgroundColor: '#ffffff',
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -195,8 +197,8 @@ export default function QuoteViewPage() {
 
   if (!quote) {
     return (
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <Card className="text-center">
+        <main className="flex flex-1 flex-col items-center justify-center gap-4 p-4 md:gap-8 md:p-8">
+            <Card className="text-center p-8">
                 <CardHeader>
                     <p>{t('view_quote_page.quote_not_found')}</p>
                 </CardHeader>
@@ -213,7 +215,7 @@ export default function QuoteViewPage() {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
        <div className="flex items-center gap-4">
-            <h1 className="font-semibold text-lg md:text-2xl flex-1">
+            <h1 className="font-semibold text-lg md:text-2xl flex-1 text-foreground">
                 {t('view_quote_page.title', { quoteNumber: quote.quoteNumber })}
             </h1>
             <Button variant="outline" asChild>
@@ -231,10 +233,10 @@ export default function QuoteViewPage() {
             </Button>
         </div>
 
-      <Card className="p-4 md:p-8" ref={quotePrintRef}>
-        <CardContent className="p-0">
+      <Card className="p-4 sm:p-6 md:p-8" id="pdf-content">
+        <div ref={quotePrintRef} className="p-2 bg-white text-black">
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-start mb-10 gap-8">
             <div>
               {userProfile?.logoUrl && (
                 <img
@@ -244,34 +246,34 @@ export default function QuoteViewPage() {
                   crossOrigin="anonymous"
                 />
               )}
-              <h2 className="text-2xl font-bold text-primary">{userProfile?.businessName || 'Your Company'}</h2>
-              <p>{userProfile?.address}</p>
-              <p>{userProfile?.city}, {userProfile?.country}</p>
-              <p>Email: {userProfile?.email}</p>
-              <p>Phone: {userProfile?.phone}</p>
+              <h2 className="text-2xl font-bold text-gray-900">{userProfile?.businessName || 'Your Company'}</h2>
+              <p className="text-sm text-gray-500 whitespace-pre-line">{userProfile?.address}</p>
+              <p className="text-sm text-gray-500">{userProfile?.city}, {userProfile?.country}</p>
+              <p className="text-sm text-gray-500">Email: {userProfile?.email}</p>
+              <p className="text-sm text-gray-500">Phone: {userProfile?.phone}</p>
             </div>
-            <div className="text-left md:text-right w-full md:w-auto">
-              <h1 className="text-3xl md:text-4xl font-bold uppercase text-gray-700">{t('view_quote_page.header_title')}</h1>
-              <p className="text-gray-500">#{quote.quoteNumber}</p>
+            <div className="text-left md:text-right w-full md:w-auto flex-shrink-0">
+              <h1 className="text-4xl font-bold uppercase text-gray-800 tracking-tight">{t('view_quote_page.header_title')}</h1>
+              <p className="text-gray-500 mt-1">#{quote.quoteNumber}</p>
             </div>
           </div>
 
           {/* Client Info & Dates */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 p-4 bg-gray-50 rounded-lg">
             <div>
-              <h3 className="font-semibold mb-2">{t('view_quote_page.billed_to')}</h3>
-              <p className="font-bold">{quote.clientName}</p>
+              <h3 className="text-sm font-semibold text-gray-500 mb-1">{t('view_quote_page.billed_to')}</h3>
+              <p className="font-bold text-gray-800">{quote.clientName}</p>
             </div>
             <div className="md:text-right">
-                <p><span className="font-semibold">{t('view_quote_page.date_of_issue')}:</span> {formatDate(quote.issueDate)}</p>
+                <p className="text-sm"><span className="font-semibold text-gray-500">{t('view_quote_page.date_of_issue')}:</span> <span className="text-gray-800">{formatDate(quote.issueDate)}</span></p>
             </div>
           </div>
 
           {/* Items Table */}
-          <div className="space-y-4 mb-8">
+          <div className="space-y-6 mb-10">
             {sections?.map(section => (
                 <div key={section.id}>
-                    <h3 className="font-semibold text-lg mb-2">{section.name}</h3>
+                    <h3 className="font-semibold text-lg mb-2 pb-2 border-b text-gray-800">{section.name}</h3>
                     <QuoteItemsTable section={section} currency={userProfile?.currency || 'EUR'} />
                 </div>
             ))}
@@ -279,37 +281,37 @@ export default function QuoteViewPage() {
 
 
           {/* Totals */}
-          <div className="flex justify-end mb-8">
-            <div className="w-full max-w-sm space-y-2">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('view_quote_page.subtotal')}</span>
-                <span>{formatCurrency(quote.subtotal, userProfile?.currency)}</span>
+          <div className="flex justify-end mb-10">
+            <div className="w-full max-w-sm space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">{t('view_quote_page.subtotal')}</span>
+                <span className="text-gray-700">{formatCurrency(quote.subtotal, userProfile?.currency)}</span>
               </div>
-               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('view_quote_page.discount', 'Discount')}</span>
-                <span>- {formatCurrency(quote.totalDiscount, userProfile?.currency)}</span>
+               <div className="flex justify-between text-sm">
+                <span className="text-gray-500">{t('view_quote_page.discount', 'Discount')}</span>
+                <span className="text-gray-700">- {formatCurrency(quote.totalDiscount, userProfile?.currency)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('view_quote_page.total_tax')}</span>
-                <span>{formatCurrency(quote.totalTax, userProfile?.currency)}</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">{t('view_quote_page.total_tax')}</span>
+                <span className="text-gray-700">{formatCurrency(quote.totalTax, userProfile?.currency)}</span>
               </div>
-              <Separator className="my-2" />
-              <div className="flex justify-between font-bold text-lg">
-                <span>{t('view_quote_page.final_total')}</span>
-                <span>{formatCurrency(quote.finalTotal, userProfile?.currency)}</span>
+              <Separator className="my-2 bg-gray-200" />
+              <div className="flex justify-between font-bold text-xl">
+                <span className="text-gray-900">{t('view_quote_page.final_total')}</span>
+                <span className="text-gray-900">{formatCurrency(quote.finalTotal, userProfile?.currency)}</span>
               </div>
             </div>
           </div>
 
           {/* Terms */}
           {userProfile?.defaultTerms && (
-             <div>
-                <h3 className="font-semibold mb-2">{t('view_quote_page.terms_conditions')}</h3>
-                <p className="text-xs text-muted-foreground whitespace-pre-wrap">{userProfile.defaultTerms}</p>
+             <div className="border-t pt-6">
+                <h3 className="font-semibold text-gray-700 mb-2">{t('view_quote_page.terms_conditions')}</h3>
+                <p className="text-xs text-gray-500 whitespace-pre-wrap">{userProfile.defaultTerms}</p>
             </div>
           )}
 
-        </CardContent>
+        </div>
       </Card>
     </main>
   );

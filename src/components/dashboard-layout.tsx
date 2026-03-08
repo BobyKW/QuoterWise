@@ -97,7 +97,7 @@ function MainNav() {
             >
               <div className="flex items-center gap-2">
                 <item.icon />
-                <span>{item.label}</span>
+                <span className="text-sidebar-foreground">{item.label}</span>
               </div>
               <Lock className="h-3 w-3 text-muted-foreground" />
             </SidebarMenuButton>
@@ -108,7 +108,7 @@ function MainNav() {
                 tooltip={item.label}
               >
                 <item.icon />
-                <span>{item.label}</span>
+                <span className="text-sidebar-foreground">{item.label}</span>
               </SidebarMenuButton>
             </Link>
           )}
@@ -125,11 +125,11 @@ function MainNav() {
     <div className="mt-auto">
         {!isPro && paymentLink && (
             <div className="p-2">
-                <Button className="w-full justify-start" asChild>
-                    <Link href={paymentLink} target="_blank">
+                <Button className="w-full justify-start bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:opacity-90" asChild>
+                    <a href={paymentLink} target="_blank" rel="noopener noreferrer">
                         <Zap className="mr-2 h-4 w-4" />
                         <span className="group-data-[collapsible=icon]:hidden">{t('sidebar.upgrade_to_pro')}</span>
-                    </Link>
+                    </a>
                 </Button>
             </div>
         )}
@@ -142,7 +142,7 @@ function MainNav() {
                             tooltip={t('sidebar.admin')}
                         >
                             <Shield />
-                            <span>{t('sidebar.admin')}</span>
+                            <span className="text-sidebar-foreground">{t('sidebar.admin')}</span>
                         </SidebarMenuButton>
                     </Link>
                 </SidebarMenuItem>
@@ -181,19 +181,19 @@ function UserMenu() {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center w-full text-left p-2 rounded-md hover:bg-sidebar-accent transition-colors">
           <Avatar className="h-8 w-8 mr-2">
-            <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
+            <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">{getInitials(user?.email)}</AvatarFallback>
           </Avatar>
           <div className="flex-grow truncate">
             <div className="flex items-center gap-2">
               <p className="font-medium text-sm text-sidebar-foreground">{user?.displayName || 'User'}</p>
               {isPro && (
-                <Badge className="gap-1 bg-amber-500 text-white hover:bg-amber-600">
+                <Badge variant="destructive" className="gap-1 bg-amber-500 text-white hover:bg-amber-600 border-transparent">
                   <Star className="h-3 w-3" />
                   PRO
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            <p className="text-xs text-sidebar-foreground/70 truncate">{user?.email}</p>
           </div>
         </button>
       </DropdownMenuTrigger>
@@ -217,14 +217,14 @@ function UserMenu() {
 function MobileHeader() {
   const { toggleSidebar } = useSidebar();
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:hidden">
+    <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:hidden">
       <Button variant="ghost" size="icon" onClick={toggleSidebar} className="-ml-2">
         <PanelLeft className="h-5 w-5" />
         <span className="sr-only">Toggle Sidebar</span>
       </Button>
       <div className="flex items-center gap-2 font-semibold">
         <Logo className="h-6 w-6 text-primary" />
-        <span className="">QuoterWise</span>
+        <span className="text-foreground">QuoterWise</span>
       </div>
     </header>
   );
@@ -255,7 +255,7 @@ function CollapsedUserMenu() {
 
     if(user?.isAnonymous) {
         return (
-            <Button variant="ghost" size="icon" onClick={onOpen}>
+            <Button variant="ghost" size="icon" onClick={onOpen} className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                 <LogOut className="h-4 w-4 -rotate-90" />
             </Button>
         )
@@ -271,10 +271,10 @@ function CollapsedUserMenu() {
             <DropdownMenuTrigger asChild>
                 <div className="relative cursor-pointer">
                     <Avatar className="h-8 w-8">
-                        <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
+                        <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">{getInitials(user?.email)}</AvatarFallback>
                     </Avatar>
                     {isPro && (
-                        <span className="absolute -bottom-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-amber-500">
+                        <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-500 border-2 border-sidebar-background">
                             <Star className="h-2 w-2 text-white" fill="white" />
                         </span>
                     )}
@@ -283,7 +283,7 @@ function CollapsedUserMenu() {
             <DropdownMenuContent side="right" align="center" className="w-56">
             <DropdownMenuLabel className="flex items-center justify-between">
                 <span>{user?.email}</span>
-                {isPro && <Badge className="gap-1 bg-amber-500 text-white hover:bg-amber-600">PRO</Badge>}
+                {isPro && <Badge variant="destructive" className="gap-1 bg-amber-500 text-white hover:bg-amber-600 border-transparent">PRO</Badge>}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
@@ -318,8 +318,11 @@ export default function DashboardLayout({
 
   if (isUserLoading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>{t('loading')}</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex items-center gap-2 text-muted-foreground">
+            <Logo className="h-6 w-6 animate-spin" />
+            <span>{t('loading')}</span>
+        </div>
       </div>
     );
   }
@@ -327,13 +330,13 @@ export default function DashboardLayout({
   return (
     <AuthModalProvider>
         <SidebarProvider>
-            <div className="flex min-h-screen">
+            <div className="flex min-h-screen w-full">
                 <Sidebar collapsible="icon">
-                    <SidebarHeader className="border-b">
+                    <SidebarHeader className="border-b border-sidebar-border">
                     <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
                         <Logo className="h-6 w-6 text-primary" />
                         <span className={cn(
-                        "font-semibold",
+                        "font-semibold text-sidebar-foreground",
                         "group-data-[collapsible=icon]:hidden"
                         )}>QuoterWise</span>
                     </Link>
@@ -341,16 +344,16 @@ export default function DashboardLayout({
                     <SidebarContent>
                     <MainNav />
                     </SidebarContent>
-                    <SidebarFooter className={cn("p-2 border-t", "group-data-[collapsible=icon]:hidden")}>
+                    <SidebarFooter className={cn("p-2 border-t border-sidebar-border", "group-data-[collapsible=icon]:hidden")}>
                     <UserMenu />
                     </SidebarFooter>
-                    <SidebarFooter className={cn("p-2 border-t hidden", "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center")}>
+                    <SidebarFooter className={cn("p-2 border-t border-sidebar-border hidden", "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center")}>
                         <CollapsedUserMenu />
                     </SidebarFooter>
                 </Sidebar>
                 <div className="flex flex-col flex-1">
                     <MobileHeader />
-                    <main className="flex-1">
+                    <main className="flex-1 bg-background">
                         {children}
                     </main>
                     <AuthModal />

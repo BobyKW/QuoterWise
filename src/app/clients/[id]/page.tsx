@@ -42,11 +42,10 @@ function formatDate(date: Date | Timestamp) {
 
 function ClientDetailsSkeleton() {
     return (
-        <div className="space-y-8">
-            <Card>
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-3">
+            <Card className="lg:col-span-1">
                 <CardHeader>
                     <Skeleton className="h-8 w-2/5" />
-                    <Skeleton className="h-4 w-3/5" />
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Skeleton className="h-5 w-1/3" />
@@ -54,7 +53,7 @@ function ClientDetailsSkeleton() {
                     <Skeleton className="h-5 w-2/3" />
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="lg:col-span-2">
                 <CardHeader>
                     <Skeleton className="h-8 w-1/3" />
                     <Skeleton className="h-4 w-1/2" />
@@ -134,19 +133,19 @@ export default function ClientViewPage() {
                             <CardHeader>
                                 <CardTitle>{t('client_view_page.contact_details')}</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3 text-sm">
+                            <CardContent className="space-y-4 text-sm">
                                 <div className="font-semibold text-base">{client.contactName}</div>
                                 <Separator />
                                 <div className="flex items-start gap-3">
-                                    <Mail className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                                    <a href={`mailto:${client.email}`} className="text-primary hover:underline">{client.email}</a>
+                                    <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
+                                    <a href={`mailto:${client.email}`} className="text-primary hover:underline break-all">{client.email}</a>
                                 </div>
                                  <div className="flex items-start gap-3">
-                                    <Phone className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                                    <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
                                     <span>{client.phone}</span>
                                 </div>
                                 <div className="flex items-start gap-3">
-                                    <Home className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                                    <Home className="h-4 w-4 mt-1 text-muted-foreground" />
                                     <span className="whitespace-pre-line">{client.address}</span>
                                 </div>
                             </CardContent>
@@ -165,7 +164,7 @@ export default function ClientViewPage() {
                                         <TableHeader>
                                         <TableRow>
                                             <TableHead>{t('quotes_page.table_number')}</TableHead>
-                                            <TableHead className="hidden md:table-cell">{t('quotes_page.table_date')}</TableHead>
+                                            <TableHead className="hidden sm:table-cell">{t('quotes_page.table_date')}</TableHead>
                                             <TableHead>{t('quotes_page.table_status')}</TableHead>
                                             <TableHead className="text-right">{t('quotes_page.table_amount')}</TableHead>
                                         </TableRow>
@@ -174,7 +173,7 @@ export default function ClientViewPage() {
                                         {quotes && quotes.length > 0 ? quotes.map((quote) => (
                                             <TableRow key={quote.id} className="cursor-pointer" onClick={() => router.push(`/quotes/${quote.id}`)}>
                                                 <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
-                                                <TableCell className="hidden md:table-cell">
+                                                <TableCell className="hidden sm:table-cell">
                                                     {quote.createdAt && formatDate(quote.createdAt)}
                                                 </TableCell>
                                                 <TableCell>

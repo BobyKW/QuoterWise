@@ -23,7 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Separator } from './ui/separator';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 const settingsFormSchema = z.object({
   businessName: z.string().min(1, 'Business name is required.'),
@@ -105,42 +105,8 @@ export function SettingsForm() {
   if (isLoading) {
     return (
       <div className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </div>
-        <div className="space-y-2">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-10 w-full" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-                <Skeleton className="h-4 w-1/4" />
-                <Skeleton className="h-10 w-full" />
-            </div>
-            <div className="space-y-2">
-                <Skeleton className="h-4 w-1/4" />
-                <Skeleton className="h-10 w-full" />
-            </div>
-             <div className="space-y-2">
-                <Skeleton className="h-4 w-1/4" />
-                <Skeleton className="h-10 w-full" />
-            </div>
-        </div>
-         <div className="space-y-2">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-10 w-full" />
-        </div>
-        <div className="space-y-2">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-24 w-full" />
-        </div>
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-48 w-full" />
         <div className="flex justify-end">
             <Skeleton className="h-10 w-24" />
         </div>
@@ -151,205 +117,217 @@ export function SettingsForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <FormLabel>{t('settings_page.language')}</FormLabel>
-              <Select
-                value={i18n.language}
-                onValueChange={(value) => i18n.changeLanguage(value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-muted-foreground">
-                  {t('settings_page.language_description')}
-              </p>
-            </div>
-            <FormField
-              control={form.control}
-              name="currency"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel>{t('settings_page.currency')}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('settings_form.currency_placeholder')} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="USD">USD - US Dollar</SelectItem>
-                      <SelectItem value="EUR">EUR - Euro</SelectItem>
-                      <SelectItem value="GBP">GBP - British Pound</SelectItem>
-                      <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
-                      <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
-                      <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    {t('settings_page.currency_description')}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="businessName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('settings_form.business_name')}</FormLabel>
-                <FormControl>
-                  <Input placeholder={t('settings_form.business_name_placeholder')} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="taxId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('settings_form.tax_id')}</FormLabel>
-                <FormControl>
-                  <Input placeholder={t('settings_form.tax_id_placeholder')} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('settings_form.address')}</FormLabel>
-              <FormControl>
-                <Input placeholder={t('settings_form.address_placeholder')} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>{t('settings_form.city')}</FormLabel>
-                <FormControl>
-                    <Input placeholder={t('settings_form.city_placeholder')} {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-            <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>{t('settings_form.country')}</FormLabel>
-                <FormControl>
-                    <Input placeholder={t('settings_form.country_placeholder')} {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-            <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>{t('settings_form.phone')}</FormLabel>
-                <FormControl>
-                    <Input placeholder={t('settings_form.phone_placeholder')} {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-        </div>
-        
-        <FormField
-            control={form.control}
-            name="logoUrl"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>{t('settings_form.logo_url')}</FormLabel>
-                <FormControl>
-                    <Input type="url" placeholder={t('settings_form.logo_url_placeholder')} {...field} />
-                </FormControl>
-                <FormDescription>
-                    {t('settings_form.logo_url_description')}
-                </FormDescription>
-                <FormMessage />
-                </FormItem>
-            )}
-        />
-
-        <FormField
-          control={form.control}
-          name="defaultTerms"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('settings_form.default_terms')}</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={t('settings_form.default_terms_placeholder')}
-                  className="resize-y min-h-[100px]"
-                  {...field}
+        <Card>
+            <CardHeader>
+                <CardTitle>Localisation</CardTitle>
+                <CardDescription>Set your language and currency preferences.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div className="space-y-2">
+                    <FormLabel>{t('settings_page.language')}</FormLabel>
+                    <Select
+                        value={i18n.language}
+                        onValueChange={(value) => i18n.changeLanguage(value)}
+                    >
+                        <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Español</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground">
+                        {t('settings_page.language_description')}
+                    </p>
+                    </div>
+                    <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                        <FormItem className="space-y-2">
+                        <FormLabel>{t('settings_page.currency')}</FormLabel>
+                        <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            defaultValue={field.value}
+                        >
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder={t('settings_form.currency_placeholder')} />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            <SelectItem value="USD">USD - US Dollar</SelectItem>
+                            <SelectItem value="EUR">EUR - Euro</SelectItem>
+                            <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                            <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
+                            <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                            <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormDescription>
+                            {t('settings_page.currency_description')}
+                        </FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
                 />
-              </FormControl>
-               <FormDescription>
-                    {t('settings_form.default_terms_description')}
-                </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>{t('settings_page.card_title')}</CardTitle>
+                <CardDescription>{t('settings_page.card_description')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="businessName"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('settings_form.business_name')}</FormLabel>
+                            <FormControl>
+                            <Input placeholder={t('settings_form.business_name_placeholder')} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="taxId"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('settings_form.tax_id')}</FormLabel>
+                            <FormControl>
+                            <Input placeholder={t('settings_form.tax_id_placeholder')} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </div>
+                 <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('settings_form.address')}</FormLabel>
+                        <FormControl>
+                            <Input placeholder={t('settings_form.address_placeholder')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('settings_form.city')}</FormLabel>
+                        <FormControl>
+                            <Input placeholder={t('settings_form.city_placeholder')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('settings_form.country')}</FormLabel>
+                        <FormControl>
+                            <Input placeholder={t('settings_form.country_placeholder')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('settings_form.phone')}</FormLabel>
+                        <FormControl>
+                            <Input placeholder={t('settings_form.phone_placeholder')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+                 <FormField
+                    control={form.control}
+                    name="logoUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('settings_form.logo_url')}</FormLabel>
+                        <FormControl>
+                            <Input type="url" placeholder={t('settings_form.logo_url_placeholder')} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                            {t('settings_form.logo_url_description')}
+                        </FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                control={form.control}
+                name="defaultTerms"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>{t('settings_form.default_terms')}</FormLabel>
+                    <FormControl>
+                        <Textarea
+                        placeholder={t('settings_form.default_terms_placeholder')}
+                        className="resize-y min-h-[100px]"
+                        {...field}
+                        />
+                    </FormControl>
+                    <FormDescription>
+                            {t('settings_form.default_terms_description')}
+                        </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </CardContent>
+        </Card>
         
-        <Separator />
-
-        <div>
-            <h3 className="text-lg font-medium">{t('settings_page.integrations_title')}</h3>
-            <p className="text-sm text-muted-foreground">{t('settings_page.integrations_description')}</p>
-        </div>
-
-         <FormField
-            control={form.control}
-            name="geminiApiKey"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>{t('settings_form.gemini_api_key')}</FormLabel>
-                <FormControl>
-                    <Input type="password" placeholder={t('settings_form.gemini_api_key_placeholder')} {...field} />
-                </FormControl>
-                <FormDescription>
-                    {t('settings_form.gemini_api_key_description')}
-                </FormDescription>
-                <FormMessage />
-                </FormItem>
-            )}
-        />
+        <Card>
+            <CardHeader>
+                <CardTitle>{t('settings_page.integrations_title')}</CardTitle>
+                <CardDescription>{t('settings_page.integrations_description')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <FormField
+                    control={form.control}
+                    name="geminiApiKey"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('settings_form.gemini_api_key')}</FormLabel>
+                        <FormControl>
+                            <Input type="password" placeholder={t('settings_form.gemini_api_key_placeholder')} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                            {t('settings_form.gemini_api_key_description')}
+                        </FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </CardContent>
+        </Card>
 
 
         <div className="flex justify-end">
