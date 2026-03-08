@@ -28,14 +28,14 @@ function Calendar({
         caption_label: "text-sm font-medium",
         nav: cn(
           "space-x-1 flex items-center",
-          isMultiMonth && "absolute bottom-1 left-1/2 -translate-x-1/2" // Center nav at bottom for multi-month
+          isMultiMonth && "absolute bottom-1 left-1/2 -translate-x-1/2"
         ),
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
-        nav_button_previous: cn(!isMultiMonth && "absolute left-1"), // Only apply absolute for single month
-        nav_button_next: cn(!isMultiMonth && "absolute right-1"), // Only apply absolute for single month
+        nav_button_previous: cn(!isMultiMonth && "absolute left-1"),
+        nav_button_next: cn(!isMultiMonth && "absolute right-1"),
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell:
