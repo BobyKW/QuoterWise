@@ -15,8 +15,6 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
-  const isMultiMonth = (props.numberOfMonths || 1) > 1
-
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -26,23 +24,18 @@ function Calendar({
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: cn(
-          "space-x-1 flex items-center",
-          isMultiMonth
-            ? "absolute bottom-1 left-1/2 -translate-x-1/2"
-            : "absolute"
-        ),
+        nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
-        nav_button_previous: cn(!isMultiMonth && "left-1"),
-        nav_button_next: cn(!isMultiMonth && "right-1"),
+        nav_button_previous: "absolute left-1",
+        nav_button_next: "absolute right-1",
         table: "w-full border-collapse space-y-1",
-        head_row: "",
+        head_row: "flex",
         head_cell:
           "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-        row: "w-full mt-2",
+        row: "flex w-full mt-2",
         cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
