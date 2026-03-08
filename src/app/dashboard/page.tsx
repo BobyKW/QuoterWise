@@ -185,27 +185,25 @@ export default function DashboardPage() {
               <h2 className="font-semibold text-xl md:text-2xl mb-4">{t('dashboard_page.quick_links_title')}</h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {actionCards.map((card, index) => {
-                  const cardComponent = (
-                      <Link href={card.disabled ? '#' : card.href} className="block group">
-                          <Card className="transition-colors h-full hover:border-primary hover:bg-accent/50">
-                              <CardHeader>
-                                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                      <card.icon className="h-6 w-6" />
-                                  </div>
-                              </CardHeader>
-                              <CardContent>
-                                  <p className="font-semibold text-card-foreground">{card.title}</p>
-                                  <p className="text-sm text-muted-foreground">{card.description}</p>
-                              </CardContent>
-                          </Card>
-                      </Link>
+                  const cardContent = (
+                      <Card className="transition-colors h-full hover:border-primary hover:bg-accent/50 flex flex-col">
+                          <CardHeader>
+                              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                  <card.icon className="h-6 w-6" />
+                              </div>
+                          </CardHeader>
+                          <CardContent className="flex-grow">
+                              <p className="font-semibold text-card-foreground">{card.title}</p>
+                              <p className="text-sm text-muted-foreground">{card.description}</p>
+                          </CardContent>
+                      </Card>
                   );
 
                   if (card.disabled) {
                       return (
                           <Tooltip key={index}>
                               <TooltipTrigger asChild>
-                                  <div className="cursor-not-allowed opacity-50">{cardComponent}</div>
+                                  <div className="cursor-not-allowed opacity-50 h-full">{cardContent}</div>
                               </TooltipTrigger>
                               <TooltipContent>
                                   <p>{card.tooltip || t('coming_soon')}</p>
@@ -214,7 +212,11 @@ export default function DashboardPage() {
                       );
                   }
 
-                  return <div key={index}>{cardComponent}</div>;
+                  return (
+                      <Link key={index} href={card.href} className="block group h-full">
+                          {cardContent}
+                      </Link>
+                  );
               })}
               </div>
           </div>
