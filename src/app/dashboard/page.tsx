@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -10,8 +9,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
-import type { Quote, Client, ReusableBlock } from '@/lib/types';
+import { collection, query } from 'firebase/firestore';
+import type { Quote, Client } from '@/lib/types';
 import {
   FileText,
   Users,
@@ -19,47 +18,45 @@ import {
   Library,
   PlusCircle,
   CheckCircle,
-  File,
+  DollarSign,
 } from 'lucide-react';
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuoteLimits } from '@/hooks/use-quote-limits';
 import { useTranslation } from 'react-i18next';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { DashboardAnalytics } from '@/components/dashboard-analytics';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { doc } from 'firebase/firestore';
+import type { UserProfile } from '@/lib/types';
+
 
 function DashboardSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
-      <div className="lg:col-span-2 space-y-8">
-        <div className="grid gap-4 md:grid-cols-2">
+    <div className="space-y-8">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
                 <Card key={i}>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Skeleton className="h-5 w-2/5" />
                         <Skeleton className="h-6 w-6" />
                     </CardHeader>
                     <CardContent>
-                        <Skeleton className="h-5 w-2/4 mb-1" />
+                        <Skeleton className="h-8 w-1/3 mb-1" />
                         <Skeleton className="h-4 w-full" />
                     </CardContent>
                 </Card>
             ))}
         </div>
-      </div>
-      <div className="lg:col-span-1 space-y-8">
         <Card>
             <CardHeader>
-                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-7 w-1/4" />
+                <Skeleton className="h-4 w-1/2" />
             </CardHeader>
-            <CardContent className="space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="flex justify-between items-center">
-                        <Skeleton className="h-5 w-1/3" />
-                        <Skeleton className="h-6 w-1/4" />
-                    </div>
-                ))}
+            <CardContent>
+                <Skeleton className="h-[350px] w-full" />
             </CardContent>
         </Card>
-      </div>
     </div>
   );
 }
@@ -78,30 +75,41 @@ export default function DashboardPage() {
     if (!user) return null;
     return query(collection(firestore, `userProfiles/${user.uid}/clients`));
   }, [user, firestore]);
-
-  const blocksQuery = useMemoFirebase(() => {
+  
+  const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
-    return query(collection(firestore, `userProfiles/${user.uid}/reusableBlocks`));
+    return doc(firestore, `userProfiles/${user.uid}`);
   }, [user, firestore]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: userProfile?.currency || 'EUR' }).format(amount);
+
 
   const { data: quotes, isLoading: isLoadingQuotes } = useCollection<Quote>(quotesQuery);
   const { data: clients, isLoading: isLoadingClients } = useCollection<Client>(clientsQuery);
-  const { data: blocks, isLoading: isLoadingBlocks } = useCollection<ReusableBlock>(blocksQuery);
   const { limits, isLoading: isLoadingLimits } = useQuoteLimits();
 
   const totalQuotes = quotes?.length || 0;
   const totalClients = clients?.length || 0;
-  const totalBlocks = blocks?.length || 0;
   const totalAccepted = quotes?.filter(q => q.status === 'accepted').length || 0;
+  const totalRevenue = quotes
+    ?.filter(q => q.status === 'accepted')
+    .reduce((sum, q) => sum + q.finalTotal, 0) || 0;
   
   const isAnonymous = user?.isAnonymous ?? true;
   const quoteLimit = isAnonymous ? limits.anonymousQuoteLimit : limits.registeredQuoteLimit;
   const quoteLimitReached = totalQuotes >= quoteLimit;
-  const blockLimit = isAnonymous ? limits.anonymousBlockLimit : limits.registeredBlockLimit;
-  const blockLimitReached = totalBlocks >= blockLimit;
 
-  const isLoading = isLoadingLimits || isLoadingQuotes || isLoadingClients || isLoadingBlocks;
+  const isLoading = isLoadingLimits || isLoadingQuotes || isLoadingClients;
 
+  const statCards = [
+    { title: t('dashboard_page.total_revenue'), value: formatCurrency(totalRevenue), description: t('dashboard_page.total_revenue_desc'), icon: DollarSign },
+    { title: t('dashboard_page.accepted_quotes'), value: `+${totalAccepted}`, description: t('dashboard_page.accepted_quotes_desc'), icon: CheckCircle },
+    { title: t('dashboard_page.total_quotes'), value: totalQuotes, description: t('dashboard_page.total_quotes_desc'), icon: FileText },
+    { title: t('dashboard_page.total_clients'), value: totalClients, description: t('dashboard_page.total_clients_desc'), icon: Users },
+  ]
+  
   const actionCards = [
     {
       href: '/quotes/new',
@@ -112,14 +120,6 @@ export default function DashboardPage() {
       tooltip: isAnonymous ? t('quotes_page.anonymous_limit_reached', { count: quoteLimit }) : t('quotes_page.registered_limit_reached', { count: quoteLimit })
     },
     {
-      href: '/reusable-blocks/new',
-      title: t('dashboard_page.create_block_title'),
-      description: t('dashboard_page.create_block_desc'),
-      icon: Blocks,
-      disabled: blockLimitReached,
-      tooltip: isAnonymous ? t('reusable_blocks_page.anonymous_limit_reached', { count: blockLimit }) : t('reusable_blocks_page.registered_limit_reached', { count: blockLimit })
-    },
-    {
       href: '/clients/new',
       title: t('dashboard_page.add_client_title'),
       description: t('dashboard_page.add_client_desc'),
@@ -128,89 +128,94 @@ export default function DashboardPage() {
       tooltip: ''
     },
     {
+      href: '/reusable-blocks/new',
+      title: t('dashboard_page.create_block_title'),
+      description: t('dashboard_page.create_block_desc'),
+      icon: Blocks,
+      disabled: false, 
+      tooltip: ''
+    },
+    {
       href: '/templates',
       title: t('dashboard_page.create_template_title'),
       description: t('dashboard_page.create_template_desc'),
       icon: Library,
-      disabled: false,
+      disabled: true, 
       tooltip: ''
     },
   ];
 
+  if (isLoading) {
+    return (
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+            <h1 className="font-semibold text-lg md:text-2xl">{t('dashboard_page.title')}</h1>
+            <DashboardSkeleton />
+        </main>
+    )
+  }
+
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">{t('dashboard_page.title')}</h1>
+    <main className="flex flex-1 flex-col gap-8 p-4 md:gap-8 md:p-8">
+      <div>
+        <h1 className="font-semibold text-3xl">{t('dashboard_page.title')}</h1>
+        <p className="text-muted-foreground">{t('dashboard_page.welcome_back')}</p>
       </div>
 
-      {isLoading ? (
-        <DashboardSkeleton />
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 items-start">
-            <div className="lg:col-span-2 space-y-8">
-                <div className="space-y-4">
-                    <h2 className="font-semibold text-lg md:text-xl">{t('dashboard_page.quick_links_title')}</h2>
-                    <div className="grid gap-4 md:grid-cols-2">
-                    {actionCards.map((card, index) => {
-                        const cardComponent = (
-                            <Link href={card.disabled ? '#' : card.href} className="block group">
-                                <Card className="transition-colors h-full group-hover:border-primary group-hover:bg-accent">
-                                    <CardHeader>
-                                        <card.icon className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="font-semibold text-card-foreground">{card.title}</p>
-                                        <p className="text-sm text-muted-foreground">{card.description}</p>
-                                    </CardContent>
-                                </Card>
-                            </Link>
-                        );
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {statCards.map(card => (
+            <Card key={card.title}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+                    <card.icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{card.value}</div>
+                    <p className="text-xs text-muted-foreground">{card.description}</p>
+                </CardContent>
+            </Card>
+        ))}
+      </div>
+      
+      {quotes && <DashboardAnalytics quotes={quotes} />}
 
-                        if (card.disabled) {
-                            return (
-                                <Tooltip key={index}>
-                                    <TooltipTrigger asChild>
-                                        <div className="cursor-not-allowed opacity-50">{cardComponent}</div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>{card.tooltip}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            );
-                        }
+       <div>
+            <h2 className="font-semibold text-2xl mb-4">{t('dashboard_page.quick_links_title')}</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {actionCards.map((card, index) => {
+                const cardComponent = (
+                    <Link href={card.disabled ? '#' : card.href} className="block group">
+                        <Card className="transition-colors h-full hover:border-primary hover:bg-accent/50">
+                            <CardHeader>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <card.icon className="h-6 w-6" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="font-semibold text-card-foreground">{card.title}</p>
+                                <p className="text-sm text-muted-foreground">{card.description}</p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                );
 
-                        return cardComponent;
-                    })}
-                    </div>
-                </div>
-            </div>
-            <div className="lg:col-span-1 space-y-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('dashboard_page.at_a_glance')}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground flex items-center gap-2"><FileText className="h-4 w-4" /> {t('dashboard_page.total_quotes')}</span>
-                            <span className="font-semibold">{totalQuotes}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground flex items-center gap-2"><Users className="h-4 w-4" /> {t('dashboard_page.total_clients')}</span>
-                            <span className="font-semibold">{totalClients}</span>
-                        </div>
-                         <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4" /> {t('dashboard_page.accepted')}</span>
-                            <span className="font-semibold">{totalAccepted}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground flex items-center gap-2"><File className="h-4 w-4" /> {t('dashboard_page.draft')}</span>
-                            <span className="font-semibold">{quotes?.filter(q => q.status === 'draft').length || 0}</span>
-                        </div>
-                    </CardContent>
-                </Card>
+                if (card.disabled) {
+                    return (
+                        <Tooltip key={index}>
+                            <TooltipTrigger asChild>
+                                <div className="cursor-not-allowed opacity-50">{cardComponent}</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{card.tooltip || t('coming_soon')}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    );
+                }
+
+                return <div key={index}>{cardComponent}</div>;
+            })}
             </div>
         </div>
-      )}
+
     </main>
   );
 }

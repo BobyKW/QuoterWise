@@ -18,25 +18,37 @@
   },
   "dashboard_page": {
     "title": "Dashboard",
-    "at_a_glance": "At a Glance",
-    "new_quote": "New Quote",
+    "welcome_back": "Welcome back! Here's a summary of your activity.",
+    "total_revenue": "Total Revenue",
+    "total_revenue_desc": "From accepted quotes",
+    "accepted_quotes": "Accepted Quotes",
+    "accepted_quotes_desc": "All-time accepted quotes",
     "total_quotes": "Total Quotes",
+    "total_quotes_desc": "All quotes created",
     "total_clients": "Total Clients",
-    "draft": "Drafts",
-    "sent": "Sent",
-    "accepted": "Accepted",
-    "rejected": "Rejected",
-    "negotiating": "Negotiating",
-    "expired": "Expired",
+    "total_clients_desc": "All registered clients",
     "quick_links_title": "Quick Links",
     "create_quote_title": "Create Quote",
     "create_quote_desc": "Start a new quote for a client.",
+    "add_client_title": "Add Client",
+    "add_client_desc": "Register a new client.",
     "create_block_title": "Create Block",
     "create_block_desc": "Add a new reusable block.",
-    "add_client_title": "Add Client",
-    "add_client_desc": "Register a new client in your records.",
-    "create_template_title": "Create Template",
-    "create_template_desc": "Design a new quote template (soon)."
+    "create_template_title": "Manage Templates",
+    "create_template_desc": "Create and edit templates."
+  },
+  "dashboard_analytics": {
+    "title": "Quote Analytics",
+    "description": "Visualize your quote activity over time.",
+    "pick_a_date": "Pick a date",
+    "created": "Created",
+    "sent": "Sent",
+    "accepted": "Accepted",
+    "revenue_title": "Revenue Analytics",
+    "revenue_description": "Track your revenue from accepted quotes.",
+    "revenue": "Revenue",
+    "accepted_quotes": "Accepted Quotes",
+    "total_revenue": "Total Revenue"
   },
   "quotes_page": {
     "title": "Quotes",
@@ -335,6 +347,7 @@
     "login_link": "Login"
   },
   "loading": "Loading...",
+  "coming_soon": "Coming soon!",
   "deleting": "Deleting...",
   "errors": {
     "login_failed": "Login Failed",
@@ -422,7 +435,7 @@
   },
   "landing_page": {
     "header": {
-      "dashboard": "Dashboard"
+      "dashboard": "Get Started"
     },
     "hero": {
       "title": "Create Professional Quotes in Seconds",

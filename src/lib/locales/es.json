@@ -18,25 +18,37 @@
   },
   "dashboard_page": {
     "title": "Dashboard",
-    "at_a_glance": "De un vistazo",
-    "new_quote": "Nuevo Presupuesto",
+    "welcome_back": "¡Bienvenido de nuevo! Aquí tienes un resumen de tu actividad.",
+    "total_revenue": "Ingresos Totales",
+    "total_revenue_desc": "De presupuestos aceptados",
+    "accepted_quotes": "Presupuestos Aceptados",
+    "accepted_quotes_desc": "Historial de aceptados",
     "total_quotes": "Presupuestos Totales",
+    "total_quotes_desc": "Todos los presupuestos creados",
     "total_clients": "Clientes Totales",
-    "draft": "Borradores",
-    "sent": "Enviados",
-    "accepted": "Aceptados",
-    "rejected": "Rechazados",
-    "negotiating": "En negociación",
-    "expired": "Expirados",
+    "total_clients_desc": "Todos los clientes registrados",
     "quick_links_title": "Accesos Rápidos",
     "create_quote_title": "Crear Presupuesto",
-    "create_quote_desc": "Inicia un nuevo presupuesto para un cliente.",
+    "create_quote_desc": "Inicia un nuevo presupuesto.",
+    "add_client_title": "Añadir Cliente",
+    "add_client_desc": "Registra un nuevo cliente.",
     "create_block_title": "Crear Bloque",
     "create_block_desc": "Añade un nuevo bloque reutilizable.",
-    "add_client_title": "Añadir Cliente",
-    "add_client_desc": "Registra un nuevo cliente en tus archivos.",
-    "create_template_title": "Crear Plantilla",
-    "create_template_desc": "Diseña una nueva plantilla de presupuesto (pronto)."
+    "create_template_title": "Gestionar Plantillas",
+    "create_template_desc": "Crea y edita plantillas."
+  },
+  "dashboard_analytics": {
+    "title": "Análisis de Presupuestos",
+    "description": "Visualiza la actividad de tus presupuestos a lo largo del tiempo.",
+    "pick_a_date": "Elige una fecha",
+    "created": "Creados",
+    "sent": "Enviados",
+    "accepted": "Aceptados",
+    "revenue_title": "Análisis de Ingresos",
+    "revenue_description": "Sigue tus ingresos de los presupuestos aceptados.",
+    "revenue": "Ingresos",
+    "accepted_quotes": "Presupuestos Aceptados",
+    "total_revenue": "Ingresos Totales"
   },
   "quotes_page": {
     "title": "Presupuestos",
@@ -335,6 +347,7 @@
     "login_link": "Inicia Sesión"
   },
   "loading": "Cargando...",
+  "coming_soon": "¡Próximamente!",
   "deleting": "Eliminando...",
   "errors": {
     "login_failed": "Fallo de inicio de sesión",
@@ -422,7 +435,7 @@
   },
   "landing_page": {
     "header": {
-      "dashboard": "Dashboard"
+      "dashboard": "Empezar"
     },
     "hero": {
       "title": "Crea Presupuestos Profesionales en Segundos",
