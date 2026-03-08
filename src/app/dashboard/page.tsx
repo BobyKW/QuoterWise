@@ -140,7 +140,7 @@ export default function DashboardPage() {
       title: t('dashboard_page.create_template_title'),
       description: t('dashboard_page.create_template_desc'),
       icon: Library,
-      disabled: true, 
+      disabled: false, 
       tooltip: ''
     },
   ];
@@ -148,74 +148,77 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <h1 className="font-semibold text-lg md:text-2xl">{t('dashboard_page.title')}</h1>
-            <DashboardSkeleton />
+            <div className="mx-auto w-full max-w-6xl space-y-8">
+              <h1 className="font-semibold text-lg md:text-2xl">{t('dashboard_page.title')}</h1>
+              <DashboardSkeleton />
+            </div>
         </main>
     )
   }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div>
-        <h1 className="font-semibold text-2xl md:text-3xl">{t('dashboard_page.title')}</h1>
-        <p className="text-muted-foreground text-sm md:text-base">{t('dashboard_page.welcome_back')}</p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map(card => (
-            <Card key={card.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                    <card.icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{card.value}</div>
-                    <p className="text-xs text-muted-foreground">{card.description}</p>
-                </CardContent>
-            </Card>
-        ))}
-      </div>
-      
-      {quotes && quotes.length > 0 && <DashboardAnalytics quotes={quotes} />}
-
-       <div>
-            <h2 className="font-semibold text-xl md:text-2xl mb-4">{t('dashboard_page.quick_links_title')}</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {actionCards.map((card, index) => {
-                const cardComponent = (
-                    <Link href={card.disabled ? '#' : card.href} className="block group">
-                        <Card className="transition-colors h-full hover:border-primary hover:bg-accent/50">
-                            <CardHeader>
-                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                    <card.icon className="h-6 w-6" />
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="font-semibold text-card-foreground">{card.title}</p>
-                                <p className="text-sm text-muted-foreground">{card.description}</p>
-                            </CardContent>
-                        </Card>
-                    </Link>
-                );
-
-                if (card.disabled) {
-                    return (
-                        <Tooltip key={index}>
-                            <TooltipTrigger asChild>
-                                <div className="cursor-not-allowed opacity-50">{cardComponent}</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{card.tooltip || t('coming_soon')}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    );
-                }
-
-                return <div key={index}>{cardComponent}</div>;
-            })}
-            </div>
+      <div className="mx-auto w-full max-w-6xl space-y-8">
+        <div>
+          <h1 className="font-semibold text-2xl md:text-3xl">{t('dashboard_page.title')}</h1>
+          <p className="text-muted-foreground text-sm md:text-base">{t('dashboard_page.welcome_back')}</p>
         </div>
 
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {statCards.map(card => (
+              <Card key={card.title}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+                      <card.icon className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                      <div className="text-2xl font-bold">{card.value}</div>
+                      <p className="text-xs text-muted-foreground">{card.description}</p>
+                  </CardContent>
+              </Card>
+          ))}
+        </div>
+        
+        {quotes && quotes.length > 0 && <DashboardAnalytics quotes={quotes} />}
+
+        <div>
+              <h2 className="font-semibold text-xl md:text-2xl mb-4">{t('dashboard_page.quick_links_title')}</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {actionCards.map((card, index) => {
+                  const cardComponent = (
+                      <Link href={card.disabled ? '#' : card.href} className="block group">
+                          <Card className="transition-colors h-full hover:border-primary hover:bg-accent/50">
+                              <CardHeader>
+                                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                      <card.icon className="h-6 w-6" />
+                                  </div>
+                              </CardHeader>
+                              <CardContent>
+                                  <p className="font-semibold text-card-foreground">{card.title}</p>
+                                  <p className="text-sm text-muted-foreground">{card.description}</p>
+                              </CardContent>
+                          </Card>
+                      </Link>
+                  );
+
+                  if (card.disabled) {
+                      return (
+                          <Tooltip key={index}>
+                              <TooltipTrigger asChild>
+                                  <div className="cursor-not-allowed opacity-50">{cardComponent}</div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                  <p>{card.tooltip || t('coming_soon')}</p>
+                              </TooltipContent>
+                          </Tooltip>
+                      );
+                  }
+
+                  return <div key={index}>{cardComponent}</div>;
+              })}
+              </div>
+          </div>
+        </div>
     </main>
   );
 }

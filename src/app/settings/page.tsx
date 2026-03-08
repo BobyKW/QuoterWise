@@ -8,10 +8,10 @@ export default function SettingsPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">{t('settings_page.title')}</h1>
-      </div>
-      <div className="max-w-4xl w-full mx-auto">
+      <div className="mx-auto w-full max-w-6xl space-y-4">
+        <div className="flex items-center">
+          <h1 className="font-semibold text-lg md:text-2xl">{t('settings_page.title')}</h1>
+        </div>
         <SettingsForm />
       </div>
     </main>

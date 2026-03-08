@@ -102,111 +102,113 @@ export default function ClientViewPage() {
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <div className="flex items-center gap-4">
-                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.push('/clients')}>
-                    <ArrowLeft className="h-4 w-4" />
-                    <span className="sr-only">Back</span>
-                </Button>
-                <h1 className="font-semibold text-lg md:text-2xl truncate">{client?.companyName}</h1>
-                <div className="ml-auto">
-                    <Button asChild variant="outline">
-                        <Link href={`/clients/${id}/edit`}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            {t('client_view_page.edit_client')}
-                        </Link>
+            <div className="mx-auto w-full max-w-6xl space-y-4">
+                <div className="flex items-center gap-4">
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.push('/clients')}>
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="sr-only">Back</span>
                     </Button>
-                </div>
-            </div>
-
-            {isLoading ? (
-                <ClientDetailsSkeleton />
-            ) : !client ? (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('client_view_page.not_found')}</CardTitle>
-                    </CardHeader>
-                </Card>
-            ) : (
-                <div className="grid gap-4 md:gap-8 lg:grid-cols-3">
-                    <div className="lg:col-span-1 flex flex-col gap-4">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>{t('client_view_page.contact_details')}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4 text-sm">
-                                <div className="font-semibold text-base">{client.contactName}</div>
-                                <Separator />
-                                <div className="flex items-start gap-3">
-                                    <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
-                                    <a href={`mailto:${client.email}`} className="text-primary hover:underline break-all">{client.email}</a>
-                                </div>
-                                 <div className="flex items-start gap-3">
-                                    <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
-                                    <span>{client.phone}</span>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <Home className="h-4 w-4 mt-1 text-muted-foreground" />
-                                    <span className="whitespace-pre-line">{client.address}</span>
-                                </div>
-                            </CardContent>
-                        </Card>
+                    <h1 className="font-semibold text-lg md:text-2xl truncate">{client?.companyName}</h1>
+                    <div className="ml-auto">
+                        <Button asChild variant="outline">
+                            <Link href={`/clients/${id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                {t('client_view_page.edit_client')}
+                            </Link>
+                        </Button>
                     </div>
+                </div>
 
-                    <div className="lg:col-span-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>{t('client_view_page.quotes_title')}</CardTitle>
-                                <CardDescription>{t('client_view_page.quotes_description', { clientName: client.companyName })}</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                               <div className="overflow-x-auto">
-                                    <Table>
-                                        <TableHeader>
-                                        <TableRow>
-                                            <TableHead>{t('quotes_page.table_number')}</TableHead>
-                                            <TableHead className="hidden sm:table-cell">{t('quotes_page.table_date')}</TableHead>
-                                            <TableHead>{t('quotes_page.table_status')}</TableHead>
-                                            <TableHead className="text-right">{t('quotes_page.table_amount')}</TableHead>
-                                        </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                        {quotes && quotes.length > 0 ? quotes.map((quote) => (
-                                            <TableRow key={quote.id} className="cursor-pointer" onClick={() => router.push(`/quotes/${quote.id}`)}>
-                                                <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
-                                                <TableCell className="hidden sm:table-cell">
-                                                    {quote.createdAt && formatDate(quote.createdAt)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge
-                                                    variant="outline"
-                                                    className={cn(
-                                                        'capitalize',
-                                                        statusStyles[quote.status]
-                                                    )}
-                                                    >
-                                                    {t(`quote_form.status_${quote.status}`)}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-right">{formatCurrency(quote.finalTotal, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
-                                            </TableRow>
-                                        )) : (
+                {isLoading ? (
+                    <ClientDetailsSkeleton />
+                ) : !client ? (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{t('client_view_page.not_found')}</CardTitle>
+                        </CardHeader>
+                    </Card>
+                ) : (
+                    <div className="grid gap-4 md:gap-8 lg:grid-cols-3">
+                        <div className="lg:col-span-1 flex flex-col gap-4">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>{t('client_view_page.contact_details')}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4 text-sm">
+                                    <div className="font-semibold text-base">{client.contactName}</div>
+                                    <Separator />
+                                    <div className="flex items-start gap-3">
+                                        <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
+                                        <a href={`mailto:${client.email}`} className="text-primary hover:underline break-all">{client.email}</a>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
+                                        <span>{client.phone}</span>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <Home className="h-4 w-4 mt-1 text-muted-foreground" />
+                                        <span className="whitespace-pre-line">{client.address}</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <div className="lg:col-span-2">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>{t('client_view_page.quotes_title')}</CardTitle>
+                                    <CardDescription>{t('client_view_page.quotes_description', { clientName: client.companyName })}</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                <div className="overflow-x-auto">
+                                        <Table>
+                                            <TableHeader>
                                             <TableRow>
-                                                <TableCell colSpan={4} className="text-center h-24">
-                                                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                                                        <FileText className="h-8 w-8" />
-                                                        <p>{t('client_view_page.no_quotes')}</p>
-                                                    </div>
-                                                </TableCell>
+                                                <TableHead>{t('quotes_page.table_number')}</TableHead>
+                                                <TableHead className="hidden sm:table-cell">{t('quotes_page.table_date')}</TableHead>
+                                                <TableHead>{t('quotes_page.table_status')}</TableHead>
+                                                <TableHead className="text-right">{t('quotes_page.table_amount')}</TableHead>
                                             </TableRow>
-                                        )}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                            </TableHeader>
+                                            <TableBody>
+                                            {quotes && quotes.length > 0 ? quotes.map((quote) => (
+                                                <TableRow key={quote.id} className="cursor-pointer" onClick={() => router.push(`/quotes/${quote.id}`)}>
+                                                    <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
+                                                    <TableCell className="hidden sm:table-cell">
+                                                        {quote.createdAt && formatDate(quote.createdAt)}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge
+                                                        variant="outline"
+                                                        className={cn(
+                                                            'capitalize',
+                                                            statusStyles[quote.status]
+                                                        )}
+                                                        >
+                                                        {t(`quote_form.status_${quote.status}`)}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">{formatCurrency(quote.finalTotal, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
+                                                </TableRow>
+                                            )) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={4} className="text-center h-24">
+                                                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                                                            <FileText className="h-8 w-8" />
+                                                            <p>{t('client_view_page.no_quotes')}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </main>
     )
 }

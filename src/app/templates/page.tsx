@@ -110,100 +110,104 @@ export default function TemplatesPage() {
   if (isLoading) {
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+          <div className="mx-auto w-full max-w-6xl space-y-4">
             <h1 className="font-semibold text-lg md:text-2xl">{t('templates_page.title')}</h1>
             <TemplateSettingsSkeleton />
+          </div>
         </main>
     );
   }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">{t('templates_page.title')}</h1>
-      </div>
-      
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('templates_page.layout_title')}</CardTitle>
-                    <CardDescription>{t('templates_page.layout_description')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FormField
-                    control={form.control}
-                    name="pdfTemplate"
-                    render={({ field }) => (
-                        <FormItem className="space-y-3">
-                        <FormControl>
-                            <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="grid grid-cols-1 sm:grid-cols-2 gap-8"
-                            >
-                            <FormItem className="flex flex-col items-center space-y-2">
-                                <FormControl>
-                                <RadioGroupItem value="modern" className="sr-only" />
-                                </FormControl>
-                                <FormLabel className="font-normal cursor-pointer w-full">
-                                    <div className={cn("border-2 rounded-lg transition-all overflow-hidden p-2 bg-gray-200", field.value === 'modern' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
-                                        <QuotePreview template="modern" brandColor={watchBrandColor || '#2563eb'} />
-                                    </div>
-                                    <span className="block w-full p-2 text-center font-medium">{t('templates_page.modern_template')}</span>
-                                </FormLabel>
-                            </FormItem>
-                             <FormItem className="flex flex-col items-center space-y-2">
-                                <FormControl>
-                                <RadioGroupItem value="classic" className="sr-only" />
-                                </FormControl>
-                                <FormLabel className="font-normal cursor-pointer w-full">
-                                   <div className={cn("border-2 rounded-lg transition-all overflow-hidden p-2 bg-gray-200", field.value === 'classic' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
-                                        <QuotePreview template="classic" brandColor={watchBrandColor || '#2563eb'} />
-                                    </div>
-                                    <span className="block w-full p-2 text-center font-medium">{t('templates_page.classic_template')}</span>
-                                </FormLabel>
-                            </FormItem>
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                </CardContent>
-            </Card>
+      <div className="mx-auto w-full max-w-6xl space-y-4">
+        <div className="flex items-center">
+          <h1 className="font-semibold text-lg md:text-2xl">{t('templates_page.title')}</h1>
+        </div>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <Card>
+                  <CardHeader>
+                      <CardTitle>{t('templates_page.layout_title')}</CardTitle>
+                      <CardDescription>{t('templates_page.layout_description')}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <FormField
+                      control={form.control}
+                      name="pdfTemplate"
+                      render={({ field }) => (
+                          <FormItem className="space-y-3">
+                          <FormControl>
+                              <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="grid grid-cols-1 sm:grid-cols-2 gap-8"
+                              >
+                              <FormItem className="flex flex-col items-center space-y-2">
+                                  <FormControl>
+                                  <RadioGroupItem value="modern" className="sr-only" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal cursor-pointer w-full">
+                                      <div className={cn("border-2 rounded-lg transition-all overflow-hidden p-2 bg-gray-200", field.value === 'modern' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
+                                          <QuotePreview template="modern" brandColor={watchBrandColor || '#2563eb'} />
+                                      </div>
+                                      <span className="block w-full p-2 text-center font-medium">{t('templates_page.modern_template')}</span>
+                                  </FormLabel>
+                              </FormItem>
+                              <FormItem className="flex flex-col items-center space-y-2">
+                                  <FormControl>
+                                  <RadioGroupItem value="classic" className="sr-only" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal cursor-pointer w-full">
+                                    <div className={cn("border-2 rounded-lg transition-all overflow-hidden p-2 bg-gray-200", field.value === 'classic' ? "border-primary ring-2 ring-primary" : "border-muted hover:border-foreground/20")}>
+                                          <QuotePreview template="classic" brandColor={watchBrandColor || '#2563eb'} />
+                                      </div>
+                                      <span className="block w-full p-2 text-center font-medium">{t('templates_page.classic_template')}</span>
+                                  </FormLabel>
+                              </FormItem>
+                              </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+                  </CardContent>
+              </Card>
 
-             <Card>
-                <CardHeader>
-                    <CardTitle>{t('templates_page.branding_title')}</CardTitle>
-                    <CardDescription>{t('templates_page.branding_description')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <FormField
-                        control={form.control}
-                        name="brandColor"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>{t('templates_page.brand_color_label')}</FormLabel>
-                            <FormControl>
-                                <div className="relative flex items-center max-w-xs">
-                                <Input type="text" {...field} />
-                                <Input type="color" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-1" value={field.value} onChange={field.onChange} />
-                                </div>
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </CardContent>
-            </Card>
-            
-            <div className="flex justify-end">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? t('templates_page.saving_button') : t('templates_page.save_button')}
-                </Button>
-            </div>
-        </form>
-      </Form>
+              <Card>
+                  <CardHeader>
+                      <CardTitle>{t('templates_page.branding_title')}</CardTitle>
+                      <CardDescription>{t('templates_page.branding_description')}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <FormField
+                          control={form.control}
+                          name="brandColor"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>{t('templates_page.brand_color_label')}</FormLabel>
+                              <FormControl>
+                                  <div className="relative flex items-center max-w-xs">
+                                  <Input type="text" {...field} />
+                                  <Input type="color" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-1" value={field.value} onChange={field.onChange} />
+                                  </div>
+                              </FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                  </CardContent>
+              </Card>
+              
+              <div className="flex justify-end">
+                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                      {form.formState.isSubmitting ? t('templates_page.saving_button') : t('templates_page.save_button')}
+                  </Button>
+              </div>
+          </form>
+        </Form>
+      </div>
     </main>
   );
 }

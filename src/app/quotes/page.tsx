@@ -182,131 +182,133 @@ export default function QuotesPage() {
   return (
     <>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="flex items-center">
-          <h1 className="font-semibold text-lg md:text-2xl">{t('quotes_page.title')}</h1>
-          <div className="ml-auto flex items-center gap-2">
-            {limitReached ? (
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button size="sm" className="h-8 gap-1" disabled>
+        <div className="mx-auto w-full max-w-6xl space-y-4">
+          <div className="flex items-center">
+            <h1 className="font-semibold text-lg md:text-2xl">{t('quotes_page.title')}</h1>
+            <div className="ml-auto flex items-center gap-2">
+              {limitReached ? (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button size="sm" className="h-8 gap-1" disabled>
+                      <PlusCircle className="h-3.5 w-3.5" />
+                      <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                        {t('quotes_page.new_quote')}
+                      </span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{isAnonymous ? t('quotes_page.anonymous_limit_reached', { count: quoteLimit }) : t('quotes_page.registered_limit_reached', { count: quoteLimit })}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Link href="/quotes/new">
+                  <Button size="sm" className="h-8 gap-1">
                     <PlusCircle className="h-3.5 w-3.5" />
                     <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                       {t('quotes_page.new_quote')}
                     </span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isAnonymous ? t('quotes_page.anonymous_limit_reached', { count: quoteLimit }) : t('quotes_page.registered_limit_reached', { count: quoteLimit })}</p>
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Link href="/quotes/new">
-                <Button size="sm" className="h-8 gap-1">
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    {t('quotes_page.new_quote')}
-                  </span>
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('quotes_page.card_title')}</CardTitle>
-            <CardDescription>{t('quotes_page.card_description')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('quotes_page.table_number')}</TableHead>
-                    <TableHead>{t('quotes_page.table_client')}</TableHead>
-                    <TableHead className="hidden md:table-cell">{t('quotes_page.table_date')}</TableHead>
-                    <TableHead>{t('quotes_page.table_status')}</TableHead>
-                    <TableHead className="text-right">{t('quotes_page.table_amount')}</TableHead>
-                    <TableHead>
-                      <span className="sr-only">{t('quotes_page.table_actions')}</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center">
-                        {t('quotes_page.loading')}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {!isLoading && quotes && quotes.map((quote) => (
-                    <TableRow key={quote.id}>
-                      <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
-                      <TableCell>{quote.clientName}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {quote.createdAt && formatDate(quote.createdAt)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            'capitalize',
-                            statusStyles[quote.status]
-                          )}
-                        >
-                          {t(`quote_form.status_${quote.status}`)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">{formatCurrency(quote.finalTotal, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button aria-haspopup="true" size="icon" variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">{t('quotes_page.table_actions')}</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>{t('quotes_page.actions_label')}</DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/quotes/${quote.id}`}>{t('quotes_page.actions_view')}</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/quotes/${quote.id}/edit`}>{t('quotes_page.actions_edit')}</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => toast({ title: t('quotes_page.toast_coming_soon_title'), description: t('quotes_page.toast_coming_soon_description')})}>
-                              {t('quotes_page.actions_duplicate')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => handleDownloadClick(quote)}
-                                disabled={isDownloading === quote.id}
-                            >
-                                {isDownloading === quote.id ? t('view_quote_page.downloading') : t('view_quote_page.download_pdf')}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                              onClick={() => handleDeleteClick(quote)}
-                            >
-                              {t('quotes_page.actions_delete')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {!isLoading && (!quotes || quotes.length === 0) && (
-                      <TableRow>
-                          <TableCell colSpan={6} className="text-center">
-                          {t('quotes_page.no_quotes')}
-                          </TableCell>
-                      </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                </Link>
+              )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('quotes_page.card_title')}</CardTitle>
+              <CardDescription>{t('quotes_page.card_description')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('quotes_page.table_number')}</TableHead>
+                      <TableHead>{t('quotes_page.table_client')}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t('quotes_page.table_date')}</TableHead>
+                      <TableHead>{t('quotes_page.table_status')}</TableHead>
+                      <TableHead className="text-right">{t('quotes_page.table_amount')}</TableHead>
+                      <TableHead>
+                        <span className="sr-only">{t('quotes_page.table_actions')}</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center">
+                          {t('quotes_page.loading')}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {!isLoading && quotes && quotes.map((quote) => (
+                      <TableRow key={quote.id}>
+                        <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
+                        <TableCell>{quote.clientName}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {quote.createdAt && formatDate(quote.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              'capitalize',
+                              statusStyles[quote.status]
+                            )}
+                          >
+                            {t(`quote_form.status_${quote.status}`)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">{formatCurrency(quote.finalTotal, userProfile?.currency || 'EUR', i18n.language)}</TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">{t('quotes_page.table_actions')}</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>{t('quotes_page.actions_label')}</DropdownMenuLabel>
+                              <DropdownMenuItem asChild>
+                                <Link href={`/quotes/${quote.id}`}>{t('quotes_page.actions_view')}</Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link href={`/quotes/${quote.id}/edit`}>{t('quotes_page.actions_edit')}</Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toast({ title: t('quotes_page.toast_coming_soon_title'), description: t('quotes_page.toast_coming_soon_description')})}>
+                                {t('quotes_page.actions_duplicate')}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                  onClick={() => handleDownloadClick(quote)}
+                                  disabled={isDownloading === quote.id}
+                              >
+                                  {isDownloading === quote.id ? t('view_quote_page.downloading') : t('view_quote_page.download_pdf')}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                onClick={() => handleDeleteClick(quote)}
+                              >
+                                {t('quotes_page.actions_delete')}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {!isLoading && (!quotes || quotes.length === 0) && (
+                        <TableRow>
+                            <TableCell colSpan={6} className="text-center">
+                            {t('quotes_page.no_quotes')}
+                            </TableCell>
+                        </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </main>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

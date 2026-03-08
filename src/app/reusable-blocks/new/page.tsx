@@ -40,18 +40,20 @@ function LimitReachedView({ isAnonymous, limit }: { isAnonymous: boolean, limit:
 function NewBlockSkeleton() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <Skeleton className="h-8 w-48" />
+      <div className="mx-auto w-full max-w-6xl space-y-4">
+        <div className="flex items-center">
+          <Skeleton className="h-8 w-48" />
+        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-7 w-1/3" />
+            <Skeleton className="h-4 w-2/3" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-64 w-full" />
+          </CardContent>
+        </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-7 w-1/3" />
-          <Skeleton className="h-4 w-2/3" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-64 w-full" />
-        </CardContent>
-      </Card>
     </div>
   )
 }
@@ -81,22 +83,24 @@ export default function NewReusableBlockPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">{t('new_reusable_block_page.title')}</h1>
+      <div className="mx-auto w-full max-w-6xl space-y-4">
+        <div className="flex items-center">
+          <h1 className="font-semibold text-lg md:text-2xl">{t('new_reusable_block_page.title')}</h1>
+        </div>
+        {limitReached ? (
+          <LimitReachedView isAnonymous={isAnonymous} limit={blockLimit} />
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('new_reusable_block_page.card_title')}</CardTitle>
+              <CardDescription>{t('new_reusable_block_page.card_description')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ReusableBlockForm />
+            </CardContent>
+          </Card>
+        )}
       </div>
-      {limitReached ? (
-        <LimitReachedView isAnonymous={isAnonymous} limit={blockLimit} />
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('new_reusable_block_page.card_title')}</CardTitle>
-            <CardDescription>{t('new_reusable_block_page.card_description')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ReusableBlockForm />
-          </CardContent>
-        </Card>
-      )}
     </main>
   );
 }

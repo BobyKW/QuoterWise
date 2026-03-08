@@ -109,105 +109,107 @@ export default function ReusableBlocksPage() {
   return (
     <>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="flex items-center">
-          <h1 className="font-semibold text-lg md:text-2xl">{t('reusable_blocks_page.title')}</h1>
-          <div className="ml-auto flex items-center gap-2">
-            {limitReached ? (
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button size="sm" className="h-8 gap-1" disabled>
+        <div className="mx-auto w-full max-w-6xl space-y-4">
+          <div className="flex items-center">
+            <h1 className="font-semibold text-lg md:text-2xl">{t('reusable_blocks_page.title')}</h1>
+            <div className="ml-auto flex items-center gap-2">
+              {limitReached ? (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button size="sm" className="h-8 gap-1" disabled>
+                      <PlusCircle className="h-3.5 w-3.5" />
+                      <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                        {t('reusable_blocks_page.new_block')}
+                      </span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{isAnonymous ? t('reusable_blocks_page.anonymous_limit_reached', { count: blockLimit }) : t('reusable_blocks_page.registered_limit_reached', { count: blockLimit })}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Link href="/reusable-blocks/new">
+                  <Button size="sm" className="h-8 gap-1">
                     <PlusCircle className="h-3.5 w-3.5" />
                     <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                       {t('reusable_blocks_page.new_block')}
                     </span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isAnonymous ? t('reusable_blocks_page.anonymous_limit_reached', { count: blockLimit }) : t('reusable_blocks_page.registered_limit_reached', { count: blockLimit })}</p>
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Link href="/reusable-blocks/new">
-                <Button size="sm" className="h-8 gap-1">
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    {t('reusable_blocks_page.new_block')}
-                  </span>
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('reusable_blocks_page.card_title')}</CardTitle>
-            <CardDescription>{t('reusable_blocks_page.card_description')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('reusable_blocks_page.table_name')}</TableHead>
-                    <TableHead>{t('reusable_blocks_page.table_concept')}</TableHead>
-                    <TableHead className="text-right">{t('reusable_blocks_page.table_price')}</TableHead>
-                    <TableHead>
-                      <span className="sr-only">{t('reusable_blocks_page.table_actions')}</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading && (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center">
-                        {t('reusable_blocks_page.loading')}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {!isLoading && blocks && blocks.map((block) => (
-                    <TableRow key={block.id}>
-                      <TableCell className="font-medium">{block.name}</TableCell>
-                      <TableCell>{block.concept}</TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(block.unitPrice, userProfile?.currency || 'EUR', i18n.language)}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button aria-haspopup="true" size="icon" variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Toggle menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>{t('reusable_blocks_page.table_actions')}</DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/reusable-blocks/${block.id}/edit`}>{t('reusable_blocks_page.actions_edit')}</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                              onClick={() => handleDeleteClick(block)}
-                            >
-                              {t('reusable_blocks_page.actions_delete')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {!isLoading && (!blocks || blocks.length === 0) && (
-                      <TableRow>
-                          <TableCell colSpan={4} className="text-center">
-                          {t('reusable_blocks_page.no_blocks')}
-                          </TableCell>
-                      </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                </Link>
+              )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('reusable_blocks_page.card_title')}</CardTitle>
+              <CardDescription>{t('reusable_blocks_page.card_description')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('reusable_blocks_page.table_name')}</TableHead>
+                      <TableHead>{t('reusable_blocks_page.table_concept')}</TableHead>
+                      <TableHead className="text-right">{t('reusable_blocks_page.table_price')}</TableHead>
+                      <TableHead>
+                        <span className="sr-only">{t('reusable_blocks_page.table_actions')}</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center">
+                          {t('reusable_blocks_page.loading')}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {!isLoading && blocks && blocks.map((block) => (
+                      <TableRow key={block.id}>
+                        <TableCell className="font-medium">{block.name}</TableCell>
+                        <TableCell>{block.concept}</TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(block.unitPrice, userProfile?.currency || 'EUR', i18n.language)}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>{t('reusable_blocks_page.table_actions')}</DropdownMenuLabel>
+                              <DropdownMenuItem asChild>
+                                <Link href={`/reusable-blocks/${block.id}/edit`}>{t('reusable_blocks_page.actions_edit')}</Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                onClick={() => handleDeleteClick(block)}
+                              >
+                                {t('reusable_blocks_page.actions_delete')}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {!isLoading && (!blocks || blocks.length === 0) && (
+                        <TableRow>
+                            <TableCell colSpan={4} className="text-center">
+                            {t('reusable_blocks_page.no_blocks')}
+                            </TableCell>
+                        </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </main>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

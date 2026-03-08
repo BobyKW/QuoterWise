@@ -48,75 +48,77 @@ export default function AdminPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">{t('admin_page.title')}</h1>
-      </div>
+      <div className="mx-auto w-full max-w-6xl space-y-4">
+        <div className="flex items-center">
+          <h1 className="font-semibold text-lg md:text-2xl">{t('admin_page.title')}</h1>
+        </div>
 
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
-        <Card className="lg:col-span-2">
-            <CardHeader>
-            <CardTitle>{t('admin_page.card_title')}</CardTitle>
-            <CardDescription>{t('admin_page.card_description')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-            <div className="overflow-x-auto">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                    <TableHead>{t('admin_page.table_email')}</TableHead>
-                    <TableHead>{t('admin_page.table_business_name')}</TableHead>
-                    <TableHead className="hidden md:table-cell">{t('admin_page.table_created_at')}</TableHead>
-                    <TableHead>{t('admin_page.table_role')}</TableHead>
-                    <TableHead>{t('admin_page.table_subscription')}</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {isLoading && (
-                    <TableRow>
-                        <TableCell colSpan={5} className="text-center">
-                        {t('admin_page.loading')}
-                        </TableCell>
-                    </TableRow>
-                    )}
-                    {!isLoading && users && users.map((user) => (
-                    <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.email}</TableCell>
-                        <TableCell>{user.businessName}</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                        {formatDate(user.createdAt)}
-                        </TableCell>
-                        <TableCell>
-                        {user.role === 'admin' && (
-                            <Badge variant="destructive" className="gap-1">
-                            <Shield className="h-3.5 w-3.5" />
-                            {t('admin_page.role_admin')}
-                            </Badge>
-                        )}
-                        </TableCell>
-                        <TableCell>
-                         {user.subscriptionStatus === 'active' && (
-                            <Badge className="gap-1 bg-amber-500 text-white hover:bg-amber-600">
-                              <Star className="h-3.5 w-3.5" />
-                              {t('admin_page.subscription_pro')}
-                            </Badge>
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
+          <Card className="lg:col-span-2">
+              <CardHeader>
+              <CardTitle>{t('admin_page.card_title')}</CardTitle>
+              <CardDescription>{t('admin_page.card_description')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+              <div className="overflow-x-auto">
+                  <Table>
+                  <TableHeader>
+                      <TableRow>
+                      <TableHead>{t('admin_page.table_email')}</TableHead>
+                      <TableHead>{t('admin_page.table_business_name')}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t('admin_page.table_created_at')}</TableHead>
+                      <TableHead>{t('admin_page.table_role')}</TableHead>
+                      <TableHead>{t('admin_page.table_subscription')}</TableHead>
+                      </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                      {isLoading && (
+                      <TableRow>
+                          <TableCell colSpan={5} className="text-center">
+                          {t('admin_page.loading')}
+                          </TableCell>
+                      </TableRow>
+                      )}
+                      {!isLoading && users && users.map((user) => (
+                      <TableRow key={user.id}>
+                          <TableCell className="font-medium">{user.email}</TableCell>
+                          <TableCell>{user.businessName}</TableCell>
+                          <TableCell className="hidden md:table-cell">
+                          {formatDate(user.createdAt)}
+                          </TableCell>
+                          <TableCell>
+                          {user.role === 'admin' && (
+                              <Badge variant="destructive" className="gap-1">
+                              <Shield className="h-3.5 w-3.5" />
+                              {t('admin_page.role_admin')}
+                              </Badge>
                           )}
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                    {!isLoading && (!users || users.length === 0) && (
-                        <TableRow>
-                            <TableCell colSpan={5} className="text-center">
-                            {error ? t('admin_page.access_denied') : t('admin_page.no_users')}
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-                </Table>
-            </div>
-            </CardContent>
-        </Card>
-        <div className="lg:col-span-2">
-            <QuoteLimitsForm />
+                          </TableCell>
+                          <TableCell>
+                          {user.subscriptionStatus === 'active' && (
+                              <Badge className="gap-1 bg-amber-500 text-white hover:bg-amber-600">
+                                <Star className="h-3.5 w-3.5" />
+                                {t('admin_page.subscription_pro')}
+                              </Badge>
+                            )}
+                          </TableCell>
+                      </TableRow>
+                      ))}
+                      {!isLoading && (!users || users.length === 0) && (
+                          <TableRow>
+                              <TableCell colSpan={5} className="text-center">
+                              {error ? t('admin_page.access_denied') : t('admin_page.no_users')}
+                              </TableCell>
+                          </TableRow>
+                      )}
+                  </TableBody>
+                  </Table>
+              </div>
+              </CardContent>
+          </Card>
+          <div className="lg:col-span-2">
+              <QuoteLimitsForm />
+          </div>
         </div>
       </div>
     </main>

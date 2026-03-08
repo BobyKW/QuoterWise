@@ -53,20 +53,22 @@ export default function EditClientPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">{t('edit_client_page.title')}</h1>
+      <div className="mx-auto w-full max-w-6xl space-y-4">
+        <div className="flex items-center">
+          <h1 className="font-semibold text-lg md:text-2xl">{t('edit_client_page.title')}</h1>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('edit_client_page.card_title', { clientName: client?.companyName || t('edit_client_page.default_client_name') })}</CardTitle>
+            <CardDescription>{t('edit_client_page.card_description')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading && <ClientFormSkeleton />}
+            {!isLoading && client && <ClientForm client={client} />}
+            {!isLoading && !client && <p>{t('edit_client_page.not_found')}</p>}
+          </CardContent>
+        </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('edit_client_page.card_title', { clientName: client?.companyName || t('edit_client_page.default_client_name') })}</CardTitle>
-          <CardDescription>{t('edit_client_page.card_description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading && <ClientFormSkeleton />}
-          {!isLoading && client && <ClientForm client={client} />}
-          {!isLoading && !client && <p>{t('edit_client_page.not_found')}</p>}
-        </CardContent>
-      </Card>
     </main>
   );
 }
