@@ -45,7 +45,7 @@ export type Client = ClientDocument & {
   id: string;
 };
 
-export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'negotiating' | 'expired';
+export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'negotiating' | 'expired' | 'paid';
 
 // This represents the data for a single item within a quote.
 // It is stored in a subcollection.
@@ -95,7 +95,7 @@ export type QuoteDocument = {
   status: QuoteStatus;
   subtotal: number;
   totalDiscount: number;
-  totalTax: number;
+ar: number;
   finalTotal: number;
   currency: string;
   createdAt: Timestamp;

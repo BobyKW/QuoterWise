@@ -63,7 +63,7 @@ const quoteFormSchema = z.object({
   clientName: z.string().min(1, 'Client name is required.'),
   quoteNumber: z.string().min(1, 'Quote number is required.'),
   issueDate: z.date(),
-  status: z.enum(['draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired']),
+  status: z.enum(['draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired', 'paid']),
   items: z.array(quoteItemSchema).min(1, 'At least one item is required.'),
 });
 
@@ -506,6 +506,7 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
                     <SelectItem value="rejected">{t('quote_form.status_rejected')}</SelectItem>
                     <SelectItem value="negotiating">{t('quote_form.status_negotiating')}</SelectItem>
                     <SelectItem value="expired">{t('quote_form.status_expired')}</SelectItem>
+                    <SelectItem value="paid">{t('quote_form.status_paid')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

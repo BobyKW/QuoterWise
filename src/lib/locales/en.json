@@ -20,7 +20,7 @@
     "title": "Dashboard",
     "welcome_back": "Welcome back! Here's a summary of your activity.",
     "total_revenue": "Total Revenue",
-    "total_revenue_desc": "From accepted quotes",
+    "total_revenue_desc": "From paid quotes",
     "accepted_quotes": "Accepted Quotes",
     "accepted_quotes_desc": "All-time accepted quotes",
     "total_quotes": "Total Quotes",
@@ -42,7 +42,7 @@
     "description": "Visualize your quote activity over time.",
     "pick_a_date": "Pick a date",
     "revenue_title": "Revenue Analytics",
-    "revenue_description": "Track your revenue from accepted quotes.",
+    "revenue_description": "Track your revenue from paid quotes.",
     "revenue": "Revenue",
     "accepted_quotes": "Accepted Quotes",
     "total_revenue": "Total Revenue",
@@ -54,7 +54,8 @@
     "status_accepted": "Accepted",
     "status_rejected": "Rejected",
     "status_negotiating": "Negotiating",
-    "status_expired": "Expired"
+    "status_expired": "Expired",
+    "status_paid": "Paid"
   },
   "quotes_page": {
     "title": "Quotes",
@@ -149,6 +150,7 @@
     "status_rejected": "Rejected",
     "status_negotiating": "Negotiating",
     "status_expired": "Expired",
+    "status_paid": "Paid",
     "items": "Items",
     "add_item": "Add Item",
     "add_from_block": "Add from Block",

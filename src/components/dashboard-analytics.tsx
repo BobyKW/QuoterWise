@@ -65,7 +65,7 @@ function DatePickerWithRange({
   );
 }
 
-const ALL_STATUSES: (QuoteStatus | 'created')[] = ['created', 'draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired'];
+const ALL_STATUSES: (QuoteStatus | 'created')[] = ['created', 'draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired', 'paid'];
 
 export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
   const { t } = useTranslation();
@@ -82,6 +82,7 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
     rejected: false,
     negotiating: false,
     expired: false,
+    paid: true,
   });
 
   const { user } = useUser();
@@ -103,6 +104,7 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
     rejected: { color: 'hsl(var(--chart-1))', label: t('dashboard_analytics.status_rejected') },
     negotiating: { color: 'hsl(var(--chart-4))', label: t('dashboard_analytics.status_negotiating') },
     expired: { color: 'hsl(var(--chart-5))', label: t('dashboard_analytics.status_expired') },
+    paid: { color: '#10B981', label: t('dashboard_analytics.status_paid') },
   };
 
   const chartData = useMemo(() => {
@@ -136,7 +138,7 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
       if (dayData) {
         dayData.created += 1;
         dayData[quote.status] = (dayData[quote.status] || 0) + 1;
-        if (quote.status === 'accepted') {
+        if (quote.status === 'paid') {
           dayData.revenue += quote.finalTotal;
         }
       }

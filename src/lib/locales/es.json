@@ -20,7 +20,7 @@
     "title": "Dashboard",
     "welcome_back": "¡Bienvenido de nuevo! Aquí tienes un resumen de tu actividad.",
     "total_revenue": "Ingresos Totales",
-    "total_revenue_desc": "De presupuestos aceptados",
+    "total_revenue_desc": "De presupuestos pagados",
     "accepted_quotes": "Presupuestos Aceptados",
     "accepted_quotes_desc": "Historial de aceptados",
     "total_quotes": "Presupuestos Totales",
@@ -42,7 +42,7 @@
     "description": "Visualiza la actividad de tus presupuestos a lo largo del tiempo.",
     "pick_a_date": "Elige una fecha",
     "revenue_title": "Análisis de Ingresos",
-    "revenue_description": "Sigue tus ingresos de los presupuestos aceptados.",
+    "revenue_description": "Sigue tus ingresos de los presupuestos pagados.",
     "revenue": "Ingresos",
     "accepted_quotes": "Presupuestos Aceptados",
     "total_revenue": "Ingresos Totales",
@@ -54,7 +54,8 @@
     "status_accepted": "Aceptados",
     "status_rejected": "Rechazados",
     "status_negotiating": "En negociación",
-    "status_expired": "Expirados"
+    "status_expired": "Expirados",
+    "status_paid": "Pagados"
   },
   "quotes_page": {
     "title": "Presupuestos",
@@ -149,6 +150,7 @@
     "status_rejected": "Rechazado",
     "status_negotiating": "En negociación",
     "status_expired": "Expirado",
+    "status_paid": "Pagado",
     "items": "Conceptos",
     "add_item": "Añadir Concepto",
     "add_from_block": "Añadir desde Bloque",

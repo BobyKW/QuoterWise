@@ -94,7 +94,7 @@ export default function DashboardPage() {
   const totalClients = clients?.length || 0;
   const totalAccepted = quotes?.filter(q => q.status === 'accepted').length || 0;
   const totalRevenue = quotes
-    ?.filter(q => q.status === 'accepted')
+    ?.filter(q => q.status === 'paid')
     .reduce((sum, q) => sum + q.finalTotal, 0) || 0;
   
   const isAnonymous = user?.isAnonymous ?? true;

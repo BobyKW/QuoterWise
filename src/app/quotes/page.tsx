@@ -66,6 +66,7 @@ const statusStyles: Record<QuoteStatus, string> = {
   rejected: 'bg-red-100 text-red-800 border-transparent dark:bg-red-900/50 dark:text-red-300',
   negotiating: 'bg-yellow-100 text-yellow-800 border-transparent dark:bg-yellow-900/50 dark:text-yellow-300',
   expired: 'bg-purple-100 text-purple-800 border-transparent dark:bg-purple-900/50 dark:text-purple-300',
+  paid: 'bg-emerald-100 text-emerald-800 border-transparent dark:bg-emerald-900/50 dark:text-emerald-300',
 };
 
 function formatCurrency(amount: number, currency: string, locale: string) {
@@ -84,7 +85,7 @@ function formatDate(date: Date | Timestamp) {
     });
 }
 
-const statusOptions: (QuoteStatus | 'all')[] = ['all', 'draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired'];
+const statusOptions: (QuoteStatus | 'all')[] = ['all', 'draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired', 'paid'];
 
 export default function QuotesPage() {
   const { user } = useUser();
