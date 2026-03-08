@@ -78,7 +78,8 @@
   "edit_quote_page": {
     "title": "Edit Quote",
     "card_title": "Edit Quote {quoteNumber}",
-    "card_description": "Update the details of your quote."
+    "card_description": "Update the details of your quote.",
+    "not_found": "Quote not found."
   },
   "view_quote_page": {
     "title": "Quote {quoteNumber}",
@@ -95,11 +96,16 @@
     "table_unit_price": "Unit Price",
     "table_total": "Total",
     "subtotal": "Subtotal",
+    "discount": "Discount",
     "total_tax": "Total Tax",
     "final_total": "Total",
-    "terms_conditions": "Terms & Conditions"
+    "terms_conditions": "Terms & Conditions",
+    "email_label": "Email",
+    "phone_label": "Phone"
   },
   "quote_form": {
+    "title": "Title",
+    "title_placeholder": "e.g. Bathroom Remodel Project",
     "client": "Client",
     "new_client": "New Client",
     "new_client_dialog_title": "Create New Client",
@@ -144,10 +150,13 @@
     "add_from_block_dialog_description": "Select a block to add it as a new item to your quote.",
     "loading_blocks": "Loading blocks...",
     "no_blocks_found": "No reusable blocks found.",
-    "create_first_block": "Create your first block"
+    "create_first_block": "Create your first block",
+    "default_section_name": "General Concepts",
+    "default_section_description": "List of products and services included in the quote."
   },
   "clients_page": {
     "title": "Clients",
+    "client": "Client",
     "new_client": "New Client",
     "card_title": "Client List",
     "card_description": "Manage your clients.",
@@ -175,7 +184,8 @@
   "edit_client_page": {
     "title": "Edit Client",
     "card_title": "Edit {clientName}",
-    "card_description": "Update the details for this client."
+    "card_description": "Update the details for this client.",
+    "not_found": "Client not found."
   },
   "client_form": {
     "company_name": "Company Name",
@@ -234,7 +244,9 @@
   "edit_reusable_block_page": {
     "title": "Edit Block",
     "card_title": "Edit {blockName}",
-    "card_description": "Update the details of this reusable block."
+    "card_description": "Update the details of this reusable block.",
+    "block_fallback": "Block",
+    "not_found": "Block not found."
   },
   "reusable_block_form": {
     "block_name": "Block Name",
@@ -269,7 +281,9 @@
     "currency": "Currency",
     "currency_description": "Choose your default currency for quotes.",
     "integrations_title": "Integrations",
-    "integrations_description": "Manage API keys for third-party services."
+    "integrations_description": "Manage API keys for third-party services.",
+    "localisation_title": "Localisation",
+    "localisation_description": "Set your language and currency preferences."
   },
   "settings_form": {
     "business_name": "Business Name",
@@ -324,7 +338,13 @@
   "errors": {
     "login_failed": "Login Failed",
     "enter_email_password": "Please enter both email and password.",
-    "registration_failed": "Registration Failed"
+    "registration_failed": "Registration Failed",
+    "not_logged_in_title": "Error",
+    "not_logged_in_description": "You must be logged in to manage quotes.",
+    "no_quote_id_title": "Error",
+    "no_quote_id_description": "Could not determine quote ID.",
+    "quote_save_failed_title": "Error Saving Quote",
+    "quote_save_failed_description": "An unexpected error occurred. Please try again."
   },
   "toasts": {
     "client_deleted_title": "Client deleted",

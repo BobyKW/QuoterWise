@@ -78,7 +78,8 @@
   "edit_quote_page": {
     "title": "Editar Presupuesto",
     "card_title": "Editar Presupuesto {quoteNumber}",
-    "card_description": "Actualiza los detalles de tu presupuesto."
+    "card_description": "Actualiza los detalles de tu presupuesto.",
+    "not_found": "Presupuesto no encontrado."
   },
   "view_quote_page": {
     "title": "Presupuesto {quoteNumber}",
@@ -95,11 +96,16 @@
     "table_unit_price": "Precio Unitario",
     "table_total": "Total",
     "subtotal": "Subtotal",
+    "discount": "Descuento",
     "total_tax": "Total Impuestos",
     "final_total": "Total",
-    "terms_conditions": "Términos y Condiciones"
+    "terms_conditions": "Términos y Condiciones",
+    "email_label": "Email",
+    "phone_label": "Teléfono"
   },
   "quote_form": {
+    "title": "Título",
+    "title_placeholder": "Ej: Proyecto de reforma de baño",
     "client": "Cliente",
     "new_client": "Nuevo Cliente",
     "new_client_dialog_title": "Crear Nuevo Cliente",
@@ -144,10 +150,13 @@
     "add_from_block_dialog_description": "Selecciona un bloque para añadirlo como un nuevo concepto a tu presupuesto.",
     "loading_blocks": "Cargando bloques...",
     "no_blocks_found": "No se encontraron bloques reutilizables.",
-    "create_first_block": "Crea tu primer bloque"
+    "create_first_block": "Crea tu primer bloque",
+    "default_section_name": "Conceptos Generales",
+    "default_section_description": "Lista de productos y servicios incluidos en el presupuesto."
   },
   "clients_page": {
     "title": "Clientes",
+    "client": "Cliente",
     "new_client": "Nuevo Cliente",
     "card_title": "Lista de Clientes",
     "card_description": "Gestiona tus clientes.",
@@ -175,7 +184,8 @@
   "edit_client_page": {
     "title": "Editar Cliente",
     "card_title": "Editar {clientName}",
-    "card_description": "Actualiza los detalles de este cliente."
+    "card_description": "Actualiza los detalles de este cliente.",
+    "not_found": "Cliente no encontrado."
   },
   "client_form": {
     "company_name": "Nombre de la Empresa",
@@ -234,7 +244,9 @@
   "edit_reusable_block_page": {
     "title": "Editar Bloque",
     "card_title": "Editar {blockName}",
-    "card_description": "Actualiza los detalles de este bloque reutilizable."
+    "card_description": "Actualiza los detalles de este bloque reutilizable.",
+    "block_fallback": "Bloque",
+    "not_found": "Bloque no encontrado."
   },
   "reusable_block_form": {
     "block_name": "Nombre del Bloque",
@@ -269,7 +281,9 @@
     "currency": "Moneda",
     "currency_description": "Elige tu moneda por defecto para los presupuestos.",
     "integrations_title": "Integraciones",
-    "integrations_description": "Gestiona las claves de API para servicios de terceros."
+    "integrations_description": "Gestiona las claves de API para servicios de terceros.",
+    "localisation_title": "Localización",
+    "localisation_description": "Configura tu idioma y moneda preferidos."
   },
   "settings_form": {
     "business_name": "Nombre del Negocio",
@@ -324,7 +338,13 @@
   "errors": {
     "login_failed": "Fallo de inicio de sesión",
     "enter_email_password": "Por favor, introduce email y contraseña.",
-    "registration_failed": "Fallo en el registro"
+    "registration_failed": "Fallo en el registro",
+    "not_logged_in_title": "Error",
+    "not_logged_in_description": "Debes iniciar sesión para gestionar presupuestos.",
+    "no_quote_id_title": "Error",
+    "no_quote_id_description": "No se pudo determinar el ID del presupuesto.",
+    "quote_save_failed_title": "Error al Guardar Presupuesto",
+    "quote_save_failed_description": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
   },
   "toasts": {
     "client_deleted_title": "Cliente eliminado",

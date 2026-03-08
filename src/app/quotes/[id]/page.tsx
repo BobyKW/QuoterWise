@@ -157,15 +157,15 @@ export default function QuoteViewPage() {
         pdf.save(`Quote-${quote.quoteNumber}.pdf`);
 
         toast({
-            title: "Download Started",
-            description: `Quote-${quote.quoteNumber}.pdf is being downloaded.`
+            title: t('toasts.download_started_title'),
+            description: t('toasts.download_started_description', { quoteNumber: quote.quoteNumber })
         });
     } catch (error) {
         console.error("Error generating PDF", error);
         toast({
             variant: "destructive",
-            title: "Download Failed",
-            description: "An error occurred while generating the PDF."
+            title: t('toasts.download_failed_title'),
+            description: t('toasts.download_failed_description')
         })
     } finally {
         setIsDownloading(false);
@@ -249,8 +249,8 @@ export default function QuoteViewPage() {
               <h2 className="text-2xl font-bold text-gray-900">{userProfile?.businessName || 'Your Company'}</h2>
               <p className="text-sm text-gray-500 whitespace-pre-line">{userProfile?.address}</p>
               <p className="text-sm text-gray-500">{userProfile?.city}, {userProfile?.country}</p>
-              <p className="text-sm text-gray-500">Email: {userProfile?.email}</p>
-              <p className="text-sm text-gray-500">Phone: {userProfile?.phone}</p>
+              <p className="text-sm text-gray-500">{t('view_quote_page.email_label')}: {userProfile?.email}</p>
+              <p className="text-sm text-gray-500">{t('view_quote_page.phone_label')}: {userProfile?.phone}</p>
             </div>
             <div className="text-left md:text-right w-full md:w-auto flex-shrink-0">
               <h1 className="text-4xl font-bold uppercase text-gray-800 tracking-tight">{t('view_quote_page.header_title')}</h1>
@@ -288,7 +288,7 @@ export default function QuoteViewPage() {
                 <span className="text-gray-700">{formatCurrency(quote.subtotal, userProfile?.currency)}</span>
               </div>
                <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t('view_quote_page.discount', 'Discount')}</span>
+                <span className="text-gray-500">{t('view_quote_page.discount')}</span>
                 <span className="text-gray-700">- {formatCurrency(quote.totalDiscount, userProfile?.currency)}</span>
               </div>
               <div className="flex justify-between text-sm">

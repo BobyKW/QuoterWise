@@ -7,6 +7,7 @@ import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Client } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from 'react-i18next';
 
 function ClientFormSkeleton() {
     return (
@@ -41,6 +42,7 @@ export default function EditClientPage() {
   const { id } = useParams();
   const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useTranslation();
 
   const clientRef = useMemoFirebase(() => {
     if (!id || !user) return null;
@@ -52,17 +54,17 @@ export default function EditClientPage() {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">Edit Client</h1>
+        <h1 className="font-semibold text-lg md:text-2xl">{t('edit_client_page.title')}</h1>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Edit {client?.companyName || 'Client'}</CardTitle>
-          <CardDescription>Update the details for this client.</CardDescription>
+          <CardTitle>{t('edit_client_page.card_title', { clientName: client?.companyName || t('clients_page.client') })}</CardTitle>
+          <CardDescription>{t('edit_client_page.card_description')}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading && <ClientFormSkeleton />}
           {!isLoading && client && <ClientForm client={client} />}
-          {!isLoading && !client && <p>Client not found.</p>}
+          {!isLoading && !client && <p>{t('edit_client_page.not_found')}</p>}
         </CardContent>
       </Card>
     </main>
