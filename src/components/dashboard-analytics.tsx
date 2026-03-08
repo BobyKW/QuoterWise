@@ -87,6 +87,7 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
     if (!quotes) return [];
     
     const filteredQuotes = quotes.filter(quote => {
+        if (!quote.issueDate) return false;
         const quoteDate = quote.issueDate.toDate();
         return date?.from && date?.to && isWithinInterval(quoteDate, { start: date.from, end: date.to });
     });
