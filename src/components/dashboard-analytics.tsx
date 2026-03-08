@@ -33,7 +33,7 @@ function DatePickerWithRange({
           <Button
             id="date"
             variant={'outline'}
-            className={cn('w-[300px] justify-start text-left font-normal', !date && 'text-muted-foreground')}
+            className={cn('w-full md:w-[300px] justify-start text-left font-normal', !date && 'text-muted-foreground')}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date?.from ? (
@@ -122,7 +122,7 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
         <CardHeader>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <CardTitle>{t('dashboard_analytics.title')}</CardTitle>
+              <CardTitle className="text-xl md:text-2xl">{t('dashboard_analytics.title')}</CardTitle>
               <CardDescription>{t('dashboard_analytics.description')}</CardDescription>
             </div>
             <DatePickerWithRange date={date} setDate={setDate} />
@@ -148,7 +148,7 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
       </Card>
       <Card>
         <CardHeader>
-            <CardTitle>{t('dashboard_analytics.revenue_title')}</CardTitle>
+            <CardTitle className="text-xl md:text-2xl">{t('dashboard_analytics.revenue_title')}</CardTitle>
             <CardDescription>{t('dashboard_analytics.revenue_description')}</CardDescription>
         </CardHeader>
         <CardContent>

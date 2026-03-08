@@ -155,13 +155,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-4 md:gap-8 md:p-8">
+    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div>
-        <h1 className="font-semibold text-3xl">{t('dashboard_page.title')}</h1>
-        <p className="text-muted-foreground">{t('dashboard_page.welcome_back')}</p>
+        <h1 className="font-semibold text-2xl md:text-3xl">{t('dashboard_page.title')}</h1>
+        <p className="text-muted-foreground text-sm md:text-base">{t('dashboard_page.welcome_back')}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map(card => (
             <Card key={card.title}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -176,11 +176,11 @@ export default function DashboardPage() {
         ))}
       </div>
       
-      {quotes && <DashboardAnalytics quotes={quotes} />}
+      {quotes && quotes.length > 0 && <DashboardAnalytics quotes={quotes} />}
 
        <div>
-            <h2 className="font-semibold text-2xl mb-4">{t('dashboard_page.quick_links_title')}</h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <h2 className="font-semibold text-xl md:text-2xl mb-4">{t('dashboard_page.quick_links_title')}</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {actionCards.map((card, index) => {
                 const cardComponent = (
                     <Link href={card.disabled ? '#' : card.href} className="block group">
