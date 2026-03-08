@@ -15,17 +15,14 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
-  const isMultiMonth = (props.numberOfMonths || 1) > 1;
+  const isMultiMonth = (props.numberOfMonths || 1) > 1
 
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("p-3", isMultiMonth && "relative", className)}
       classNames={{
-        months: cn(
-          "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-          isMultiMonth && "pb-8" // Add padding for bottom nav
-        ),
+        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
@@ -39,7 +36,7 @@ function Calendar({
         ),
         nav_button_previous: cn(!isMultiMonth && "absolute left-1"), // Only apply absolute for single month
         nav_button_next: cn(!isMultiMonth && "absolute right-1"), // Only apply absolute for single month
-        table: "w-full border-collapse space-y-1",
+        table: "w-full border-collapse",
         head_row: "flex",
         head_cell:
           "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
