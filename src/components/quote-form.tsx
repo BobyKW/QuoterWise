@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon, Library, Loader2, PlusCircle, Trash2, Wand2 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { es, enUS } from 'date-fns/locale';
 import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';
 import {
@@ -341,6 +342,16 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: userProfile?.currency || 'EUR' }).format(amount);
 
+  const calendarLocale = i18n.language.startsWith('es') ? es : enUS;
+  const calendarWeekStartsOn = i18n.language.startsWith('es') ? 1 : 0;
+  
+  const spanishWeekdays = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+  const formatWeekday = (date: Date) => {
+    return spanishWeekdays[date.getDay()];
+  };
+  const calendarFormatters = i18n.language.startsWith('es') ? { formatWeekday } : {};
+
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -452,7 +463,7 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
                         )}
                       >
                         {field.value ? (
-                          format(field.value, 'PPP')
+                          format(field.value, 'PPP', { locale: calendarLocale })
                         ) : (
                           <span>{t('quote_form.pick_date')}</span>
                         )}
@@ -466,6 +477,9 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
                       selected={field.value}
                       onSelect={field.onChange}
                       initialFocus
+                      locale={calendarLocale}
+                      weekStartsOn={calendarWeekStartsOn as (0 | 1 | 2 | 3 | 4 | 5 | 6)}
+                      formatters={calendarFormatters}
                     />
                   </PopoverContent>
                 </Popover>
