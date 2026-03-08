@@ -4,6 +4,7 @@ import {
   MoreHorizontal,
   PlusCircle,
   Loader2,
+  XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -45,13 +46,18 @@ import type { Quote, QuoteStatus, UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, Timestamp, doc, writeBatch, getDocs } from 'firebase/firestore';
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { QuotePDFDownloader } from '@/components/quote-pdf-downloader';
 import { useAuthModal } from '@/hooks/use-auth-modal';
 import { useQuoteLimits } from '@/hooks/use-quote-limits';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { DateRange } from 'react-day-picker';
+import { DatePickerWithRange } from '@/components/date-picker-with-range';
+import { endOfDay, isWithinInterval } from 'date-fns';
 
 const statusStyles: Record<QuoteStatus, string> = {
   draft: 'bg-gray-100 text-gray-800 border-transparent dark:bg-gray-800 dark:text-gray-300',
@@ -78,6 +84,8 @@ function formatDate(date: Date | Timestamp) {
     });
 }
 
+const statusOptions: (QuoteStatus | 'all')[] = ['all', 'draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired'];
+
 export default function QuotesPage() {
   const { user } = useUser();
   const firestore = useFirestore();
@@ -92,6 +100,12 @@ export default function QuotesPage() {
   const [quoteToDownload, setQuoteToDownload] = React.useState<Quote | null>(null);
   const [isDownloading, setIsDownloading] = React.useState<string | null>(null);
 
+  // Filter and sort states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
   const { limits, isLoading: isLoadingLimits, isPro } = useQuoteLimits();
 
   const userProfileRef = useMemoFirebase(() => {
@@ -100,12 +114,10 @@ export default function QuotesPage() {
   }, [user, firestore]);
   const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
-
   const quotesQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
-      collection(firestore, `userProfiles/${user.uid}/quotes`),
-      orderBy('createdAt', 'desc')
+      collection(firestore, `userProfiles/${user.uid}/quotes`)
     );
   }, [user, firestore]);
 
@@ -116,6 +128,45 @@ export default function QuotesPage() {
   const isAnonymous = user?.isAnonymous ?? true;
   const quoteLimit = isAnonymous ? limits.anonymousQuoteLimit : limits.registeredQuoteLimit;
   const limitReached = !isPro && quoteCount >= quoteLimit;
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setSortOrder('desc');
+    setDateRange(undefined);
+  };
+  
+  const filteredAndSortedQuotes = useMemo(() => {
+    if (!quotes) return [];
+    let filtered = quotes
+      .filter(quote => {
+        // Search term filter
+        const searchLower = searchTerm.toLowerCase();
+        const clientMatch = quote.clientName?.toLowerCase().includes(searchLower);
+        const numberMatch = quote.quoteNumber.toLowerCase().includes(searchLower);
+        return clientMatch || numberMatch;
+      })
+      .filter(quote => {
+        // Status filter
+        return statusFilter === 'all' || quote.status === statusFilter;
+      })
+      .filter(quote => {
+          // Date range filter
+          if (!dateRange?.from || !quote.issueDate) return true;
+          const quoteDate = quote.issueDate.toDate();
+          const toDate = dateRange.to || dateRange.from;
+          return isWithinInterval(quoteDate, { start: dateRange.from, end: endOfDay(toDate) });
+      });
+
+    // Sorting
+    return [...filtered].sort((a, b) => {
+      const dateA = a.createdAt?.toDate().getTime() || 0;
+      const dateB = b.createdAt?.toDate().getTime() || 0;
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+    
+  }, [quotes, searchTerm, statusFilter, sortOrder, dateRange]);
+
 
   const handleDeleteClick = (quote: Quote) => {
     setQuoteToDelete(quote);
@@ -212,6 +263,51 @@ export default function QuotesPage() {
               )}
             </div>
           </div>
+
+          <Card>
+            <CardContent className="p-4 flex flex-col md:flex-row items-center gap-4">
+                <Input 
+                    placeholder={t('quotes_page.filter_search_placeholder')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="md:max-w-xs"
+                />
+                <div className="flex w-full flex-col sm:flex-row md:w-auto items-center gap-4 md:ml-auto">
+                    <div className="grid grid-cols-2 sm:flex items-center gap-4 w-full">
+                        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder={t('quotes_page.filter_status')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {statusOptions.map(status => (
+                                    <SelectItem key={status} value={status}>
+                                        {status === 'all' ? t('quotes_page.filter_all_statuses') : t(`quote_form.status_${status}`)}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                         <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as 'desc' | 'asc')}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder={t('quotes_page.filter_sort_by')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="desc">{t('quotes_page.filter_sort_newest')}</SelectItem>
+                                <SelectItem value="asc">{t('quotes_page.filter_sort_oldest')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="w-full sm:w-auto">
+                        <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+                     </div>
+                    <Button variant="ghost" onClick={clearFilters} className="w-full sm:w-auto">
+                      <XCircle className="mr-2 h-4 w-4" />
+                      {t('quotes_page.filter_clear')}
+                    </Button>
+                </div>
+            </CardContent>
+          </Card>
+
+
           <Card>
             <CardHeader>
               <CardTitle>{t('quotes_page.card_title')}</CardTitle>
@@ -235,12 +331,12 @@ export default function QuotesPage() {
                   <TableBody>
                     {isLoading && (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center">
+                        <TableCell colSpan={6} className="text-center h-24">
                           {t('quotes_page.loading')}
                         </TableCell>
                       </TableRow>
                     )}
-                    {!isLoading && quotes && quotes.map((quote) => (
+                    {!isLoading && filteredAndSortedQuotes.length > 0 && filteredAndSortedQuotes.map((quote) => (
                       <TableRow key={quote.id}>
                         <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
                         <TableCell>{quote.clientName}</TableCell>
@@ -296,9 +392,9 @@ export default function QuotesPage() {
                         </TableCell>
                       </TableRow>
                     ))}
-                    {!isLoading && (!quotes || quotes.length === 0) && (
+                    {!isLoading && (filteredAndSortedQuotes.length === 0) && (
                         <TableRow>
-                            <TableCell colSpan={6} className="text-center">
+                            <TableCell colSpan={6} className="text-center h-24">
                             {t('quotes_page.no_quotes')}
                             </TableCell>
                         </TableRow>

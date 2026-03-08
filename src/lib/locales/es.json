@@ -54,7 +54,7 @@
     "title": "Presupuestos",
     "new_quote": "Nuevo Presupuesto",
     "card_title": "Gestionar Presupuestos",
-    "card_description": "Aquí están todos los presupuestos que has creado.",
+    "card_description": "Filtra, busca y gestiona todos tus presupuestos creados.",
     "table_number": "Número",
     "table_client": "Cliente",
     "table_date": "Fecha",
@@ -75,7 +75,14 @@
     "toast_coming_soon_title": "¡Próximamente!",
     "toast_coming_soon_description": "La duplicación de presupuestos estará disponible pronto.",
     "anonymous_limit_reached": "Invitados pueden crear {count} presupuestos. Regístrate para crear más.",
-    "registered_limit_reached": "Has alcanzado tu límite de {count} presupuestos."
+    "registered_limit_reached": "Has alcanzado tu límite de {count} presupuestos.",
+    "filter_search_placeholder": "Buscar por cliente o número...",
+    "filter_status": "Estado",
+    "filter_all_statuses": "Todos los Estados",
+    "filter_sort_by": "Ordenar por",
+    "filter_sort_newest": "Más nuevos primero",
+    "filter_sort_oldest": "Más antiguos primero",
+    "filter_clear": "Limpiar Filtros"
   },
   "new_quote_page": {
     "title": "Nuevo Presupuesto",

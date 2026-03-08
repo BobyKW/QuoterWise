@@ -54,7 +54,7 @@
     "title": "Quotes",
     "new_quote": "New Quote",
     "card_title": "Manage Quotes",
-    "card_description": "Here are all the quotes you have created.",
+    "card_description": "Filter, search, and manage all your created quotes.",
     "table_number": "Number",
     "table_client": "Client",
     "table_date": "Date",
@@ -75,7 +75,14 @@
     "toast_coming_soon_title": "Coming Soon!",
     "toast_coming_soon_description": "Duplicating quotes will be available soon.",
     "anonymous_limit_reached": "Guests can create {count} quotes. Sign up for more.",
-    "registered_limit_reached": "You've reached your limit of {count} quotes."
+    "registered_limit_reached": "You've reached your limit of {count} quotes.",
+    "filter_search_placeholder": "Search by client or number...",
+    "filter_status": "Status",
+    "filter_all_statuses": "All Statuses",
+    "filter_sort_by": "Sort by",
+    "filter_sort_newest": "Newest first",
+    "filter_sort_oldest": "Oldest first",
+    "filter_clear": "Clear Filters"
   },
   "new_quote_page": {
     "title": "New Quote",
