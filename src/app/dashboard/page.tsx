@@ -91,6 +91,7 @@ export default function DashboardPage() {
 
   const totalQuotes = quotes?.length || 0;
   const totalClients = clients?.length || 0;
+  const totalBlocks = blocks?.length || 0;
   const totalAccepted = quotes?.filter(q => q.status === 'accepted').length || 0;
   
   const isAnonymous = user?.isAnonymous ?? true;
