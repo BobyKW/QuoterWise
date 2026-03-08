@@ -5,16 +5,17 @@ import { Line, LineChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, X
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { DateRange } from 'react-day-picker';
 import { subDays, format, isWithinInterval, eachDayOfInterval } from 'date-fns';
-import type { Quote } from '@/lib/types';
+import type { Quote, QuoteStatus } from '@/lib/types';
 import { useTranslation } from 'react-i18next';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, ChevronDown } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
 
 function DatePickerWithRange({
   className,
@@ -64,6 +65,8 @@ function DatePickerWithRange({
   );
 }
 
+const ALL_STATUSES: (QuoteStatus | 'created')[] = ['created', 'draft', 'sent', 'accepted', 'rejected', 'negotiating', 'expired'];
+
 export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
   const { t } = useTranslation();
   const [date, setDate] = useState<DateRange | undefined>({
@@ -71,6 +74,16 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
     to: new Date(),
   });
   
+  const [visibleLines, setVisibleLines] = useState<Record<string, boolean>>({
+    created: true,
+    draft: false,
+    sent: false,
+    accepted: true,
+    rejected: false,
+    negotiating: false,
+    expired: false,
+  });
+
   const { user } = useUser();
   const firestore = useFirestore();
   const userProfileRef = useMemoFirebase(() => {
@@ -81,7 +94,16 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: userProfile?.currency || 'EUR' }).format(amount);
-
+  
+  const lineConfig: Record<string, { color: string; label: string }> = {
+    created: { color: 'hsl(var(--primary))', label: t('dashboard_analytics.status_created') },
+    draft: { color: 'hsl(var(--muted-foreground))', label: t('dashboard_analytics.status_draft') },
+    sent: { color: 'hsl(var(--chart-3))', label: t('dashboard_analytics.status_sent') },
+    accepted: { color: 'hsl(var(--chart-2))', label: t('dashboard_analytics.status_accepted') },
+    rejected: { color: 'hsl(var(--chart-1))', label: t('dashboard_analytics.status_rejected') },
+    negotiating: { color: 'hsl(var(--chart-4))', label: t('dashboard_analytics.status_negotiating') },
+    expired: { color: 'hsl(var(--chart-5))', label: t('dashboard_analytics.status_expired') },
+  };
 
   const chartData = useMemo(() => {
     if (!quotes || !date?.from || !date?.to) {
@@ -89,12 +111,16 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
     }
 
     const allDays = eachDayOfInterval({ start: date.from, end: date.to });
-    const dataMap = new Map<string, { date: string; created: number; accepted: number; revenue: number }>();
+    const dataMap = new Map<string, any>();
 
     allDays.forEach(day => {
       const formattedDateKey = format(day, 'yyyy-MM-dd');
       const formattedDateLabel = format(day, 'MMM d');
-      dataMap.set(formattedDateKey, { date: formattedDateLabel, created: 0, accepted: 0, revenue: 0 });
+      const initialData: any = { date: formattedDateLabel, created: 0, revenue: 0 };
+      ALL_STATUSES.forEach(status => {
+        if(status !== 'created') initialData[status] = 0;
+      });
+      dataMap.set(formattedDateKey, initialData);
     });
 
     const filteredQuotes = quotes.filter(quote => {
@@ -109,8 +135,8 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
 
       if (dayData) {
         dayData.created += 1;
+        dayData[quote.status] = (dayData[quote.status] || 0) + 1;
         if (quote.status === 'accepted') {
-          dayData.accepted += 1;
           dayData.revenue += quote.finalTotal;
         }
       }
@@ -132,7 +158,33 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
               <CardTitle className="text-xl md:text-2xl">{t('dashboard_analytics.title')}</CardTitle>
               <CardDescription>{t('dashboard_analytics.description')}</CardDescription>
             </div>
-            <DatePickerWithRange date={date} setDate={setDate} />
+            <div className="flex flex-wrap items-center gap-2">
+              <DatePickerWithRange date={date} setDate={setDate} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="ml-auto">
+                    {t('dashboard_analytics.show_hide_lines')}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{t('dashboard_analytics.toggle_lines')}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {ALL_STATUSES.map((status) => (
+                    <DropdownMenuCheckboxItem
+                      key={status}
+                      className="capitalize"
+                      checked={visibleLines[status]}
+                      onCheckedChange={(checked) =>
+                        setVisibleLines((prev) => ({ ...prev, [status]: !!checked }))
+                      }
+                    >
+                      {t(`dashboard_analytics.status_${status}`)}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -146,8 +198,19 @@ export function DashboardAnalytics({ quotes }: { quotes: Quote[] }) {
                         contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
                       />
                       <Legend />
-                      <Line type="monotone" dataKey="created" name={t('dashboard_analytics.created')} stroke="hsl(var(--primary))" strokeWidth={2} dot={false} activeDot={{ r: 8 }} />
-                      <Line type="monotone" dataKey="accepted" name={t('dashboard_analytics.accepted')} stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} activeDot={{ r: 8 }} />
+                      {Object.entries(lineConfig).map(([key, config]) => (
+                        <Line
+                            key={key}
+                            hide={!visibleLines[key as keyof typeof visibleLines]}
+                            type="monotone"
+                            dataKey={key}
+                            name={config.label}
+                            stroke={config.color}
+                            strokeWidth={2}
+                            dot={false}
+                            activeDot={{ r: 8 }}
+                        />
+                      ))}
                   </LineChart>
               </ResponsiveContainer>
             </div>
