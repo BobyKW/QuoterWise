@@ -119,8 +119,8 @@ export function SettingsForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card>
             <CardHeader>
-                <CardTitle>Localisation</CardTitle>
-                <CardDescription>Set your language and currency preferences.</CardDescription>
+                <CardTitle>{t('settings_page.localisation_title')}</CardTitle>
+                <CardDescription>{t('settings_page.localisation_description')}</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <div className="space-y-2">

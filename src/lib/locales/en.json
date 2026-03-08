@@ -18,6 +18,7 @@
   },
   "dashboard_page": {
     "title": "Dashboard",
+    "at_a_glance": "At a Glance",
     "new_quote": "New Quote",
     "total_quotes": "Total Quotes",
     "total_clients": "Total Clients",
@@ -59,7 +60,6 @@
     "delete_dialog_description": "This will permanently delete the quote \"{quoteNumber}\". This action cannot be undone.",
     "delete_dialog_cancel": "Cancel",
     "delete_dialog_confirm": "Delete",
-    "deleting": "Deleting...",
     "toast_coming_soon_title": "Coming Soon!",
     "toast_coming_soon_description": "Duplicating quotes will be available soon.",
     "anonymous_limit_reached": "Guests can create {count} quotes. Sign up for more.",
@@ -77,7 +77,8 @@
   "edit_quote_page": {
     "title": "Edit Quote",
     "card_title": "Edit Quote {quoteNumber}",
-    "card_description": "Update the details of your quote."
+    "card_description": "Update the details of your quote.",
+    "not_found": "Quote not found."
   },
   "view_quote_page": {
     "title": "Quote {quoteNumber}",
@@ -97,10 +98,12 @@
     "total_tax": "Total Tax",
     "final_total": "Total",
     "terms_conditions": "Terms & Conditions",
-    "discount": "Discount"
+    "discount": "Discount",
+    "powered_by": "Powered by"
   },
   "quote_form": {
     "title": "Quote Title",
+    "default_title": "Quote for {clientName}",
     "title_placeholder": "e.g. Bathroom Remodel Project",
     "client": "Client",
     "new_client": "New Client",
@@ -146,7 +149,9 @@
     "add_from_block_dialog_description": "Select a block to add it as a new item to your quote.",
     "loading_blocks": "Loading blocks...",
     "no_blocks_found": "No reusable blocks found.",
-    "create_first_block": "Create your first block"
+    "create_first_block": "Create your first block",
+    "default_section_name": "General Items",
+    "default_section_description": "List of products and services included in the quote."
   },
   "clients_page": {
     "title": "Clients",
@@ -177,7 +182,9 @@
   "edit_client_page": {
     "title": "Edit Client",
     "card_title": "Edit {clientName}",
-    "card_description": "Update the details for this client."
+    "card_description": "Update the details for this client.",
+    "default_client_name": "Client",
+    "not_found": "Client not found."
   },
   "client_form": {
     "company_name": "Company Name",
@@ -236,7 +243,9 @@
   "edit_reusable_block_page": {
     "title": "Edit Block",
     "card_title": "Edit {blockName}",
-    "card_description": "Update the details of this reusable block."
+    "card_description": "Update the details of this reusable block.",
+    "default_block_name": "Block",
+    "not_found": "Block not found."
   },
   "reusable_block_form": {
     "block_name": "Block Name",
@@ -267,6 +276,8 @@
     "profile_tab": "Profile",
     "card_title": "Business Profile",
     "card_description": "Update your company information and default settings.",
+    "localisation_title": "Localisation",
+    "localisation_description": "Set your language and currency preferences.",
     "language": "Language",
     "language_description": "Choose the application language.",
     "currency": "Currency",
@@ -324,10 +335,15 @@
     "login_link": "Login"
   },
   "loading": "Loading...",
+  "deleting": "Deleting...",
   "errors": {
     "login_failed": "Login Failed",
     "enter_email_password": "Please enter both email and password.",
-    "registration_failed": "Registration Failed"
+    "registration_failed": "Registration Failed",
+    "generic_error_title": "Error",
+    "login_required": "You must be logged in to perform this action.",
+    "quote_id_error": "Could not determine quote ID.",
+    "unknown_error": "An unexpected error occurred. Please try again."
   },
   "toasts": {
     "client_deleted_title": "Client deleted",
@@ -340,6 +356,8 @@
     "quote_deleted_description": "Quote \"{quoteNumber}\" has been deleted.",
     "quote_delete_failed_title": "Deletion Failed",
     "quote_delete_failed_description": "An error occurred while deleting the quote.",
+    "quote_save_failed_title": "Error Saving Quote",
+    "quote_save_failed_description": "An unexpected error occurred. Please try again.",
     "download_started_title": "Download Started",
     "download_started_description": "Quote-{quoteNumber}.pdf is being downloaded.",
     "download_failed_title": "Download Failed",

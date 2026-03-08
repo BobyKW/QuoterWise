@@ -7,10 +7,44 @@ import { ArrowRight, Bot, Database, LayoutTemplate, Zap, Users, BarChart } from 
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LandingPage() {
   const { t } = useTranslation();
   const heroImage = PlaceHolderImages.find(img => img.id === 'landing-hero');
+
+  const features = [
+    {
+      icon: Bot,
+      title: t('landing_page.features.item1.title'),
+      description: t('landing_page.features.item1.description'),
+    },
+    {
+      icon: Users,
+      title: t('landing_page.features.item2.title'),
+      description: t('landing_page.features.item2.description'),
+    },
+    {
+      icon: Database,
+      title: t('landing_page.features.item3.title'),
+      description: t('landing_page.features.item3.description'),
+    },
+    {
+      icon: LayoutTemplate,
+      title: t('landing_page.features.item4.title'),
+      description: t('landing_page.features.item4.description'),
+    },
+    {
+      icon: Zap,
+      title: t('landing_page.features.item5.title'),
+      description: t('landing_page.features.item5.description'),
+    },
+    {
+      icon: BarChart,
+      title: t('landing_page.features.item6.title'),
+      description: t('landing_page.features.item6.description'),
+    },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -33,7 +67,7 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-20 md:py-32 lg:py-40">
+        <section className="w-full py-24 md:py-32 lg:py-48">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
               <div className="flex flex-col items-start justify-center space-y-6">
@@ -71,7 +105,7 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-card border-t border-b">
+        <section id="features" className="w-full py-20 md:py-24 lg:py-32 bg-card border-t border-b">
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -82,67 +116,26 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-3 mt-12">
-              <div className="grid gap-2">
-                 <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Bot className="h-6 w-6" />
+            <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-3 mt-16">
+              {features.map((feature, index) => (
+                <Card key={index} className="flex flex-col items-start p-6 border-transparent shadow-none hover:shadow-lg hover:border-border transition-shadow">
+                  <CardHeader className="p-0 mb-4">
+                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <feature.icon className="h-6 w-6" />
                     </div>
-                    <h3 className="text-lg font-bold">{t('landing_page.features.item1.title')}</h3>
-                 </div>
-                <p className="text-sm text-muted-foreground">{t('landing_page.features.item1.description')}</p>
-              </div>
-              <div className="grid gap-2">
-                 <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Users className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-bold">{t('landing_page.features.item2.title')}</h3>
-                 </div>
-                <p className="text-sm text-muted-foreground">{t('landing_page.features.item2.description')}</p>
-              </div>
-              <div className="grid gap-2">
-                 <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Database className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-bold">{t('landing_page.features.item3.title')}</h3>
-                 </div>
-                <p className="text-sm text-muted-foreground">{t('landing_page.features.item3.description')}</p>
-              </div>
-               <div className="grid gap-2">
-                 <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <LayoutTemplate className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-bold">{t('landing_page.features.item4.title')}</h3>
-                 </div>
-                <p className="text-sm text-muted-foreground">{t('landing_page.features.item4.description')}</p>
-              </div>
-               <div className="grid gap-2">
-                 <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Zap className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-bold">{t('landing_page.features.item5.title')}</h3>
-                 </div>
-                <p className="text-sm text-muted-foreground">{t('landing_page.features.item5.description')}</p>
-              </div>
-               <div className="grid gap-2">
-                 <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <BarChart className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-bold">{t('landing_page.features.item6.title')}</h3>
-                 </div>
-                <p className="text-sm text-muted-foreground">{t('landing_page.features.item6.description')}</p>
-              </div>
+                  </CardHeader>
+                  <CardContent className="p-0 flex-grow">
+                     <CardTitle className="text-lg font-bold mb-2 text-left">{feature.title}</CardTitle>
+                    <p className="text-sm text-muted-foreground text-left">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        <section className="w-full py-20 md:py-24 lg:py-32">
             <div className="container mx-auto grid items-center justify-center gap-4 px-4 text-center md:px-6">
                 <div className="space-y-3">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">{t('landing_page.cta.title')}</h2>
@@ -150,7 +143,7 @@ export default function LandingPage() {
                     {t('landing_page.cta.description')}
                 </p>
                 </div>
-                <div className="mx-auto w-full max-w-sm space-y-2">
+                <div className="mx-auto w-full max-w-sm space-y-2 mt-4">
                      <Button asChild size="lg" className="group w-full">
                         <Link href="/dashboard">
                             {t('landing_page.cta.button')}
@@ -162,8 +155,11 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-muted-foreground">{t('landing_page.footer.copyright')}</p>
+      <footer className="flex flex-col gap-4 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+        <div className="flex items-center gap-2">
+            <Logo className="h-5 w-5 text-primary" />
+            <p className="text-xs text-muted-foreground">{t('landing_page.footer.copyright')}</p>
+        </div>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link href="#" className="text-xs hover:underline underline-offset-4 text-muted-foreground">
             {t('landing_page.footer.terms')}

@@ -132,7 +132,7 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
         items: quote.items && quote.items.length > 0 ? quote.items : [defaultItem],
       });
        if(!form.getValues('title')){
-        form.setValue('title', `Presupuesto para ${quote.clientName}`);
+        form.setValue('title', t('quote_form.default_title', { clientName: quote.clientName }));
       }
     } else if (form.getValues('quoteNumber') === '' && userProfile) {
       const nextNumber = userProfile.nextQuoteNumber || 1;
@@ -143,16 +143,16 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
         const tempNumber = `DRAFT-${Date.now().toString().slice(-6)}`;
         form.setValue('quoteNumber', tempNumber);
     }
-  }, [quote, userProfile, isLoadingProfile, form]);
+  }, [quote, userProfile, isLoadingProfile, form, t]);
   
   React.useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === 'clientName' && value.clientName && !form.getValues('title')) {
-        form.setValue('title', `Presupuesto para ${value.clientName}`);
+        form.setValue('title', t('quote_form.default_title', { clientName: value.clientName }));
       }
     });
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [form, t]);
 
 
   const { fields, append, remove } = useFieldArray({
@@ -235,7 +235,7 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
   const onSubmit = async (data: QuoteFormValues) => {
     if (!user) {
       console.error("No user found");
-      toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to manage quotes.' });
+      toast({ variant: 'destructive', title: t('errors.generic_error_title'), description: t('errors.login_required') });
       return;
     }
 
@@ -282,7 +282,7 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
     }
     
     if (!quoteId) {
-        toast({ variant: "destructive", title: "Error", description: "Could not determine quote ID."});
+        toast({ variant: "destructive", title: t('errors.generic_error_title'), description: t('errors.quote_id_error')});
         return;
     }
 
@@ -292,8 +292,8 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
     const sectionData = {
         userId: user.uid,
         quoteId: quoteId,
-        name: 'Conceptos Generales',
-        description: 'Lista de productos y servicios incluidos en el presupuesto.',
+        name: t('quote_form.default_section_name'),
+        description: t('quote_form.default_section_description'),
         order: 1,
         subtotal: subtotal,
         totalDiscount: 0,
@@ -331,8 +331,8 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
         console.error("Error writing quote:", error);
         toast({
             variant: "destructive",
-            title: "Error Saving Quote",
-            description: "An unexpected error occurred. Please try again."
+            title: t('toasts.quote_save_failed_title'),
+            description: t('toasts.quote_save_failed_description')
         });
     }
   };
@@ -349,9 +349,9 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('quote_form.title', 'Title')}</FormLabel>
+                <FormLabel>{t('quote_form.title')}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t('quote_form.title_placeholder', 'e.g. Bathroom Remodel Project')} {...field} />
+                  <Input placeholder={t('quote_form.title_placeholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

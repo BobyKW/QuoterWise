@@ -68,13 +68,13 @@ export default function EditReusableBlockPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>{t('edit_reusable_block_page.card_title', { blockName: block?.name || 'Bloque' })}</CardTitle>
+          <CardTitle>{t('edit_reusable_block_page.card_title', { blockName: block?.name || t('edit_reusable_block_page.default_block_name') })}</CardTitle>
           <CardDescription>{t('edit_reusable_block_page.card_description')}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading && <ReusableBlockFormSkeleton />}
           {!isLoading && block && <ReusableBlockForm block={block} />}
-          {!isLoading && !block && <p>Bloque no encontrado.</p>}
+          {!isLoading && !block && <p>{t('edit_reusable_block_page.not_found')}</p>}
         </CardContent>
       </Card>
     </main>

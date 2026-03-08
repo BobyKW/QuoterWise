@@ -8,6 +8,7 @@ import { collection, doc, query, orderBy } from 'firebase/firestore';
 import type { Quote, QuoteSection, QuoteItem } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function QuoteFormSkeleton() {
     return (
@@ -44,6 +45,7 @@ export default function EditQuotePage() {
   const { id } = useParams();
   const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useTranslation();
   
   const [composedQuote, setComposedQuote] = useState<(Quote & { items: QuoteItem[] }) | null>(null);
 
@@ -96,17 +98,17 @@ export default function EditQuotePage() {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center">
-        <h1 className="font-semibold text-lg md:text-2xl">Edit Quote</h1>
+        <h1 className="font-semibold text-lg md:text-2xl">{t('edit_quote_page.title')}</h1>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Edit Quote {quote?.quoteNumber}</CardTitle>
-          <CardDescription>Update the details of your quote.</CardDescription>
+          <CardTitle>{t('edit_quote_page.card_title', { quoteNumber: quote?.quoteNumber })}</CardTitle>
+          <CardDescription>{t('edit_quote_page.card_description')}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading && <QuoteFormSkeleton />}
           {!isLoading && composedQuote && <QuoteForm quote={composedQuote} />}
-          {!isLoading && !composedQuote && <p>Quote not found.</p>}
+          {!isLoading && !composedQuote && <p>{t('edit_quote_page.not_found')}</p>}
         </CardContent>
       </Card>
     </main>
