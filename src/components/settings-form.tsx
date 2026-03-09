@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import type { TFunction } from 'i18next';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 const getSettingsFormSchema = (t: TFunction) => z.object({
   businessName: z.string().min(1, t('validation.business_name_required')),
@@ -37,6 +38,7 @@ const getSettingsFormSchema = (t: TFunction) => z.object({
   defaultTerms: z.string().min(1, t('validation.default_terms_required')),
   currency: z.string().optional(),
   geminiApiKey: z.string().optional(),
+  pricesIncludeTax: z.boolean().default(false),
 });
 
 type SettingsFormValues = z.infer<ReturnType<typeof getSettingsFormSchema>>;
@@ -69,6 +71,7 @@ export function SettingsForm() {
       defaultTerms: '',
       currency: 'EUR',
       geminiApiKey: '',
+      pricesIncludeTax: false,
     },
   });
 
@@ -178,6 +181,53 @@ export function SettingsForm() {
                 />
             </CardContent>
         </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>{t('settings_page.calculation_title')}</CardTitle>
+                <CardDescription>{t('settings_page.calculation_description')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <FormField
+                    control={form.control}
+                    name="pricesIncludeTax"
+                    render={({ field }) => (
+                        <FormItem className="space-y-3">
+                            <FormLabel>{t('settings_form.prices_include_tax')}</FormLabel>
+                            <FormDescription>
+                                {t('settings_form.prices_include_tax_description')}
+                            </FormDescription>
+                            <FormControl>
+                                <RadioGroup
+                                    onValueChange={(value) => field.onChange(value === 'true')}
+                                    value={String(field.value)}
+                                    className="space-y-2 pt-2"
+                                >
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                        <FormControl>
+                                            <RadioGroupItem value="false" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">
+                                            {t('settings_form.tax_exclusive')}
+                                        </FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                        <FormControl>
+                                            <RadioGroupItem value="true" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">
+                                            {t('settings_form.tax_inclusive')}
+                                        </FormLabel>
+                                    </FormItem>
+                                </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </CardContent>
+        </Card>
+
 
         <Card>
             <CardHeader>

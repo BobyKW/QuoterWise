@@ -33,7 +33,7 @@ import { useFirestore, useUser, useCollection, useMemoFirebase, useDoc } from '@
 import { collection, serverTimestamp, Timestamp, doc, query, orderBy, increment, writeBatch, getDocs } from 'firebase/firestore';
 import type { Quote, Client, ReusableBlock, UserProfile, QuoteItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -98,6 +98,8 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
     return doc(firestore, `userProfiles/${user.uid}`);
   }, [user, firestore]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
+
+  const pricesIncludeTax = userProfile?.pricesIncludeTax ?? false;
 
   const clientsQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -168,17 +170,33 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
 
   const watchItems = form.watch('items');
   
-  const subtotal = watchItems.reduce(
-    (acc, item) => acc + (item.quantity || 0) * (item.unitPrice || 0),
-    0
-  );
+  const { subtotal, totalTax } = useMemo(() => {
+    return watchItems.reduce(
+      (acc, item) => {
+        const quantity = item.quantity || 0;
+        const unitPrice = item.unitPrice || 0;
+        const taxRate = item.taxRate || 0;
 
-  const totalTax = watchItems.reduce(
-    (acc, item) =>
-      acc +
-      (item.quantity || 0) * (item.unitPrice || 0) * ((item.taxRate || 0) / 100),
-    0
-  );
+        let itemSubtotal = 0;
+        let itemTax = 0;
+
+        if (pricesIncludeTax) {
+          const basePrice = unitPrice / (1 + taxRate / 100);
+          itemSubtotal = quantity * basePrice;
+          itemTax = quantity * (unitPrice - basePrice);
+        } else {
+          itemSubtotal = quantity * unitPrice;
+          itemTax = itemSubtotal * (taxRate / 100);
+        }
+        
+        acc.subtotal += itemSubtotal;
+        acc.totalTax += itemTax;
+        
+        return acc;
+      },
+      { subtotal: 0, totalTax: 0 }
+    );
+  }, [watchItems, pricesIncludeTax]);
 
   const finalTotal = subtotal + totalTax;
 
@@ -312,13 +330,25 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
 
     data.items.forEach((item, index) => {
         const itemRef = doc(collection(firestore, `userProfiles/${user.uid}/quotes/${quoteId}/sections/${sectionId}/items`));
-        const lineTotal = (item.quantity || 0) * (item.unitPrice || 0) * (1 + (item.taxRate || 0) / 100);
+        
+        const quantity = item.quantity || 0;
+        const unitPrice = item.unitPrice || 0;
+        const taxRate = item.taxRate || 0;
+        let lineSubtotal = 0;
+        if (pricesIncludeTax) {
+          const basePrice = unitPrice / (1 + taxRate / 100);
+          lineSubtotal = quantity * basePrice;
+        } else {
+          lineSubtotal = quantity * unitPrice;
+        }
+        const lineTax = lineSubtotal * (taxRate / 100);
+        
         const itemData = {
             ...item,
             userId: user.uid,
             quoteId: quoteId,
             quoteSectionId: sectionId,
-            lineTotal: lineTotal,
+            lineTotal: lineSubtotal + lineTax,
             order: index + 1,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
@@ -525,7 +555,21 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
         <div>
           <h2 className="text-xl font-semibold mb-4">{t('quote_form.items')}</h2>
           <div className="space-y-6">
-            {fields.map((field, index) => (
+            {fields.map((field, index) => {
+
+              const item = watchItems[index];
+              const quantity = item?.quantity || 0;
+              const unitPrice = item?.unitPrice || 0;
+              const taxRate = item?.taxRate || 0;
+              let lineTotalWithTax = 0;
+
+              if (pricesIncludeTax) {
+                  lineTotalWithTax = quantity * unitPrice;
+              } else {
+                  lineTotalWithTax = (quantity * unitPrice) * (1 + taxRate / 100);
+              }
+
+              return (
               <div key={field.id} className="p-4 border rounded-lg relative space-y-4">
                 <Button
                   type="button"
@@ -616,9 +660,11 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
                     name={`items.${index}.unitPrice`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('quote_form.unit_price')}</FormLabel>
+                        <FormLabel>
+                          {pricesIncludeTax ? t('quote_form.unit_price_inclusive') : t('quote_form.unit_price')}
+                        </FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input type="number" step="0.01" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -638,13 +684,16 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
                     )}
                   />
                   
-                  <div className="text-right font-medium pt-8">
-                     {formatCurrency((watchItems[index]?.quantity || 0) * (watchItems[index]?.unitPrice || 0))}
+                  <div className="flex flex-col justify-end text-right">
+                    <FormLabel>{t('quote_form.line_total')}</FormLabel>
+                    <div className="font-medium pt-2 text-lg">
+                      {formatCurrency(lineTotalWithTax)}
+                    </div>
                   </div>
 
                 </div>
               </div>
-            ))}
+            )})}
           </div>
           <div className="flex items-center gap-2 mt-4">
             <Button
@@ -724,19 +773,39 @@ export function QuoteForm({ quote }: { quote?: Quote & { items?: QuoteItem[] } }
         
         <div className="flex justify-end">
           <div className="w-full max-w-xs space-y-2">
-            <div className="flex justify-between">
-              <span>{t('quote_form.subtotal')}</span>
-              <span>{formatCurrency(subtotal)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>{t('quote_form.total_tax')}</span>
-              <span>{formatCurrency(totalTax)}</span>
-            </div>
-            <Separator />
-            <div className="flex justify-between font-bold text-lg">
-              <span>{t('quote_form.total')}</span>
-              <span>{formatCurrency(finalTotal)}</span>
-            </div>
+            {pricesIncludeTax ? (
+              <>
+                <div className="flex justify-between font-bold text-lg">
+                  <span>{t('quote_form.total')}</span>
+                  <span>{formatCurrency(finalTotal)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>{t('quote_form.subtotal_inclusive')}</span>
+                  <span>{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>{t('quote_form.total_tax_inclusive')}</span>
+                  <span>{formatCurrency(totalTax)}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span>{t('quote_form.subtotal')}</span>
+                  <span>{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{t('quote_form.total_tax')}</span>
+                  <span>{formatCurrency(totalTax)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-bold text-lg">
+                  <span>{t('quote_form.total')}</span>
+                  <span>{formatCurrency(finalTotal)}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

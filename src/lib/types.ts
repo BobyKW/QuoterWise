@@ -28,6 +28,7 @@ export type UserProfile = {
   brandColor?: string;
   emailSubject?: string;
   emailBody?: string;
+  pricesIncludeTax?: boolean;
 };
 
 // This will be the shape of the data in Firestore
