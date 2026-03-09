@@ -118,38 +118,40 @@ function MainNav() {
 
   return (
     <>
-    <SidebarMenu>
-      {navItems.map(renderMenuItem)}
-    </SidebarMenu>
-
-    <div className="mt-auto">
-        {!isPro && paymentLink && (
-            <div className="p-2">
-                <Button className="w-full justify-start bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:opacity-90" asChild>
-                    <a href={paymentLink} target="_blank" rel="noopener noreferrer">
-                        <Zap className="mr-2 h-4 w-4" />
-                        <span className="group-data-[collapsible=icon]:hidden">{t('sidebar.upgrade_to_pro')}</span>
-                    </a>
-                </Button>
-            </div>
-        )}
+      <div className="flex-grow">
         <SidebarMenu>
-            {userProfile?.role === 'admin' && (
-                <SidebarMenuItem>
-                    <Link href="/admin">
-                        <SidebarMenuButton
-                            isActive={pathname.startsWith('/admin')}
-                            tooltip={t('sidebar.admin')}
-                        >
-                            <Shield />
-                            <span className="text-sidebar-foreground">{t('sidebar.admin')}</span>
-                        </SidebarMenuButton>
-                    </Link>
-                </SidebarMenuItem>
-            )}
-            {bottomNavItems.map(renderMenuItem)}
+          {navItems.map(renderMenuItem)}
         </SidebarMenu>
-    </div>
+      </div>
+
+      <div>
+          {!isPro && paymentLink && (
+              <div className="p-2">
+                  <Button className="w-full justify-start bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:opacity-90" asChild>
+                      <a href={paymentLink} target="_blank" rel="noopener noreferrer">
+                          <Zap className="mr-2 h-4 w-4" />
+                          <span className="group-data-[collapsible=icon]:hidden">{t('sidebar.upgrade_to_pro')}</span>
+                      </a>
+                  </Button>
+              </div>
+          )}
+          <SidebarMenu>
+              {userProfile?.role === 'admin' && (
+                  <SidebarMenuItem>
+                      <Link href="/admin">
+                          <SidebarMenuButton
+                              isActive={pathname.startsWith('/admin')}
+                              tooltip={t('sidebar.admin')}
+                          >
+                              <Shield />
+                              <span className="text-sidebar-foreground">{t('sidebar.admin')}</span>
+                          </SidebarMenuButton>
+                      </Link>
+                  </SidebarMenuItem>
+              )}
+              {bottomNavItems.map(renderMenuItem)}
+          </SidebarMenu>
+      </div>
     </>
   );
 }
